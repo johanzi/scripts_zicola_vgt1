@@ -1,36 +1,89 @@
----
-title: "Scripts from 'Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize'"
-author: "Johan Zicola"
-date: "`r format(Sys.time())`"
-output:
-  github_document:
-    toc: true
-  documentclass: article
-  classoption: a4paper
-  html_notebook:
-    toc: true
-  html_document:
-    toc: true
-    df_print: paged
-  pdf_document:
-    toc: true
----
+Scripts from ‘Vgt1 acts as an enhancer of ZmRap2.7 and regulates
+flowering time in maize’
+================
+Johan Zicola
+2024-08-14 15:53:44
 
-```{r, echo=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
-
+- [Scripts](#scripts)
+- [Flowering time analysis](#flowering-time-analysis)
+  - [Libraries](#libraries)
+  - [Data](#data)
+  - [Days to pollen shed](#days-to-pollen-shed)
+  - [Days to silking](#days-to-silking)
+  - [Node number](#node-number)
+- [Growth speed analysis](#growth-speed-analysis)
+  - [Libraries](#libraries-1)
+  - [Data](#data-1)
+  - [Statistical analysis at V3](#statistical-analysis-at-v3)
+  - [Statistical analysis at V4](#statistical-analysis-at-v4)
+- [qPCR analysis](#qpcr-analysis)
+  - [Data](#data-2)
+  - [ZmRap2.7 expression analysis](#zmrap27-expression-analysis)
+    - [ZmRap2.7 expression in V3L4](#zmrap27-expression-in-v3l4)
+    - [ZmRap2.7 expression in V4L5](#zmrap27-expression-in-v4l5)
+    - [ZmRap2.7 expression in V5L6](#zmrap27-expression-in-v5l6)
+  - [ZCN8 expression analysis](#zcn8-expression-analysis)
+    - [ZCN8 expression in V3L4](#zcn8-expression-in-v3l4)
+    - [ZCN8 expression in V4L5](#zcn8-expression-in-v4l5)
+    - [ZCN8 expression in V5L6](#zcn8-expression-in-v5l6)
+  - [ZmMADS4 expression analysis](#zmmads4-expression-analysis)
+    - [ZmMADS4 expression in V3L4](#zmmads4-expression-in-v3l4)
+    - [ZmMADS4 expression in V4L5](#zmmads4-expression-in-v4l5)
+    - [ZmMADS4 expression in V5L6](#zmmads4-expression-in-v5l6)
+- [RNA-seq analysis](#rna-seq-analysis)
+  - [Libraries](#libraries-2)
+  - [Data](#data-3)
+  - [Adapter trimming](#adapter-trimming)
+  - [Mapping on B73 NAM5 reference](#mapping-on-b73-nam5-reference)
+  - [Genome index](#genome-index)
+  - [Read count](#read-count)
+  - [Read count matrix](#read-count-matrix)
+  - [coldata file](#coldata-file)
+  - [Load cts and coldata](#load-cts-and-coldata)
+  - [Create dds (DESeq Data Set)
+    object](#create-dds-deseq-data-set-object)
+  - [PCA](#pca)
+  - [Subanalysis - leaf part B](#subanalysis---leaf-part-b)
+  - [Subanalysis - leaf part D](#subanalysis---leaf-part-d)
+  - [Plot expression of ZmRap2.7](#plot-expression-of-zmrap27)
+  - [Plot expression of ZCN8](#plot-expression-of-zcn8)
+  - [Union DEGs leaf part B and D](#union-degs-leaf-part-b-and-d)
+  - [Venn Diagram](#venn-diagram)
+  - [GO enrichment analysis](#go-enrichment-analysis)
+- [ChIP-seq analysis](#chip-seq-analysis)
+  - [Libraries](#libraries-3)
+  - [Data](#data-4)
+  - [Adapter trimming](#adapter-trimming-1)
+  - [Mapping](#mapping)
+  - [Peak calling](#peak-calling)
+    - [Summary mapping and peak
+      calling](#summary-mapping-and-peak-calling)
+    - [Reproducible peaks with IDR](#reproducible-peaks-with-idr)
+    - [MEME-CHIP analysis](#meme-chip-analysis)
+- [4C-seq analysis](#4c-seq-analysis)
+  - [Libraries](#libraries-4)
+  - [Data](#data-5)
+  - [Create BSgenome for B73 NAM5](#create-bsgenome-for-b73-nam5)
+  - [Update conf.ylm file](#update-confylm-file)
+  - [Create a VPinfo file](#create-a-vpinfo-file)
+  - [Run pipe4C](#run-pipe4c)
+  - [Identify peaks](#identify-peaks)
+  - [Plot normalized read count at
+    Vgt1](#plot-normalized-read-count-at-vgt1)
 
 # Scripts
 
-This document gathers the bioinformatic analyses performed for the publication "Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize". Light-weight raw or processed data are also provided in the GitHub repository https://github.com/johanzi/scripts_zicola_vgt1.
-
+This document gathers the bioinformatic analyses performed for the
+publication “Vgt1 acts as an enhancer of ZmRap2.7 and regulates
+flowering time in maize”. Light-weight raw or processed data are also
+provided in the GitHub repository
+<https://github.com/johanzi/scripts_zicola_vgt1>.
 
 # Flowering time analysis
 
 ## Libraries
 
-```{r}
+``` r
 # R 4.4.1
 
 library("ggplot2")
@@ -41,15 +94,14 @@ library("car")
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
-
 ```
-
 
 ## Data
 
-Raw data are available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/flowering_time.txt.
+Raw data are available in
+<https://github.com/johanzi/scripts_zicola_vgt1/data/data/flowering_time.txt>.
 
-```{r}
+``` r
 setwd("/path/to/repository")
 
 df <- read.table("data/flowering_time.txt", 
@@ -64,12 +116,11 @@ df$experiment <- as.factor(df$experiment)
 # Order lines
 df$line <- factor(df$line, levels=c("WT","325-2","326-20","326-40",
                                     "327-16","327-38","331-6"))
-
 ```
 
 ## Days to pollen shed
 
-```{r}
+``` r
 ggplot(df, aes(line, DPS, fill=transgene)) + 
   geom_boxplot() +  
   stat_summary(fun.data = give.n, geom = "text") + 
@@ -82,13 +133,11 @@ ggplot(df, aes(line, DPS, fill=transgene)) +
         theme(plot.title = element_text(hjust = 0.5)) +
         scale_y_continuous(labels = scales::comma_format()) +
         scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
-
 ```
 
 ![](images/DPS.png)
 
-```{r warning=FALSE}
-
+``` r
 ggplot(df, aes(line, DPS, fill=experiment)) + 
   geom_boxplot(outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
@@ -101,13 +150,11 @@ ggplot(df, aes(line, DPS, fill=experiment)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) 
-
 ```
-
 
 ![](images/DPS_across_experiments.png)
 
-```{r}
+``` r
 # Test homoscedasticity, if p-value > 5%, Ho all variances
 # are equals is not rejected
 bartlett.test(DPS~line, data=df)
@@ -130,34 +177,30 @@ plot(fit, which=1)
 # Perform Dunnett posthoc test
 Dunnett <- glht(fit, linfct=mcp(line = "Dunnett"), alternative="two.sided")
 summary(Dunnett)
-
 ```
 
-```
-	 Simultaneous Tests for General Linear Hypotheses
+         Simultaneous Tests for General Linear Hypotheses
 
-Multiple Comparisons of Means: Dunnett Contrasts
+    Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = DPS ~ line + experiment)
+    Fit: aov(formula = DPS ~ line + experiment)
 
-Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-325-2 - WT == 0   -0.7463     0.5194  -1.437   0.5661    
-326-20 - WT == 0  -0.8279     0.6010  -1.378   0.6098    
-326-40 - WT == 0  -1.8374     0.6650  -2.763   0.0348 *  
-327-16 - WT == 0  -3.4374     0.6650  -5.169   <1e-04 ***
-327-38 - WT == 0  -3.8582     0.5806  -6.645   <1e-04 ***
-331-6 - WT == 0   -4.0094     0.5093  -7.872   <1e-04 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-(Adjusted p values reported -- single-step method)
-```
-
+    Linear Hypotheses:
+                     Estimate Std. Error t value Pr(>|t|)    
+    325-2 - WT == 0   -0.7463     0.5194  -1.437   0.5661    
+    326-20 - WT == 0  -0.8279     0.6010  -1.378   0.6098    
+    326-40 - WT == 0  -1.8374     0.6650  -2.763   0.0348 *  
+    327-16 - WT == 0  -3.4374     0.6650  -5.169   <1e-04 ***
+    327-38 - WT == 0  -3.8582     0.5806  -6.645   <1e-04 ***
+    331-6 - WT == 0   -4.0094     0.5093  -7.872   <1e-04 ***
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+    (Adjusted p values reported -- single-step method)
 
 ## Days to silking
 
-```{r}
+``` r
 ggplot(df, aes(line, silking, fill=transgene)) + 
   geom_boxplot() +  
   stat_summary(fun.data = give.n, geom = "text") + 
@@ -170,13 +213,11 @@ ggplot(df, aes(line, silking, fill=transgene)) +
         theme(plot.title = element_text(hjust = 0.5)) +
         scale_y_continuous(labels = scales::comma_format()) +
         scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
-
 ```
 
 ![](images/silking.png)
 
-```{r warning=FALSE}
-
+``` r
 ggplot(df, aes(line, silking, fill=experiment)) + 
   geom_boxplot(outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
@@ -189,13 +230,11 @@ ggplot(df, aes(line, silking, fill=experiment)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) 
-
 ```
 
 ![](images/silking_across_experiments.png)
 
-
-```{r}
+``` r
 #Test homoscedasticity, if p-value > 5%, 
 # Ho all variances are equals is not rejected
 bartlett.test(silking~line, data=df)
@@ -215,35 +254,30 @@ plot(fit, which=1)
 # Perform Dunnett posthoc test
 Dunnett <- glht(fit, linfct=mcp(line = "Dunnett"), alternative="two.sided")
 summary(Dunnett)
-
 ```
 
-```
-	 Simultaneous Tests for General Linear Hypotheses
+         Simultaneous Tests for General Linear Hypotheses
 
-Multiple Comparisons of Means: Dunnett Contrasts
+    Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = silking ~ line + experiment, data = df)
+    Fit: aov(formula = silking ~ line + experiment, data = df)
 
-Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-325-2 - WT == 0   -1.3450     0.5626  -2.390    0.092 .  
-326-20 - WT == 0  -1.5062     0.6441  -2.339    0.104    
-326-40 - WT == 0  -3.2447     0.7254  -4.473   <1e-04 ***
-327-16 - WT == 0  -4.4447     0.7254  -6.127   <1e-04 ***
-327-38 - WT == 0  -4.4076     0.6337  -6.956   <1e-04 ***
-331-6 - WT == 0   -4.5252     0.5556  -8.144   <1e-04 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-(Adjusted p values reported -- single-step method)
-
-```
-
+    Linear Hypotheses:
+                     Estimate Std. Error t value Pr(>|t|)    
+    325-2 - WT == 0   -1.3450     0.5626  -2.390    0.092 .  
+    326-20 - WT == 0  -1.5062     0.6441  -2.339    0.104    
+    326-40 - WT == 0  -3.2447     0.7254  -4.473   <1e-04 ***
+    327-16 - WT == 0  -4.4447     0.7254  -6.127   <1e-04 ***
+    327-38 - WT == 0  -4.4076     0.6337  -6.956   <1e-04 ***
+    331-6 - WT == 0   -4.5252     0.5556  -8.144   <1e-04 ***
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+    (Adjusted p values reported -- single-step method)
 
 ## Node number
 
-```{r}
+``` r
 ggplot(df, aes(line, node, fill=transgene)) + 
   geom_boxplot() +  
   stat_summary(fun.data = give.n, geom = "text") + 
@@ -256,13 +290,11 @@ ggplot(df, aes(line, node, fill=transgene)) +
         theme(plot.title = element_text(hjust = 0.5)) +
         scale_y_continuous(labels = scales::comma_format()) +
         scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
-
 ```
 
 ![](images/node_number.png)
 
-```{r warning=FALSE}
-
+``` r
 ggplot(df, aes(line, node, fill=experiment)) + 
   geom_boxplot(outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
@@ -275,13 +307,11 @@ ggplot(df, aes(line, node, fill=experiment)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) 
-
 ```
 
 ![](images/node_number_across_experiments.png)
 
-
-```{r}
+``` r
 #Test homoscedasticity, if p-value > 5%, 
 # Ho all variances are equals is not rejected
 bartlett.test(node~line, data=df)
@@ -301,36 +331,32 @@ plot(fit, which=1)
 # Perform Dunnett posthoc test
 Dunnett <- glht(fit, linfct=mcp(line = "Dunnett"), alternative="two.sided")
 summary(Dunnett)
-
 ```
 
-```
-	 Simultaneous Tests for General Linear Hypotheses
+         Simultaneous Tests for General Linear Hypotheses
 
-Multiple Comparisons of Means: Dunnett Contrasts
+    Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = node ~ line + experiment, data = df)
+    Fit: aov(formula = node ~ line + experiment, data = df)
 
-Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-325-2 - WT == 0   -0.3836     0.2007  -1.911    0.261    
-326-20 - WT == 0  -0.2505     0.2221  -1.128    0.783    
-326-40 - WT == 0   0.1854     0.2536   0.731    0.963    
-327-16 - WT == 0  -1.1479     0.2536  -4.526   <1e-04 ***
-327-38 - WT == 0  -1.5665     0.2221  -7.053   <1e-04 ***
-331-6 - WT == 0   -1.0073     0.1956  -5.150   <1e-04 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-(Adjusted p values reported -- single-step method)
-
-```
+    Linear Hypotheses:
+                     Estimate Std. Error t value Pr(>|t|)    
+    325-2 - WT == 0   -0.3836     0.2007  -1.911    0.261    
+    326-20 - WT == 0  -0.2505     0.2221  -1.128    0.783    
+    326-40 - WT == 0   0.1854     0.2536   0.731    0.963    
+    327-16 - WT == 0  -1.1479     0.2536  -4.526   <1e-04 ***
+    327-38 - WT == 0  -1.5665     0.2221  -7.053   <1e-04 ***
+    331-6 - WT == 0   -1.0073     0.1956  -5.150   <1e-04 ***
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+    (Adjusted p values reported -- single-step method)
 
 # Growth speed analysis
 
 ## Libraries
 
-```{r}
+``` r
 library(tidyverse)
 library(ggplot2)
 library(wesanderson)
@@ -341,9 +367,10 @@ library(dunn.test)
 
 ## Data
 
-Raw data available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_rate.txt
+Raw data available in
+<https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_rate.txt>
 
-```{r}
+``` r
 # Import data
 df <- read.delim("data/growth_rate.txt")
 df <- df %>% mutate_at(names(data_R)[1:3], as.factor)
@@ -365,16 +392,13 @@ ggplot(df, aes(x=stage, y=days_to_stage, fill=line)) +
         theme(plot.title = element_text(hjust = 0.5)) + 
         scale_y_continuous(labels = scales::comma_format()) +
         scale_fill_brewer(palette="OrRd")
-
 ```
 
 ![](images/growth_speed.png)
 
-
 ## Statistical analysis at V3
 
-```{r}
-
+``` r
 df_v3 <- df %>% subset(stage=="V3")
 
 fit <- aov(days_to_stage ~ line, data=df_v3)
@@ -393,32 +417,26 @@ plot(fit, which=2)
 plot(fit, which=1)
 
 summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
-
 ```
 
-```
-	 Simultaneous Tests for General Linear Hypotheses
+         Simultaneous Tests for General Linear Hypotheses
 
-Multiple Comparisons of Means: Dunnett Contrasts
+    Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = days_to_stage ~ line, data = df_v3)
+    Fit: aov(formula = days_to_stage ~ line, data = df_v3)
 
-Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-327-16 - WT == 0  -3.7222     0.3020  -12.33   <1e-10 ***
-327-38 - WT == 0  -3.1930     0.2988  -10.69   <1e-10 ***
-331-06 - WT == 0  -2.3750     0.2865   -8.29   <1e-10 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05
-
-```
+    Linear Hypotheses:
+                     Estimate Std. Error t value Pr(>|t|)    
+    327-16 - WT == 0  -3.7222     0.3020  -12.33   <1e-10 ***
+    327-38 - WT == 0  -3.1930     0.2988  -10.69   <1e-10 ***
+    331-06 - WT == 0  -2.3750     0.2865   -8.29   <1e-10 ***
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05
 
 ## Statistical analysis at V4
 
-
-```{r}
-
+``` r
 df_v4 <- df %>% subset(stage=="V4")
 
 fit <- aov(days_to_stage ~ line, data=df_v4)
@@ -437,35 +455,29 @@ plot(fit, which=2)
 plot(fit, which=1)
 
 summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
-
-
 ```
 
-```
-	 Simultaneous Tests for General Linear Hypotheses
+         Simultaneous Tests for General Linear Hypotheses
 
-Multiple Comparisons of Means: Dunnett Contrasts
+    Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = days_to_stage ~ line, data = df_v4)
+    Fit: aov(formula = days_to_stage ~ line, data = df_v4)
 
-Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-327-16 - WT == 0  -1.5278     0.3212  -4.756  < 0.001 ***
-327-38 - WT == 0  -2.1360     0.3178  -6.720  < 0.001 ***
-331-06 - WT == 0  -1.0417     0.3048  -3.418  0.00299 ** 
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-(Adjusted p values reported -- single-step method)
-
-```
+    Linear Hypotheses:
+                     Estimate Std. Error t value Pr(>|t|)    
+    327-16 - WT == 0  -1.5278     0.3212  -4.756  < 0.001 ***
+    327-38 - WT == 0  -2.1360     0.3178  -6.720  < 0.001 ***
+    331-06 - WT == 0  -1.0417     0.3048  -3.418  0.00299 ** 
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+    (Adjusted p values reported -- single-step method)
 
 # qPCR analysis
 
-
 ## Data
 
-```{r}
+``` r
 # Import dataframe
 df <- read_delim("data/data_qPCR.txt", "\t", 
     escape_double = FALSE, show_col_types = FALSE)
@@ -483,17 +495,19 @@ df <- df %>% mutate_at(5:7, as.numeric)
 
 # Order genotype
 df$genotype <- factor(df$genotype, levels=c("WT", "327-38"))
-
 ```
 
-For the analysis, we performed for each stage and leaf part a comparison between WT and the IR-Vgt1 transgenic line 327-38. In each case, we assessed if the variances were equal between group, then used a t-test. If the variances were unequal, we used the Welch's test, which does not rely on the assumption of homoscedasticity.
+For the analysis, we performed for each stage and leaf part a comparison
+between WT and the IR-Vgt1 transgenic line 327-38. In each case, we
+assessed if the variances were equal between group, then used a t-test.
+If the variances were unequal, we used the Welch’s test, which does not
+rely on the assumption of homoscedasticity.
 
 ## ZmRap2.7 expression analysis
 
 ### ZmRap2.7 expression in V3L4
 
-```{r}
-
+``` r
 df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -506,13 +520,11 @@ df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
-
-
 ```
 
 ![](images/ZmRap27_expression_V3L4.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V3L4" & df$part=="A"),])
 bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V3L4" & df$part=="B"),])
@@ -530,11 +542,9 @@ with(df[(df$stage=="V3L4" & df$part=="D"),] ,
      t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
 ```
 
-
 ### ZmRap2.7 expression in V4L5
 
-```{r}
-
+``` r
 df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -547,12 +557,11 @@ df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
-
 ```
 
 ![](images/ZmRap27_expression_V4L5.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
 bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
@@ -572,8 +581,7 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
 
 ### ZmRap2.7 expression in V5L6
 
-```{r}
-
+``` r
 df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -586,12 +594,11 @@ df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
-
 ```
 
 ![](images/ZmRap27_expression_V5L6.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V5L6" & df$part=="A"),])
 bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V5L6" & df$part=="B"),])
@@ -609,13 +616,11 @@ with(df[(df$stage=="V5L6" & df$part=="D"),] ,
      t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
 ```
 
-
 ## ZCN8 expression analysis
 
 ### ZCN8 expression in V3L4
 
-```{r}
-
+``` r
 df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -628,12 +633,11 @@ df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(limits=c(0,80), breaks=seq(0,80,10))
-
 ```
 
 ![](images/ZCN8_expression_V3L4.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZCN8~genotype, data=df[(df$stage=="V3L4" & df$part=="A"),])
 bartlett.test(ZCN8~genotype, data=df[(df$stage=="V3L4" & df$part=="B"),])
@@ -651,11 +655,9 @@ with(df[(df$stage=="V3L4" & df$part=="D"),] ,
      t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = FALSE))
 ```
 
-
 ### ZCN8 expression in V4L5
 
-```{r}
-
+``` r
 df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -668,12 +670,11 @@ df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(limits=c(0,80), breaks=seq(0,80,10))
-
 ```
 
 ![](images/ZCN8_expression_V4L5.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
 bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
@@ -693,8 +694,7 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
 
 ### ZCN8 expression in V5L6
 
-```{r}
-
+``` r
 df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -707,12 +707,11 @@ df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(limits=c(0,80), breaks=seq(0,80,10))
-
 ```
 
 ![](images/ZCN8_expression_V5L6.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
 bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
@@ -730,14 +729,11 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
      t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
 ```
 
-
-
 ## ZmMADS4 expression analysis
 
 ### ZmMADS4 expression in V3L4
 
-```{r}
-
+``` r
 df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -750,12 +746,11 @@ df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(limits=c(0,10), breaks=seq(0,10,2))
-
 ```
 
 ![](images/ZmMADS4_expression_V3L4.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V3L4" & df$part=="A"),])
 bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V3L4" & df$part=="B"),])
@@ -773,11 +768,9 @@ with(df[(df$stage=="V3L4" & df$part=="D"),] ,
      t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = FALSE))
 ```
 
-
 ### ZmMADS4 expression in V4L5
 
-```{r}
-
+``` r
 df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -790,12 +783,11 @@ df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(limits=c(0,10), breaks=seq(0,10,2))
-
 ```
 
 ![](images/ZmMADS4_expression_V4L5.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
 bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
@@ -815,8 +807,7 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
 
 ### ZmMADS4 expression in V5L6
 
-```{r}
-
+``` r
 df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
   geom_boxplot(outlier.shape=NA) + 
   geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
@@ -829,12 +820,11 @@ df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   scale_y_continuous(limits=c(0,10), breaks=seq(0,10,2))
-
 ```
 
 ![](images/ZmMADS4_expression_V5L6.png)
 
-```{r}
+``` r
 # Test egality in variance in each leaf part
 bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
 bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
@@ -852,12 +842,11 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
      t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
 ```
 
-
 # RNA-seq analysis
 
 ## Libraries
 
-```{r, eval=FALSE}
+``` r
 # R 4.4.1
 
 library(dplyr)
@@ -878,7 +867,6 @@ library(viridis)
 
 # Import GO functions (clone from https://github.com/johanzi/GOMAP_maize_B73_NAM5)
 source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
-
 ```
 
 ## Data
@@ -912,7 +900,7 @@ Fastq files for the 24 samples are available on NCBI PRJNA1110215.
 | SRR28994734 | WT_B104        | WT       | D         |
 | SRR28994733 | WT_B104        | WT       | D         |
 
-```{bash, eval=FALSE}
+``` bash
 
 while read i; do
     echo "/home/zicola/bin/sratoolkit.3.0.7-ubuntu64/bin/fasterq-dump $i -e 8"
@@ -921,21 +909,23 @@ done < <(cut -f1 list_SRR.txt)
 
 # Compress all fastq files
 gzip *fastq
-
 ```
-
 
 ## Adapter trimming
 
-considering all 50 bp bases are above the Q-value 30 for quality. The adapter content is pretty low and toward the end of the reads (top 1.28% of the reads at base 50).
+considering all 50 bp bases are above the Q-value 30 for quality. The
+adapter content is pretty low and toward the end of the reads (top 1.28%
+of the reads at base 50).
 
-There are some content bias for the firs 9 bp but they are probably due to the octomer of H used to random 5' breath priming in the library prep. I should keep them for the mapping.
+There are some content bias for the firs 9 bp but they are probably due
+to the octomer of H used to random 5’ breath priming in the library
+prep. I should keep them for the mapping.
 
 ## Mapping on B73 NAM5 reference
 
 Download fasta and gtf files.
 
-```{bash, eval=FALSE}
+``` bash
 cd ~/genomes/maize_B73/B73_NAM5
 
 # Fasta
@@ -959,12 +949,13 @@ sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
   > Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.wo_contigs.gtf
 ```
 
-
 ## Genome index
 
-I could not make the command run in SLURM (/var/spool/slurm/d/job9144052/slurm_script: line 16: 21925 Illegal instruction) so I launched without queueing:
+I could not make the command run in SLURM
+(/var/spool/slurm/d/job9144052/slurm_script: line 16: 21925 Illegal
+instruction) so I launched without queueing:
 
-```{bash, eval=FALSE}
+``` bash
 # Load mapper
 module load hisat2/2.1.0
 
@@ -972,9 +963,7 @@ module load hisat2/2.1.0
 hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa B73_NAM5
 ```
 
-
-
-```{bash, eval=FALSE}
+``` bash
 
 #!/bin/bash
 #SBATCH --job-name=hisat2
@@ -1006,12 +995,11 @@ for i in $fastqc_path/J*/*1.fq.gz; do
       samtools index - ${outputdir}/${name_fastq}.bam.bai
   fi
 done
-
 ```
 
 ## Read count
 
-```{bash, eval=FALSE}
+``` bash
 
 #!/bin/bash
 #SBATCH --job-name=htseq
@@ -1028,21 +1016,20 @@ gtf_file="/path/to/Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.wo_contigs.gtf"
 output="/path/to/output"
 
 for i in ${bam_dir}/*bam; do
-	name_file=$(basename $i | cut -d. -f1 -)
-	if [ ! -e ${output}/${name_file}.count ]; then
-	  samtools view -F 4 $i | htseq-count -s yes \
-	    -t exon -i gene_id - $gtf_file > ${output}/${name_file}.count
+    name_file=$(basename $i | cut -d. -f1 -)
+    if [ ! -e ${output}/${name_file}.count ]; then
+      samtools view -F 4 $i | htseq-count -s yes \
+        -t exon -i gene_id - $gtf_file > ${output}/${name_file}.count
   fi
 done
-
 ```
-
 
 ## Read count matrix
 
-gather read counts for each gene in one matrix, genes in row, samples in columns.
+gather read counts for each gene in one matrix, genes in row, samples in
+columns.
 
-```{bash, eval=FALSE}
+``` bash
 
 # Get script from my Git
 wget https://raw.githubusercontent.com/johanzi/RNA-seq_pipeline/master/merge_counts.sh
@@ -1058,7 +1045,8 @@ done
 bash merge_counts.sh list_file_counts.txt sample_names.txt > cts.txt
 ```
 
-The `cts.txt` file is available on github (https://github.com/johanzi/scripts_zicola_vgt1/data/cts.txt).
+The `cts.txt` file is available on github
+(<https://github.com/johanzi/scripts_zicola_vgt1/data/cts.txt>).
 
 ## coldata file
 
@@ -1105,11 +1093,12 @@ The `cts.txt` file is available on github (https://github.com/johanzi/scripts_zi
 | J400   | IR_331-06 | Vgt1_IR  | series_5 | V3L4  | B         |
 | J402   | IR_331-06 | Vgt1_IR  | series_5 | V3L4  | D         |
 
-The `coldata.txt` file is available on github (https://github.com/johanzi/scripts_zicola_vgt1/data/coldata.txt).
+The `coldata.txt` file is available on github
+(<https://github.com/johanzi/scripts_zicola_vgt1/data/coldata.txt>).
 
 ## Load cts and coldata
 
-```{r}
+``` r
 # Adding check.names = FALSE prevent X prefixes to be added to the library names
 cts = read.table ("data/cts.txt", header=TRUE, row.names=1, check.names = FALSE)
 
@@ -1125,7 +1114,7 @@ all(colnames(cts) %in% coldata$sample)
 
 ## Create dds (DESeq Data Set) object
 
-```{r}
+``` r
 # Create a DESeqDataSet object
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
@@ -1145,12 +1134,11 @@ sigDEG <- as.data.frame(res) %>% rownames_to_column("geneID") %>% filter(padj < 
 
 write.table(sigDEG, "NAM5/significant_genes_genotype_DESeq2.txt",
             quote=FALSE, row.names=FALSE, sep="\t")
-
 ```
 
 ## PCA
 
-```{r}
+``` r
 # Variance stabilizing transformation
 vsd <- vst(dds, blind=FALSE)
 
@@ -1171,14 +1159,13 @@ ggplot(pcaData) +  geom_point(aes(PC1, PC2, fill=leaf_part, shape=line), size=4)
           axis.text.y = element_text(color="black"), 
           axis.ticks = element_line(color = "black")) +  
   theme(plot.title = element_text(hjust = 0.5))
-
 ```
 
 ![](images/PCA_RNA_seq.png)
 
 ## Subanalysis - leaf part B
 
-```{r}
+``` r
 # Subset coldata and cts
 coldata_B <- coldata %>% filter(leaf_part=="B")
 
@@ -1210,10 +1197,9 @@ write.table(sigDEG, "significant_genes_genotype_DESeq2_leaf_part_B.txt",
             quote=FALSE, row.names=FALSE, sep="\t")
 ```
 
-
 ## Subanalysis - leaf part D
 
-```{r}
+``` r
 # Subset coldata and cts
 coldata_D <- coldata %>% filter(leaf_part=="D")
 
@@ -1242,12 +1228,11 @@ sigDEG <- as.data.frame(res_D) %>% rownames_to_column("geneID")
 
 write.table(sigDEG, "significant_genes_genotype_DESeq2_leaf_part_D.txt", 
             quote=FALSE, row.names=FALSE, sep="\t")
-
 ```
 
 ## Plot expression of ZmRap2.7
 
-```{r}
+``` r
 ZmRap27_plot <- plotCounts(dds_5, gene="Zm00001eb355240", intgroup="genotype", 
                            main = "ZmRap2.7", returnData = T)
 
@@ -1272,14 +1257,13 @@ ZmRap27_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=lea
   ggtitle("ZmRap2.7 expression") +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_colour_manual(values = c("#BCD35F","#DDAB8A"))
-
 ```
 
 ![](images/ZmRap27_expression.png)
 
 ## Plot expression of ZCN8
 
-```{r}
+``` r
 ZCN8_plot <- plotCounts(dds_5, gene="Zm00001eb353250", 
                         intgroup="genotype", returnData = T)
 
@@ -1303,17 +1287,13 @@ ZCN8_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_p
   ggtitle("ZCN8 expression") +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_colour_manual(values = c("#BCD35F","#DDAB8A"))
-
 ```
 
 ![](images/ZCN8_expression.png)
 
-
 ## Union DEGs leaf part B and D
 
-
-
-```{r}
+``` r
 # Both text files are available in github 
 # https://github.com/johanzi/scripts_zicola_vgt1/data
 df_DEGs_part_B <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_B.txt")
@@ -1335,12 +1315,11 @@ print(overlap)
 print(testGeneOverlap(overlap))
 
 ID_genes_union <- overlap@union
-
 ```
 
 ## Venn Diagram
 
-```{r}
+``` r
 grid.newpage()
 draw.pairwise.venn(area1 = 1374, area2 = 1019, cross.area = 259, 
                    category = c("Part B","Part D"), lty="blank", 
@@ -1351,18 +1330,15 @@ draw.pairwise.venn(area1 = 1374, area2 = 1019, cross.area = 259,
 
 ## GO enrichment analysis
 
-```{r}
-
+``` r
 list_ego_results <- ego_analysis(ID_genes_union)
 
 lapply(list_ego_results, function(x) sum(x@result$p.adjust < 0.05))
-
 ```
 
 BP has 124 significant terms, CC 1, and MF 7.
 
-```{r}
-
+``` r
 df_ego_analysis <- enrichResult2dataframe(list_ego_results)
 
 df_ego_analysis_significant <- df_ego_analysis %>% dplyr::filter(p.adjust < 0.05)
@@ -1384,19 +1360,15 @@ df_ego_analysis_significant %>% arrange(qvalue) %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_size_area(max_size = 10) +
   scale_color_viridis()
-
 ```
 
 ![](images/BP_GO_2134_genes.png)
-
-
 
 # ChIP-seq analysis
 
 ## Libraries
 
-```{r}
-
+``` r
 # R 4.4.1
 
 library(dplyr)
@@ -1432,41 +1404,44 @@ source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 
 ## Data
 
-| Accession    | Gene name B73 NAM5       | EREB name |
-|--------------|--------------------------|-----------|
-| SRR8525048   | Zm00001eb311180          | EREB109   |
-| SRR8525151   | Zm00001eb311180          | EREB109   |
-| SRR8525136   | Zm00001eb150840          | EREB147   |
-| SRR8525134   | Zm00001eb150840          | EREB147   |
-| SRR8525082   | Zm00001eb194220          | EREB17    |
-| SRR8525083   | Zm00001eb194220          | EREB17    |
-| SRR8524996   | Zm00001eb038070          | EREB172   |
-| SRR8524995   | Zm00001eb038070          | EREB172   |
-| SRR8525012   | Zm00001eb255160          | EREB18    |
-| SRR8525011   | Zm00001eb255160          | EREB18    |
-| SRR8525086   | Zm00001eb074930          | EREB198   |
-| SRR8525047   | Zm00001eb074930          | EREB198   |
-| SRR8525068   | Zm00001eb171050          | EREB209   |
-| SRR8525069   | Zm00001eb171050          | EREB209   |
-| SRR8525077   | Zm00001d053859           | EREB211   |
-| SRR8525078   | Zm00001d053859           | EREB211   |
-| SRR8525044   | Zm00001eb296430          | EREB34    |
-| SRR8525043   | Zm00001eb296430          | EREB34    |
-| SRR8525105   | Zm00001eb413930          | EREB54    |
-| SRR8525104   | Zm00001eb413930          | EREB54    |
-| SRR8524985   | Zm00001eb401290          | EREB71    |
-| SRR8524986   | Zm00001eb401290          | EREB71    |
-| SRR8525118   | Zm00001eb071190          | EREB97    |
-| SRR8525120   | Zm00001eb071190          | EREB97    |
-| SRR12022262  | ChIP-seq   input control | control   |
-| SRR29006028  | Zm00001eb355240          | ZmRap27   |
-| SRR29006029  | Zm00001eb355240          | ZmRap27   |
+| Accession   | Gene name B73 NAM5     | EREB name |
+|-------------|------------------------|-----------|
+| SRR8525048  | Zm00001eb311180        | EREB109   |
+| SRR8525151  | Zm00001eb311180        | EREB109   |
+| SRR8525136  | Zm00001eb150840        | EREB147   |
+| SRR8525134  | Zm00001eb150840        | EREB147   |
+| SRR8525082  | Zm00001eb194220        | EREB17    |
+| SRR8525083  | Zm00001eb194220        | EREB17    |
+| SRR8524996  | Zm00001eb038070        | EREB172   |
+| SRR8524995  | Zm00001eb038070        | EREB172   |
+| SRR8525012  | Zm00001eb255160        | EREB18    |
+| SRR8525011  | Zm00001eb255160        | EREB18    |
+| SRR8525086  | Zm00001eb074930        | EREB198   |
+| SRR8525047  | Zm00001eb074930        | EREB198   |
+| SRR8525068  | Zm00001eb171050        | EREB209   |
+| SRR8525069  | Zm00001eb171050        | EREB209   |
+| SRR8525077  | Zm00001d053859         | EREB211   |
+| SRR8525078  | Zm00001d053859         | EREB211   |
+| SRR8525044  | Zm00001eb296430        | EREB34    |
+| SRR8525043  | Zm00001eb296430        | EREB34    |
+| SRR8525105  | Zm00001eb413930        | EREB54    |
+| SRR8525104  | Zm00001eb413930        | EREB54    |
+| SRR8524985  | Zm00001eb401290        | EREB71    |
+| SRR8524986  | Zm00001eb401290        | EREB71    |
+| SRR8525118  | Zm00001eb071190        | EREB97    |
+| SRR8525120  | Zm00001eb071190        | EREB97    |
+| SRR12022262 | ChIP-seq input control | control   |
+| SRR29006028 | Zm00001eb355240        | ZmRap27   |
+| SRR29006029 | Zm00001eb355240        | ZmRap27   |
 
-The first 26 samples were published in [Tu et al 2020](https://www.nature.com/articles/s41467-020-18832-8) The last 2 samples were generated in this study (PRJNA1110977).
+The first 26 samples were published in [Tu et al
+2020](https://www.nature.com/articles/s41467-020-18832-8) The last 2
+samples were generated in this study (PRJNA1110977).
 
-Download data by pasting the first column of the table above into the text file `list_SRR.txt`.
+Download data by pasting the first column of the table above into the
+text file `list_SRR.txt`.
 
-```{bash, eval=FALSE}
+``` bash
 
 while read i; do
   if [[ -e ${i}_1.fastq ]] & [[ -e ${i}_2.fastq ]]; then
@@ -1479,12 +1454,14 @@ done < <(cut -f1 list_SRR.txt)
 
 # Compress all fastq files
 gzip *fastq
-
 ```
 
-Add a prefix the fastq files names with the sample name. `SRR_to_EREB.txt` should contain in fist column the SRA (e.g. SRR8525105) and sample name (e.g. SRR8525105 EREB54). Use table above to create this file.
+Add a prefix the fastq files names with the sample name.
+`SRR_to_EREB.txt` should contain in fist column the SRA
+(e.g. SRR8525105) and sample name (e.g. SRR8525105 EREB54). Use table
+above to create this file.
 
-```{bash, eval=FALSE}
+``` bash
 
 while read i; do
   SRR=$(echo "$i" | cut -f1)
@@ -1492,13 +1469,11 @@ while read i; do
   mv ${SRR}_1.fastq.gz ${SRR}_${name}_1.fastq.gz
   mv ${SRR}_2.fastq.gz ${SRR}_${name}_2.fastq.gz
 done < SRR_to_EREB.txt
-
 ```
-
 
 ## Adapter trimming
 
-```{bash, eval=FALSE}
+``` bash
 
 fastp --version
 fastp 0.23.4
@@ -1517,14 +1492,13 @@ for i in raw/*gz; do
     --html trimmed/${name}.html
   fi
 done
-
 ```
 
 ## Mapping
 
 Download fasta and gtf files.
 
-```{bash, eval=FALSE}
+``` bash
 cd ~/genomes/maize_B73/B73_NAM5
 
 # Download Fasta
@@ -1544,12 +1518,9 @@ bowtie2-build -f B73_NAM5.fa B73_NAM5
 
 # Create an index samtools index (Zm_NAM5.fa.fai)
 samtools faidx B73_NAM5.fa
-
 ```
 
-
-
-```{bash, eval=FALSE}
+``` bash
 
 bowtie2 --version
 bowtie2-align-s version 2.5.2
@@ -1582,14 +1553,15 @@ while read i; do
         2>>mapped/${i}_bt2.log
     fi
 done < prefix_fastq.txt
-
 ```
 
 ## Peak calling
 
-GEM requires chromosome files in separate folders. The fasta files should have the name of the chromosome only (creates bug in GEM otherwise).
+GEM requires chromosome files in separate folders. The fasta files
+should have the name of the chromosome only (creates bug in GEM
+otherwise).
 
-```{bash, eval=FALSE}
+``` bash
 # Split chromosomes in individual fasta files.
 seqkit split --by-id Zm_NAM5.fa
 
@@ -1601,12 +1573,14 @@ for i in *fa; do
   cut -d' ' -f1 $i > ${i%.*}.renamed.fa
   mv ${i%.*}.renamed.fa ${i%.*}.fa
 done
-
 ```
 
-Create bash script `peak_calling.sh` for peak calling. Note that `SRR12022262_control.bam` contained the mapped reads of the ChIP-seq input control and provided the background levels to perform peak calling.
+Create bash script `peak_calling.sh` for peak calling. Note that
+`SRR12022262_control.bam` contained the mapped reads of the ChIP-seq
+input control and provided the background levels to perform peak
+calling.
 
-```{bash, eval=FALSE}
+``` bash
 #!/usr/bin/env bash
 
 if [ -z $1 ]; then
@@ -1625,9 +1599,9 @@ genome_file="/path/to/Zm_NAM5.fa.split/"
 chrom_size="/path/to/Zm_NAM5.fa.fai"
 
 # Argument explanation (check https://groups.csail.mit.edu/cgs/gem/index.html)
-# --kmin and --k_max: 	minimum and maximum value of k-mers
-# --fold: 	Fold (IP/Control) cutoff to filter predicted events (default=3)
-# --q: 	significance level for q-value, specified as -log10(q-value). 
+# --kmin and --k_max:   minimum and maximum value of k-mers
+# --fold:   Fold (IP/Control) cutoff to filter predicted events (default=3)
+# --q:  significance level for q-value, specified as -log10(q-value). 
 #             For example, to enforce a q-value threshold of 0.001, 
 #             set this value to 3. (default=2, i.e. q-value=0.01)
 # --nrf: Do not filter duplicate reads (i.e. potential PCR duplicates) 
@@ -1651,10 +1625,9 @@ java -Xmx10G -jar /home/zicola/bin/gem/gem.jar \
   --q 3 \
   --nrf \
   --outNP 
-
 ```
 
-```{bash, eval=FALSE}
+``` bash
 # Create output directory
 mkdir peak_calling
 
@@ -1673,14 +1646,11 @@ while read i; do
     bash peak_calling.sh mapped/${i}.bam peak_calling/$i
   fi
 done < list_samples_bam.txt
-
 ```
-
-
 
 ### Summary mapping and peak calling
 
-```{bash, eval=FALSE}
+``` bash
 
 while read i; do
   if [ -e peak_calling/$i/${i}.GEM_events.narrowPeak ]; then
@@ -1688,10 +1658,7 @@ while read i; do
     echo -e "$i\t$nb_peak"
   fi
 done < list_samples_bam.txt
-
 ```
-
-
 
 | sample                     | Overall alignment rate | GEM peaks |
 |----------------------------|------------------------|-----------|
@@ -1726,12 +1693,11 @@ done < list_samples_bam.txt
 
 The number of peaks vary greatly across samples (from 7,000 to 96,000)
 
-
-### Reproducible peaks with IDR 
+### Reproducible peaks with IDR
 
 #### Install IDR package with conda
 
-```{bash, eval=FALSE}
+``` bash
 # Create an environment in python (v3.9)
 # (recommended in https://bioconda.github.io/recipes/idr/README.html)
 
@@ -1767,13 +1733,11 @@ Final parameter values: [1.57 1.26 0.89 0.41]
 Number of reported peaks - 50537/50537 (100.0%)
 
 Number of peaks passing IDR cutoff of 0.05 - 12748/50537 (25.2%)
-
 ```
-
 
 #### Run IDR for each sample
 
-```{bash, eval=FALSE}
+``` bash
 
 mkdir IDR_output
 
@@ -1793,15 +1757,16 @@ while read i; do
       --output-file IDR_output/${i}_idr_peak.txt
   fi
 done < list_samples_bam.txt
-
 ```
-
 
 #### Retrieve peaks from one replicate
 
-IDR created merged peaks  with overlapping of each replicates but this can lead to uncentered binding motif for the binding motif analysis. It is therefore suggested to consider only the peaks of one replicate and retrieve the overlaps of the merged peaks produced by IDR.
+IDR created merged peaks with overlapping of each replicates but this
+can lead to uncentered binding motif for the binding motif analysis. It
+is therefore suggested to consider only the peaks of one replicate and
+retrieve the overlaps of the merged peaks produced by IDR.
 
-```{bash, eval=FALSE}
+``` bash
 
 # Keep replicable peaks from first replicate
 mkdir IDR_output/rep1_peaks/
@@ -1822,12 +1787,11 @@ while read i; do
       bedtools intersect -a $rep2 -b IDR_output/${i}_idr_peak.txt -wa \
       -u > IDR_output/rep2_peaks/${i}_rep2_passedIDR.narrowPeak
 done < list_EREB.txt
-
 ```
 
 Extract fasta sequences for all peaks
 
-```{bash, eval=FALSE}
+``` bash
 # Extract fasta sequences
 
 mkdir IDR_output/rep1_peaks/fasta
@@ -1850,15 +1814,13 @@ for i in IDR_output/rep2_peaks/*narrowPeak; do
     fastaFromBed -fi $genome_file -bed $i -fo IDR_output/rep2_peaks/fasta/${i%.*}.fa
   fi
 done
-
 ```
-
 
 ### MEME-CHIP analysis
 
 #### MEME-CHIP local installation
 
-```{bash, eval=FALSE}
+``` bash
 # Go to a directory containing the fasta files to be analyzed
 # Make sure this directory and subdirectories are set in chmod 777
 # chmod -R 777 /path/to/meme/analysis
@@ -1875,12 +1837,11 @@ docker run -v `pwd`:/home/meme -d memesuite/memesuite:latest
 # Get into interactive mode using container id
 # Here I assume only one container is running 
 docker exec -it $(docker ps -q) /bin/sh
-
 ```
 
 Keep only top 1000 peaks for the analysis
 
-```{bash, eval=FALSE}
+``` bash
 
 for i in IDR_output/rep1_peaks/fasta/*fa; do
   seqkit head -n 1000 $i > IDR_output/rep1_peaks/fasta/top_1000_peaks/${i%.*}.top1000.fa
@@ -1889,13 +1850,12 @@ done
 for i in IDR_output/rep2_peaks/fasta/*fa; do
   seqkit head -n 1000 $i > IDR_output/rep2_peaks/fasta/top_1000_peaks/${i%.*}.top1000.fa
 done
-
 ```
 
+Run MEME-CHIP for all fasta files. Run with the mode with default motif
+size of 15-nt (-maxw 15) and 8-nt (-maxw 8)
 
-Run MEME-CHIP for all fasta files. Run with the mode with default motif size of 15-nt (-maxw 15) and 8-nt (-maxw 8)
-
-```{bash, eval=FALSE}
+``` bash
 
 # Default max motif length (-maxw 15)
 ## Rep1
@@ -1930,15 +1890,15 @@ for i in IDR_output/rep2_peaks/fasta/top_1000_peaks/*fa; do
       meme_chip/rep2_peaks/top_1000_peaks_maxw_8/$name \
       -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
 done
-
 ```
 
 #### Motif visualization
 
-Gather the `combined.meme` files which contains the motifs found across the different analyses of MEME-CHIP and ranked by most to least significant.
+Gather the `combined.meme` files which contains the motifs found across
+the different analyses of MEME-CHIP and ranked by most to least
+significant.
 
-
-```{bash, eval=FALSE}
+``` bash
 
 # Rename each combined.meme with the TF name
 for i in *; do
@@ -1946,12 +1906,12 @@ for i in *; do
     cp ${i}/combined.meme output_meme_combined/${i}.txt
   fi
 done
-
 ```
 
-In R, load the top motif of each `combined.meme` file for display with motifStack.
+In R, load the top motif of each `combined.meme` file for display with
+motifStack.
 
-```{r}
+``` r
 # Gather list of combined.meme files
 temp = list.files(path="/path/to/output_meme_combined", pattern="*.txt")
 
@@ -1972,34 +1932,30 @@ names(motifs_EREB) <- names
 
 # Display the stacked motifs
 motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
-
 ```
-
-
 
 # 4C-seq analysis
 
 Enzymes used for the 4C-seq:
 
-First restriction enzyme (RE1)
-* BglII: AGATCT
-Second restriction enzyme (RE2)
-* Csp6I (CviQI): GTAC
+First restriction enzyme (RE1) \* BglII: AGATCT Second restriction
+enzyme (RE2) \* Csp6I (CviQI): GTAC
 
 ## Libraries
 
 Install pipe4C.
 
-Paper:[Krijger et al 2020](https://www.sciencedirect.com/science/article/pii/S1046202318304742#s0135)
-GitHub repository: [pipe4C](https://github.com/deLaatLab/pipe4C/tree/master)
+Paper:[Krijger et al
+2020](https://www.sciencedirect.com/science/article/pii/S1046202318304742#s0135)
+GitHub repository:
+[pipe4C](https://github.com/deLaatLab/pipe4C/tree/master)
 
-```{bash, eval=FALSE}
+``` bash
 # Download git repository
 git clone https://github.com/deLaatLab/pipe4C.git
 ```
 
-
-```{r}
+``` r
 # R 4.4.1
 
 library(tidyverse)
@@ -2022,23 +1978,23 @@ library(devtools)
 
 install_github("deWitLab/peakC")
 library(peakC)
-
 ```
 
 ## Data
 
-| Accession   | code        | name                                                     |
-|-------------|-------------|----------------------------------------------------------|
-| SRR29005912 | Husk_rep1   | 4C-seq of Zea mays: Husk tissue   rep1                   |
-| SRR29005911 | Husk_rep2   | 4C-seq   of Zea mays: Husk tissue rep2                   |
-| SRR29005910 | Husk_rep3   | 4C-seq of Zea mays: Husk tissue   rep3                   |
-| SRR30183516 | V2_IST_rep1 | 4C-seq   of Zea mays: Inner stem tissue seedling V2 rep1 |
-| SRR29005908 | V2_IST_rep2 | 4C-seq of Zea mays: Inner stem   tissue seedling V2 rep2 |
-| SRR30183515 | V2_IST_rep3 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep3   |
+| Accession   | code        | name                                                   |
+|-------------|-------------|--------------------------------------------------------|
+| SRR29005912 | Husk_rep1   | 4C-seq of Zea mays: Husk tissue rep1                   |
+| SRR29005911 | Husk_rep2   | 4C-seq of Zea mays: Husk tissue rep2                   |
+| SRR29005910 | Husk_rep3   | 4C-seq of Zea mays: Husk tissue rep3                   |
+| SRR30183516 | V2_IST_rep1 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep1 |
+| SRR29005908 | V2_IST_rep2 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep2 |
+| SRR30183515 | V2_IST_rep3 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep3 |
 
-Download data by pasting the first column of the table above into the text file `list_SRR.txt`.
+Download data by pasting the first column of the table above into the
+text file `list_SRR.txt`.
 
-```{bash, eval=FALSE}
+``` bash
 
 while read i; do
   if [[ -e ${i}_1.fastq ]] & [[ -e ${i}_2.fastq ]]; then
@@ -2051,29 +2007,25 @@ done < <(cut -f1 list_SRR.txt)
 
 # Compress all fastq files
 gzip *fastq
-
 ```
 
 Rename the file to integrate sample name:
 
-```{bash, eval=FALSE}
+``` bash
 
 while read i; do
   SRR=$(echo "$i" | cut -f1)
   name=$(echo "$i" | cut -f2)
   mv ${SRR}.fastq.gz ${SRR}_${name}.fastq.gz
 done < table_SRR.txt
-
 ```
-
-
 
 ## Create BSgenome for B73 NAM5
 
-Use only first 10 chromosomes. Each chromosome should be in a separate fasta file
+Use only first 10 chromosomes. Each chromosome should be in a separate
+fasta file
 
-
-```{bash, eval=FALSE}
+``` bash
 cd /home/zicola/B73_NAM5/
 
 # Download Fasta
@@ -2104,57 +2056,52 @@ rename 's/Zm_NAM5.part_//' Zm_NAM5.fa.split/*fa
 # Move fasra files in extdata/zm_seqs
 mkdir -p extdata/zm_seqs
 mv Zm_NAM5.fa.split/*fa extdata/zm_seqs/
-
 ```
 
-Create a text file `ZmaysZm5_seed` in `/home/zicola/B73_NAM5/` containing:
+Create a text file `ZmaysZm5_seed` in `/home/zicola/B73_NAM5/`
+containing:
 
-```
-Package: BSgenome.zmv5
-Title: Genome sequences for Zea mays (MaizeGDB B73 NAM5)
-Description: A BSgenome package for chr1-10 Zea mays (B73 NAM5).
-Version: 1.0
-organism: Zea mays
-common_name: Maize
-provider: MaizeGDB
-provider_version: zmv5
-release_date: Mar. 2020
-release_name: Maize Genome Sequencing B73 5.0
-source_url: NA
-circ_seqs: NA
-organism_biocview: zmays
-BSgenomeObjname: zmays
-seqs_srcdir: extdata/zm_seqs
-seqfiles_suffix: .fa
-seqnames: c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10")
-```
+    Package: BSgenome.zmv5
+    Title: Genome sequences for Zea mays (MaizeGDB B73 NAM5)
+    Description: A BSgenome package for chr1-10 Zea mays (B73 NAM5).
+    Version: 1.0
+    organism: Zea mays
+    common_name: Maize
+    provider: MaizeGDB
+    provider_version: zmv5
+    release_date: Mar. 2020
+    release_name: Maize Genome Sequencing B73 5.0
+    source_url: NA
+    circ_seqs: NA
+    organism_biocview: zmays
+    BSgenomeObjname: zmays
+    seqs_srcdir: extdata/zm_seqs
+    seqfiles_suffix: .fa
+    seqnames: c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10")
 
-Forge the package in R: 
+Forge the package in R:
 
-```{r}
-
+``` r
 # Set working directory containing the extdata/zm_seqs directory
 setwd("/home/zicola/B73_NAM5/")
 
 library(BSgenome)
 forgeBSgenomeDataPkg("ZmaysZm5_seed")
-
 ```
 
 Build the package in bash:
 
-```{bash, eval=FALSE}
+``` bash
 cd /home/zicola/fasta/B73_NAM5
 
 R CMD build BSgenome.zmv5
 R CMD check BSgenome.zmv5_1.0.tar.gz
 R CMD INSTALL BSgenome.zmv5_1.0.tar.gz
-
 ```
 
 Check if it works:
 
-```{r}
+``` r
 library(BSgenome.zmv5)
 
 # Get full length in bp of the chromosome 1
@@ -2162,66 +2109,66 @@ length(zmays$chr1)
 308452471
 ```
 
-
 ## Update conf.ylm file
 
-Edit `/path/to/pipe4C/conf.ylm` to add the path to fragFolder, the missing enzyme (BglII), the name of the BSgenome package created, and the path to bowtie2 indexes (including the prefix of the index):
+Edit `/path/to/pipe4C/conf.ylm` to add the path to fragFolder, the
+missing enzyme (BglII), the name of the BSgenome package created, and
+the path to bowtie2 indexes (including the prefix of the index):
 
-```
-Default:
- fragFolder: /home/zicola/bin/pipe4C/fragFolder 
- normalizeFactor: 1000000
- qualityCutoff : 0
- trimLength : 0
- minAmountReads : 1000
- maxAmountReads : 100000000
- readsQuality : 1
- cores : 1
- wSize : 21
- nTop : 2
- alnStart : TRUE
- mapUnique : FALSE
- nonBlind : TRUE
- wig : FALSE
- bigwig : FALSE
- cisplot : FALSE
- genomePlot : FALSE
- tsv : FALSE
- bins : FALSE
- mismatchMax : 0
- chr_random : FALSE
- chr_fix : FALSE
- chrUn : FALSE
- chrM : FALSE
- prefix : chr
- 
-enzymes:
-  -
-    BglII
-    AGATCT
-  -
-    Csp6I
-    GTAC
-    
-genomes:
-  -
-    zmays
-    BSgenome.zmv5 
+    Default:
+     fragFolder: /home/zicola/bin/pipe4C/fragFolder 
+     normalizeFactor: 1000000
+     qualityCutoff : 0
+     trimLength : 0
+     minAmountReads : 1000
+     maxAmountReads : 100000000
+     readsQuality : 1
+     cores : 1
+     wSize : 21
+     nTop : 2
+     alnStart : TRUE
+     mapUnique : FALSE
+     nonBlind : TRUE
+     wig : FALSE
+     bigwig : FALSE
+     cisplot : FALSE
+     genomePlot : FALSE
+     tsv : FALSE
+     bins : FALSE
+     mismatchMax : 0
+     chr_random : FALSE
+     chr_fix : FALSE
+     chrUn : FALSE
+     chrM : FALSE
+     prefix : chr
+     
+    enzymes:
+      -
+        BglII
+        AGATCT
+      -
+        Csp6I
+        GTAC
+        
+    genomes:
+      -
+        zmays
+        BSgenome.zmv5 
 
-bowtie2:
-  -
-    zmays    
-    /home/zicola/B73_NAM5/B73_NAM5
-    
-plot:
-  maxY: 2500
-  plotView: 1000000
-
-```
+    bowtie2:
+      -
+        zmays    
+        /home/zicola/B73_NAM5/B73_NAM5
+        
+    plot:
+      maxY: 2500
+      plotView: 1000000
 
 ## Create a VPinfo file
 
-A text file `VPinfo.txt` containing a table with 9 columns (tab-separated) should be created. The table is here split in two due to the width limitation on a knitted PDF:
+A text file `VPinfo.txt` containing a table with 9 columns
+(tab-separated) should be created. The table is here split in two due to
+the width limitation on a knitted PDF:
 
 | expname     | primer                    | firstenzyme | secondenzyme |
 |-------------|---------------------------|-------------|--------------|
@@ -2232,7 +2179,6 @@ A text file `VPinfo.txt` containing a table with 9 columns (tab-separated) shoul
 | V2_IST_rep2 | TTCTTAAGATAGTGACAATAAGATC | BglII       | Csp6I        |
 | V2_IST_rep3 | TTCTTAAGATAGTGACAATAAGATC | BglII       | Csp6I        |
 
-
 | genome | vpchr | vppos     | analysis | fastq                            |
 |--------|-------|-----------|----------|----------------------------------|
 | zmays  | 8     | 135653433 | cis      | SRR29005912_Husk_rep1.fastq.gz   |
@@ -2242,10 +2188,9 @@ A text file `VPinfo.txt` containing a table with 9 columns (tab-separated) shoul
 | zmays  | 8     | 135653433 | cis      | SRR29005908_V2_IST_rep2.fastq.gz |
 | zmays  | 8     | 135653433 | cis      | SRR30183515_V2_IST_rep3.fastq.gz |
 
-
 ## Run pipe4C
 
-```{bash, eval=FALSE}
+``` bash
 
 cd /home/zicola/bin/pipe4C/
 
@@ -2253,14 +2198,14 @@ Rscript pipe4C.R --vpFile=/path/to/VPinfo.txt \
     --fqFolder=/path/to/fastq \
     --outFolder=/path/to/output/out_vgt1 \
     --cores 16 --plot --wig
-
 ```
 
 ## Identify peaks
 
-Use the three replicates to call for significant interactions with ZmRap2.7 TSS.
+Use the three replicates to call for significant interactions with
+ZmRap2.7 TSS.
 
-```{r}
+``` r
 setwd("~/bin/pipe4C")
 
 pipe4CFunctionsFile <- "functions.R"
@@ -2290,15 +2235,14 @@ resPeaks <- getPeakCPeaks(resPeakC=resPeakC)
 setwd("~/bin/pipe4C")
 peaksFile <- "./out_vgt1/Husk_peakC_peaks.bed"
 exportPeakCPeaks(resPeakC=resPeakC,bedFile=peaksFile,name="Husk_peakC_peaks")
-
 ```
-
 
 ## Plot normalized read count at Vgt1
 
-Gather the normalized read count at Vgt1 and uva to assess the difference between replicates and tissues.
+Gather the normalized read count at Vgt1 and uva to assess the
+difference between replicates and tissues.
 
-```{r}
+``` r
 setwd("/home/zicola/bin/pipe4C/")
 
 # chr8:135590574..135593098 (take a bit more downstream of Vgt1 
@@ -2382,7 +2326,6 @@ ggplot(df_norm4C_long, aes(y=norm4C, x=tissue, fill=region)) +
   scale_y_continuous(labels = scales::comma_format()) +
   scale_fill_manual(values=c("#00B050","#FFC000")) +
   ggtitle("4C-seq normalized read count at uva1 and Vgt1")
-
 ```
 
 ![](images/4C_plot.png)
