@@ -1,10 +1,12 @@
 ---
-title: "Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize"
+title: "Scripts from 'Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize'"
 author: "Johan Zicola"
 date: "`r format(Sys.time())`"
 output:
   pdf_document:
     toc: true
+  documentclass: article
+  classoption: a4paper
   html_notebook:
     toc: true
   html_document:
@@ -18,6 +20,8 @@ knitr::opts_chunk$set(eval = FALSE)
 
 
 # Scripts
+
+This document gathers the bioinformatic analyses performed for the publication "Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize". Light-weight raw or processed data are also provided in the GitHub repository https://github.com/johanzi/scripts_zicola_vgt1.
 
 
 # Flowering time analysis
@@ -462,32 +466,351 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 ```{r}
 # Import dataframe
 df <- read_delim("data/data_qPCR.txt", "\t", 
-    escape_double = FALSE, col_names = TRUE, 
-    na = "NA")
+    escape_double = FALSE, show_col_types = FALSE)
 
 # Create a new variable merging part and stage
 df$tissue = paste(df$stage, df$part, sep="_")
 
-df <- df %>% relocate(tissue, .before=sample)
+df <- df %>% relocate(tissue, .before=stage)
 
-# Change into factor the 6 first columns
-df <- df %>% mutate_at(1:6, factor)
+# Change into factor the 4 first columns
+df <- df %>% mutate_at(1:4, factor)
 
 # Change the rest into integers
-df <- df %>% mutate_at(7:11, as.numeric)
+df <- df %>% mutate_at(5:7, as.numeric)
 
-
-# Change name samples
-levels(df$genotype) <- c("WT", "IR-Vgt1 327-38")
+# Order genotype
+df$genotype <- factor(df$genotype, levels=c("WT", "327-38"))
 
 ```
 
+## ZmRap2.7 expression analysis
 
+### ZmRap2.7 expression in V3L4
 
 ```{r}
-df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) + geom_boxplot(outlier.shape=NA) +  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype), size=2, color="black", shape=21) + theme_bw() + ylab("Normalized ZmRap2.7 expression") + xlab("Leaf part") + ggtitle("qPCR ZmRap2.7 expression in V3L4")+  scale_fill_manual(values=c("#FB756C","#FFBE03")) + theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
+
+df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZmRap2.7 expression in V3L4") +
+  ylab("Normalized ZmRap2.7 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
+
+
 ```
 
+![](images/ZmRap27_expression_V3L4.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V3L4" & df$part=="A"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V3L4" & df$part=="B"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V3L4" & df$part=="C"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V3L4" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V3L4" & df$part=="A"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="B"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="C"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="D"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+```
+
+
+### ZmRap2.7 expression in V4L5
+
+```{r}
+
+df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZmRap2.7 expression in V4L5") +
+  ylab("Normalized ZmRap2.7 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
+
+```
+
+![](images/ZmRap27_expression_V4L5.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V4L5" & df$part=="C"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V4L5" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V4L5" & df$part=="A"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="B"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="C"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="D"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+```
+
+### ZmRap2.7 expression in V5L6
+
+```{r}
+
+df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZmRap27, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZmRap2.7 expression in V5L6") +
+  ylab("Normalized ZmRap2.7 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(limits=c(0,6.2), breaks=seq(0,6.2,2))
+
+```
+
+![](images/ZmRap27_expression_V5L6.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V5L6" & df$part=="A"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V5L6" & df$part=="B"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V5L6" & df$part=="C"),])
+bartlett.test(ZmRap27~genotype, data=df[(df$stage=="V5L6" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V5L6" & df$part=="A"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V5L6" & df$part=="B"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V5L6" & df$part=="C"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V5L6" & df$part=="D"),] , t.test(ZmRap27[genotype=="WT"], ZmRap27[genotype=="327-38"], var.equal = TRUE))
+```
+
+
+## ZCN8 expression analysis
+
+### ZCN8 expression in V3L4
+
+```{r}
+
+df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZCN8 expression in V3L4") +
+  ylab("Normalized ZCN8 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits=c(0,80), breaks=seq(0,80,10))
+
+```
+
+![](images/ZCN8_expression_V3L4.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V3L4" & df$part=="A"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V3L4" & df$part=="B"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V3L4" & df$part=="C"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V3L4" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V3L4" & df$part=="A"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="B"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="C"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = FALSE))
+with(df[(df$stage=="V3L4" & df$part=="D"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = FALSE))
+```
+
+
+### ZCN8 expression in V4L5
+
+```{r}
+
+df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZCN8 expression in V4L5") +
+  ylab("Normalized ZCN8 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits=c(0,80), breaks=seq(0,80,10))
+
+```
+
+![](images/ZCN8_expression_V4L5.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="C"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V4L5" & df$part=="A"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = FALSE))
+with(df[(df$stage=="V4L5" & df$part=="B"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="C"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="D"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+```
+
+### ZCN8 expression in V5L6
+
+```{r}
+
+df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZCN8, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZCN8 expression in V5L6") +
+  ylab("Normalized ZCN8 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits=c(0,80), breaks=seq(0,80,10))
+
+```
+
+![](images/ZCN8_expression_V5L6.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="C"),])
+bartlett.test(ZCN8~genotype, data=df[(df$stage=="V4L5" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V4L5" & df$part=="A"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = FALSE))
+with(df[(df$stage=="V4L5" & df$part=="B"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="C"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="D"),] , t.test(ZCN8[genotype=="WT"], ZCN8[genotype=="327-38"], var.equal = TRUE))
+```
+
+
+
+## ZmMADS4 expression analysis
+
+### ZmMADS4 expression in V3L4
+
+```{r}
+
+df %>% filter(stage=="V3L4") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZmMADS4 expression in V3L4") +
+  ylab("Normalized ZmMADS4 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits=c(0,10), breaks=seq(0,10,2))
+
+```
+
+![](images/ZmMADS4_expression_V3L4.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V3L4" & df$part=="A"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V3L4" & df$part=="B"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V3L4" & df$part=="C"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V3L4" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V3L4" & df$part=="A"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="B"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V3L4" & df$part=="C"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = FALSE))
+with(df[(df$stage=="V3L4" & df$part=="D"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = FALSE))
+```
+
+
+### ZmMADS4 expression in V4L5
+
+```{r}
+
+df %>% filter(stage=="V4L5") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZmMADS4 expression in V4L5") +
+  ylab("Normalized ZmMADS4 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits=c(0,10), breaks=seq(0,10,2))
+
+```
+
+![](images/ZmMADS4_expression_V4L5.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="C"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V4L5" & df$part=="A"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="B"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="C"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = FALSE))
+with(df[(df$stage=="V4L5" & df$part=="D"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+```
+
+### ZmMADS4 expression in V5L6
+
+```{r}
+
+df %>% filter(stage=="V5L6") %>% ggplot(aes(x=part, y=ZmMADS4, fill=genotype)) +
+  geom_boxplot(outlier.shape=NA) + 
+  geom_point(position=position_jitterdodge(dodge.width=0.9), aes(fill=genotype)) + 
+  theme_bw() + ggtitle("qPCR ZmMADS4 expression in V5L6") +
+  ylab("Normalized ZmMADS4 expression") +
+  xlab("Leaf part") +
+  scale_fill_manual(values=c("#FB756C","#FFBE03")) +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(limits=c(0,10), breaks=seq(0,10,2))
+
+```
+
+![](images/ZmMADS4_expression_V5L6.png)
+
+```{r}
+# Test egality in variance in each leaf part
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="A"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="B"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="C"),])
+bartlett.test(ZmMADS4~genotype, data=df[(df$stage=="V4L5" & df$part=="D"),])
+
+# Perform T-test for each leaf part
+with(df[(df$stage=="V4L5" & df$part=="A"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="B"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+with(df[(df$stage=="V4L5" & df$part=="C"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = FALSE))
+with(df[(df$stage=="V4L5" & df$part=="D"),] , t.test(ZmMADS4[genotype=="WT"], ZmMADS4[genotype=="327-38"], var.equal = TRUE))
+```
 
 
 # RNA-seq analysis
@@ -1224,7 +1547,7 @@ done < prefix_fastq.txt
 
 ## Peak calling
 
-GEM requires chromosome files in separate folders. The fasta files should have the name of the chromosome only (otherwise it bugs in GEM)
+GEM requires chromosome files in separate folders. The fasta files should have the name of the chromosome only (creates bug in GEM otherwise).
 
 ```{bash, eval=FALSE}
 # Split chromosomes in individual fasta files.
