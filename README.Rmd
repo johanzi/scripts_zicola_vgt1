@@ -1,28 +1,41 @@
 ---
-title: "Scripts from 'Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize'"
+title: "Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize"
 author: "Johan Zicola"
 date: "`r format(Sys.time())`"
 output:
   github_document:
-    toc: true
-  documentclass: article
-  classoption: a4paper
-  html_notebook:
     toc: true
   html_document:
     toc: true
     df_print: paged
   pdf_document:
     toc: true
+  html_notebook:
+    toc: true
+documentclass: article
+classoption: a4paper
+geometry: margin=1in
 ---
 
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-# Scripts
+# Introduction
 
 This document gathers the bioinformatic analyses performed for the publication "Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in maize". Light-weight raw or processed data are also provided in the GitHub repository https://github.com/johanzi/scripts_zicola_vgt1.
+
+To rerun the analyses, clone the repository into a local directory:
+
+```{bash, eval=FALSE}
+git clone https://github.com/johanzi/scripts_zicola_vgt1
+```
+
+In addition, another repository is needed for the GO term analyses:
+
+```{bash, eval=FALSE}
+git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5
+```
 
 
 # Flowering time analysis
@@ -49,7 +62,8 @@ give.n <- function(x){
 Raw data are available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/flowering_time.txt.
 
 ```{r}
-setwd("/path/to/repository")
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
 
 df <- read.table("data/flowering_time.txt", 
                  stringsAsFactors=TRUE,sep = "\t",
@@ -343,6 +357,9 @@ library(dunn.test)
 Raw data available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_rate.txt
 
 ```{r}
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Import data
 df <- read.delim("data/growth_rate.txt")
 df <- df %>% mutate_at(names(data_R)[1:3], as.factor)
@@ -465,6 +482,9 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 ## Data
 
 ```{r}
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Import dataframe
 df <- read_delim("data/data_qPCR.txt", "\t", 
     escape_double = FALSE, show_col_types = FALSE)
@@ -857,6 +877,7 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
 ## Libraries
 
 ```{r, eval=FALSE}
+
 # R 4.4.1
 
 library(dplyr)
@@ -875,8 +896,8 @@ library(GeneOverlap)
 library(tidyverse)
 library(viridis)
 
-# Import GO functions (clone from https://github.com/johanzi/GOMAP_maize_B73_NAM5)
-source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
+# Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
+source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 
 ```
 
@@ -951,9 +972,10 @@ sed -i 's/^>\([1-9]\)/>chr\1/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa
 # Same for GTF file
 sed -i 's/^[1-9]/chr&/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf
 
-# Remove contigs
+# Remove contigs from fasta and gtf files
 sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa \
   > Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa
+  
 sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
   > Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.wo_contigs.gtf
 ```
@@ -961,17 +983,17 @@ sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
 
 ## Genome index
 
-I could not make the command run in SLURM (/var/spool/slurm/d/job9144052/slurm_script: line 16: 21925 Illegal instruction) so I launched without queueing:
-
 ```{bash, eval=FALSE}
 # Load mapper
 module load hisat2/2.1.0
 
-# Create reference genome
+# Create reference genome with indexes having for prefix B73_NAM5
 hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa B73_NAM5
 ```
 
+## Mapping
 
+Map reads with hisat2 (v2.1.0).
 
 ```{bash, eval=FALSE}
 
@@ -1061,13 +1083,42 @@ The `cts.txt` file is available on github (https://github.com/johanzi/scripts_zi
 
 ## coldata file
 
-
+| sample | line      | genotype | stage | leaf_part |
+|--------|-----------|----------|-------|-----------|
+| J306   | WT        | WT       | V3L4  | D         |
+| J308   | WT        | WT       | V3L4  | B         |
+| J310   | WT        | WT       | V3L4  | D         |
+| J312   | WT        | WT       | V3L4  | B         |
+| J314   | WT        | WT       | V3L4  | D         |
+| J316   | WT        | WT       | V3L4  | B         |
+| J324   | WT        | WT       | V3L4  | B         |
+| J326   | WT        | WT       | V3L4  | D         |
+| J352   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J354   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J356   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J358   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J360   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J362   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J372   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J374   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J376   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J378   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+| J380   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J382   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+| J384   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J386   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+| J400   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J402   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
 
 The `coldata.txt` file is available on github (https://github.com/johanzi/scripts_zicola_vgt1/data/coldata.txt).
 
 ## Load cts and coldata
 
 ```{r}
+
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Adding check.names = FALSE prevent X prefixes to be added to the library names
 cts = read.table("data/cts.txt", header=TRUE, row.names=1, check.names = FALSE)
 
@@ -1271,10 +1322,13 @@ ZCN8_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_p
 ## Union DEGs leaf part B and D
 
 
-
 ```{r}
 # Both text files are available in github 
 # https://github.com/johanzi/scripts_zicola_vgt1/data
+
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 df_DEGs_part_B <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_B.txt")
 df_DEGs_part_D <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_D.txt")
 
@@ -1375,8 +1429,8 @@ library(GeneOverlap)
 library(tidyverse)
 library(motifStack)
 
-# Import GO functions (clone from https://github.com/johanzi/GOMAP_maize_B73_NAM5)
-source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
+# Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
+source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 
 ```
 
@@ -1446,7 +1500,7 @@ done < SRR_to_EREB.txt
 ```
 
 
-## Adapter trimming
+## Adapter trimming and deduplication
 
 ```{bash, eval=FALSE}
 
@@ -1459,10 +1513,12 @@ for i in raw/*gz; do
       [[ -e trimmed/${name}_2.trimmed.fastq.gz ]]; then
     echo "$i already processed"
   else 
-    fastp --thread 16 --in1 raw/${name}_1.fastq.gz \
+    fastp --thread 16 \
+    --in1 raw/${name}_1.fastq.gz \
     --in2 raw/${name}_2.fastq.gz \
     --out1 trimmed/${name}_1.trimmed.fastq.gz \
     --out2 trimmed/${name}_2.trimmed.fastq.gz \
+    --dedup \
     --json trimmed/${name}.json \
     --html trimmed/${name}.html
   fi
@@ -1517,6 +1573,8 @@ ls -1 trimmed/*gz | cut -d/ -f2 | cut -d_ -f1-2 | sort | uniq > prefix_fastq.txt
 # Give absolute path (crash otherwise)
 index="/path/to/index/B73_NAM5"
 
+index="/home/zicola/fasta/B73_NAM5/B73_NAM5_chr_only/zmays"
+
 while read i; do
     if [[ -e mapped/${i}.bam ]]; then
       echo "$i already processed"
@@ -1525,11 +1583,10 @@ while read i; do
       bowtie2 -p 10 \
         -x $index \
         -1 ./trimmed/${i}_1.trimmed.fastq.gz \
-        -2 ./trimmed/${i}_2.trimmed.fastq.gz 2> mapped/${i}_bt2.log | \
+        -2 ./trimmed/${i}_2.trimmed.fastq.gz \
         samtools view -Sb -F 4 -f 3 -@ 2 | \
-        samtools sort -@ 2 2>>mapped/${i}_bt2.log | \
-        samtools rmdup - mapped/${i}.bam \
-        2>>mapped/${i}_bt2.log
+        samtools sort -@ 2 | \
+        samtools rmdup - mapped/${i}.bam
     fi
 done < prefix_fastq.txt
 
@@ -1613,8 +1670,10 @@ java -Xmx10G -jar /home/zicola/bin/gem/gem.jar \
   --fold 3 \
   --q 3 \
   --nrf \
-  --outNP 
-
+  --outNP \
+  --outHOMER \
+  --outMEME
+  
 ```
 
 ```{bash, eval=FALSE}
@@ -1654,41 +1713,38 @@ done < list_samples_bam.txt
 
 ```
 
+Summary of the number of peaks called by GEM for each sample:
 
+| sample              | GEM peaks |
+|---------------------|-----------|
+| SRR29006028_ZmRap27 | 12,569    |
+| SRR29006029_ZmRap27 | 11,296    |
+| SRR8524985_EREB71   | 14,058    |
+| SRR8524986_EREB71   | 16,025    |
+| SRR8524995_EREB172  | 66,184    |
+| SRR8524996_EREB172  | 86,132    |
+| SRR8525011_EREB18   | 9,180     |
+| SRR8525012_EREB18   | 25,600    |
+| SRR8525043_EREB34   | 19,066    |
+| SRR8525044_EREB34   | 7,023     |
+| SRR8525047_EREB198  | 56,230    |
+| SRR8525048_EREB109  | 60,063    |
+| SRR8525068_EREB209  | 75,235    |
+| SRR8525069_EREB209  | 96,090    |
+| SRR8525077_EREB211  | 43,501    |
+| SRR8525078_EREB211  | 48,076    |
+| SRR8525082_EREB17   | 22,730    |
+| SRR8525083_EREB17   | 23,818    |
+| SRR8525086_EREB198  | 22,767    |
+| SRR8525104_EREB54   | 74,060    |
+| SRR8525105_EREB54   | 47,985    |
+| SRR8525118_EREB97   | 60,541    |
+| SRR8525120_EREB97   | 36,508    |
+| SRR8525134_EREB147  | 68,270    |
+| SRR8525136_EREB147  | 55,085    |
+| SRR8525151_EREB109  | 47,773    |
 
-| sample                     | Overall alignment rate | GEM peaks |
-|----------------------------|------------------------|-----------|
-| SRR8525044_EREB34_bt2.log  | 96.25%                 | 7,023     |
-| SRR8525011_EREB18_bt2.log  | 75.69%                 | 9,180     |
-| SRR8524985_EREB71_bt2.log  | 82.27%                 | 14,058    |
-| SRR8524986_EREB71_bt2.log  | 55.70%                 | 16,025    |
-| SRR8525043_EREB34_bt2.log  | 85.21%                 | 19,066    |
-| SRR8525082_EREB17_bt2.log  | 93.71%                 | 22,730    |
-| SRR8525086_EREB198_bt2.log | 96.63%                 | 22,767    |
-| SRR8525083_EREB17_bt2.log  | 93.87%                 | 23,818    |
-| SRR8525012_EREB18_bt2.log  | 45.21%                 | 25,600    |
-| SRR8525113_EREB98_bt2.log  | 93.05%                 | 34,561    |
-| SRR8525120_EREB97_bt2.log  | 33.56%                 | 36,508    |
-| SRR8525114_EREB98_bt2.log  | 79.17%                 | 38,460    |
-| SRR8525077_EREB211_bt2.log | 90.18%                 | 43,501    |
-| SRR8525013_EREB102_bt2.log | 78.65%                 | 45,483    |
-| SRR8525014_EREB102_bt2.log | 54.08%                 | 46,800    |
-| SRR8525151_EREB109_bt2.log | 93.75%                 | 47,773    |
-| SRR8525105_EREB54_bt2.log  | 97.14%                 | 47,985    |
-| SRR8525078_EREB211_bt2.log | 66.73%                 | 48,076    |
-| SRR8525136_EREB147_bt2.log | 84.66%                 | 55,085    |
-| SRR8525047_EREB198_bt2.log | 86.43%                 | 56,230    |
-| SRR8525048_EREB109_bt2.log | 84.49%                 | 60,063    |
-| SRR8525118_EREB97_bt2.log  | 80.12%                 | 60,541    |
-| SRR8524995_EREB172_bt2.log | 84.02%                 | 66,184    |
-| SRR8525134_EREB147_bt2.log | 94.05%                 | 68,270    |
-| SRR8525104_EREB54_bt2.log  | 97.72%                 | 74,060    |
-| SRR8525068_EREB209_bt2.log | 70.39%                 | 75,235    |
-| SRR8524996_EREB172_bt2.log | 92.81%                 | 86,132    |
-| SRR8525069_EREB209_bt2.log | 88.57%                 | 96,090    |
-
-The number of peaks vary greatly across samples (from 7,000 to 96,000)
-
+The number of peaks vary greatly across samples (from 7,000 to 96,000).
 
 ### Reproducible peaks with IDR 
 
@@ -1817,9 +1873,11 @@ done
 ```
 
 
-### MEME-CHIP analysis
 
-#### MEME-CHIP local installation
+
+## MEME-CHIP analysis
+
+### MEME-CHIP local installation
 
 ```{bash, eval=FALSE}
 # Go to a directory containing the fasta files to be analyzed
@@ -1896,10 +1954,9 @@ done
 
 ```
 
-#### Motif visualization
+### Motif visualization
 
 Gather the `combined.meme` files which contains the motifs found across the different analyses of MEME-CHIP and ranked by most to least significant.
-
 
 ```{bash, eval=FALSE}
 
@@ -1915,8 +1972,12 @@ done
 In R, load the top motif of each `combined.meme` file for display with motifStack.
 
 ```{r}
+
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Gather list of combined.meme files
-temp = list.files(path="/path/to/output_meme_combined", pattern="*.txt")
+temp = list.files(path="/data/meme_chip", pattern="*.txt")
 
 # Load combined.meme files
 motifs_EREB = lapply(paste("/path/to/output_meme_combined/", temp, sep=""),
@@ -1939,6 +2000,103 @@ motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
 ```
 
 
+
+
+## ZmRap2.7 read density around TSS
+
+Visualize enrichment in ZmRap2.7 ChIP-seq data around the transcriptional start sites of genes.
+
+### Install NGS plot and maize database
+
+Using existing ngsplot database for B73 AGPv3 genome assembly.
+
+```{bash, eval=FALSE}
+# Clone repository
+cd ~/bin
+git clone https://github.com/shenlab-sinai/ngsplot
+
+# Add to ~/.bashrc
+export PATH=~/bin/ngsplot/bin:$PATH
+export NGSPLOT=~/bin/ngsplot
+
+# Download the genome annotation file for maize v3 
+# ngsplotdb_AGPv3_26_3.00.tar.gz and # (https://drive.google.com/drive/folders/0B1PVLadG_dCKNEsybkh5TE9XZ1E?resourcekey=0-ux6XMoJr0qaS6lemqPJBpQ).
+
+# Move archive file into ~/bin/ngsplot and install
+ngsplotdb.py install ngsplotdb_AGPv3_26_3.00.tar.gz
+
+# Check if installation worked
+ngsplotdb.py list
+
+#ID       Assembly Species  EnsVer   NPVer    InstalledFeatures        
+#AGPv3	AGPv3	zea_mays	26.0	3.0	exon,genebody,tss,tes
+
+```
+
+### Map ChIP-seq data on B73 AGPv3
+
+Use NGS plot but I need to remap the ChIP-seq reads to B73 AGPv3:
+
+```{bash, eval=FALSE}
+
+# Download B73 AGPv3 fasta
+wget https://download.maizegdb.org/B73_RefGen_v3/B73_RefGen_v3.fa.gz
+
+gunzip B73_RefGen_v3/B73_RefGen_v3.fa.gz
+
+# Build index
+bowtie2-build -f B73_RefGen_v3.fa B73_RefGen_v3
+
+# Map the two replicates for ZmRap2.7 and the control
+
+index="/home/zicola/fasta/B73_AGPv3/B73_RefGen_v3"
+
+bowtie2 -p 10 \
+  -x $index \
+  -1 trimmed/SRR29006028_ZmRap27_1.trimmed.fastq.gz \
+  -2 trimmed/SRR29006028_ZmRap27_2.trimmed.fastq.gz | \
+  samtools view -b -F 4 -f 3 -@ 2 | \
+  samtools sort -@ 4 | \
+  samtools rmdup - mapped_AGPv3/${i}.bam
+  
+bowtie2 -p 10 \
+  -x $index \
+  -1 trimmed/SRR29006029_ZmRap27_1.trimmed.fastq.gz \
+  -2 trimmed/SRR29006029_ZmRap27_2.trimmed.fastq.gz | \
+  samtools view -b -F 4 -f 3 -@ 2 | \
+  samtools sort -@ 4 | \
+  samtools rmdup - mapped_AGPv3/${i}.bam
+
+bowtie2 -p  10 \
+  -x $index \
+  -1 trimmed/SRR12022262_control_1.trimmed.fastq.gz \
+  -2 trimmed/SRR12022262_control_2.trimmed.fastq.gz | \
+  samtools view -b -F 4 -f 3 -@ 4 | \
+  samtools sort -@ 4 | \
+  samtools rmdup - mapped_AGPv3/${i}.bam
+  
+```
+
+
+### Run ngsplot
+
+```{bash, eval=FALSE}
+
+# Contrast contrast conf file
+echo -e 'mapped_AGPv3/SRR29006029_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam\t-1\t"SRR29006029_ZmRap27"' \
+  >> ngsplot/conf_file_contrast
+echo -e 'mapped_AGPv3/SRR29006028_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam\t-1\t"SRR29006028_ZmRap2"' \
+>> ngsplot/conf_file_contrast
+
+# Read density at TSS (-/+ 1 kb) with normalization by the control sample
+ngs.plot.r -P 0 -G AGPv3 -R tss -C ngsplot/conf_file \
+-O ngsplot/ChIP_TSS_1kb -T ngsplot/ChIP_TSS_1kb_normalized -L 1000
+
+```
+
+Output file is `ChIP_TSS_1kb_normalized.avgprof.pdf`
+
+![](images/)
 
 # 4C-seq analysis
 
