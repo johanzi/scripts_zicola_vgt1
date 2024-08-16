@@ -1,10 +1,10 @@
-Scripts from ‘Vgt1 acts as an enhancer of ZmRap2.7 and regulates
-flowering time in maize’
+Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
+maize
 ================
 Johan Zicola
-2024-08-14 17:52:48
+2024-08-16 15:46:08
 
-- [Scripts](#scripts)
+- [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
   - [Libraries](#libraries)
   - [Data](#data)
@@ -17,6 +17,7 @@ Johan Zicola
   - [Statistical analysis at V3](#statistical-analysis-at-v3)
   - [Statistical analysis at V4](#statistical-analysis-at-v4)
 - [qPCR analysis](#qpcr-analysis)
+  - [Libraries](#libraries-2)
   - [Data](#data-2)
   - [ZmRap2.7 expression analysis](#zmrap27-expression-analysis)
     - [ZmRap2.7 expression in V3L4](#zmrap27-expression-in-v3l4)
@@ -31,11 +32,12 @@ Johan Zicola
     - [ZmMADS4 expression in V4L5](#zmmads4-expression-in-v4l5)
     - [ZmMADS4 expression in V5L6](#zmmads4-expression-in-v5l6)
 - [RNA-seq analysis](#rna-seq-analysis)
-  - [Libraries](#libraries-2)
+  - [Libraries](#libraries-3)
   - [Data](#data-3)
   - [Adapter trimming](#adapter-trimming)
   - [Mapping on B73 NAM5 reference](#mapping-on-b73-nam5-reference)
   - [Genome index](#genome-index)
+  - [Mapping](#mapping)
   - [Read count](#read-count)
   - [Read count matrix](#read-count-matrix)
   - [coldata file](#coldata-file)
@@ -51,17 +53,26 @@ Johan Zicola
   - [Venn Diagram](#venn-diagram)
   - [GO enrichment analysis](#go-enrichment-analysis)
 - [ChIP-seq analysis](#chip-seq-analysis)
-  - [Libraries](#libraries-3)
+  - [Libraries](#libraries-4)
   - [Data](#data-4)
-  - [Adapter trimming](#adapter-trimming-1)
-  - [Mapping](#mapping)
+  - [Adapter trimming and
+    deduplication](#adapter-trimming-and-deduplication)
+  - [Mapping](#mapping-1)
   - [Peak calling](#peak-calling)
     - [Summary mapping and peak
       calling](#summary-mapping-and-peak-calling)
     - [Reproducible peaks with IDR](#reproducible-peaks-with-idr)
-    - [MEME-CHIP analysis](#meme-chip-analysis)
+  - [MEME-CHIP analysis](#meme-chip-analysis)
+    - [MEME-CHIP local installation](#meme-chip-local-installation)
+    - [Motif visualization](#motif-visualization)
+  - [ZmRap2.7 read density around TSS](#zmrap27-read-density-around-tss)
+    - [Libraries](#libraries-5)
+    - [Install ngs.plot and the maize
+      database](#install-ngsplot-and-the-maize-database)
+    - [Map ChIP-seq data on B73 AGPv3](#map-chip-seq-data-on-b73-agpv3)
+    - [Run ngs.plot](#run-ngsplot)
 - [4C-seq analysis](#4c-seq-analysis)
-  - [Libraries](#libraries-4)
+  - [Libraries](#libraries-6)
   - [Data](#data-5)
   - [Create BSgenome for B73 NAM5](#create-bsgenome-for-b73-nam5)
   - [Update conf.ylm file](#update-confylm-file)
@@ -71,7 +82,7 @@ Johan Zicola
   - [Plot normalized read count at
     Vgt1](#plot-normalized-read-count-at-vgt1)
 
-# Scripts
+# Introduction
 
 This document gathers the bioinformatic analyses performed for the
 publication “Vgt1 acts as an enhancer of ZmRap2.7 and regulates
@@ -79,13 +90,23 @@ flowering time in maize”. Light-weight raw or processed data are also
 provided in the GitHub repository
 <https://github.com/johanzi/scripts_zicola_vgt1>.
 
+To rerun the analyses, clone the repository into a local directory:
+
+``` bash
+git clone https://github.com/johanzi/scripts_zicola_vgt1
+```
+
+In addition, another repository is needed for the GO term analyses:
+
+``` bash
+git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5
+```
+
 # Flowering time analysis
 
 ## Libraries
 
 ``` r
-# R 4.4.1
-
 library("ggplot2")
 library("multcomp")
 library("agricolae")
@@ -96,13 +117,49 @@ give.n <- function(x){
 }
 ```
 
+    R version 4.0.3 (2020-10-10)
+    Platform: x86_64-w64-mingw32/x64 (64-bit)
+    Running under: Windows 10 x64 (build 19045)
+
+    Matrix products: default
+
+    locale:
+    [1] LC_COLLATE=English_United States.1252 
+    [2] LC_CTYPE=English_United States.1252   
+    [3] LC_MONETARY=English_United States.1252
+    [4] LC_NUMERIC=C                          
+    [5] LC_TIME=English_United States.1252    
+
+    attached base packages:
+    [1] stats     graphics  grDevices utils     datasets  methods   base     
+
+    other attached packages:
+    [1] car_3.1-2       carData_3.0-5   agricolae_1.3-7 multcomp_1.4-25
+    [5] TH.data_1.1-2   MASS_7.3-60.0.1 survival_3.5-8  mvtnorm_1.2-5  
+    [9] ggplot2_3.4.1  
+
+    loaded via a namespace (and not attached):
+     [1] bslib_0.4.1       compiler_4.0.3    pillar_1.9.0      jquerylib_0.1.4  
+     [5] tools_4.0.3       digest_0.6.27     nlme_3.1-165      lattice_0.22-6   
+     [9] jsonlite_1.8.8    evaluate_0.24.0   lifecycle_1.0.3   tibble_3.2.1     
+    [13] gtable_0.3.1      pkgconfig_2.0.3   rlang_1.0.6       Matrix_1.6-5     
+    [17] cli_3.6.2         rstudioapi_0.16.0 yaml_2.2.1        xfun_0.37        
+    [21] fastmap_1.1.0     cluster_2.1.6     withr_3.0.0       dplyr_1.1.0      
+    [25] knitr_1.42        generics_0.1.3    vctrs_0.5.2       sass_0.4.9       
+    [29] grid_4.0.3        tidyselect_1.2.1  glue_1.7.0        R6_2.5.1         
+    [33] fansi_1.0.6       rmarkdown_2.25    magrittr_2.0.3    codetools_0.2-20 
+    [37] scales_1.3.0      htmltools_0.5.2   splines_4.0.3     abind_1.4-5      
+    [41] colorspace_2.1-0  sandwich_3.1-0    utf8_1.2.4        munsell_0.5.1    
+    [45] cachem_1.0.6      AlgDesign_1.2.1   zoo_1.8-12       
+
 ## Data
 
 Raw data are available in
 <https://github.com/johanzi/scripts_zicola_vgt1/data/data/flowering_time.txt>.
 
 ``` r
-setwd("/path/to/repository")
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
 
 df <- read.table("data/flowering_time.txt", 
                  stringsAsFactors=TRUE,sep = "\t",
@@ -365,12 +422,52 @@ library(multcomp)
 library(dunn.test)
 ```
 
+    R version 4.0.3 (2020-10-10)
+    Platform: x86_64-w64-mingw32/x64 (64-bit)
+    Running under: Windows 10 x64 (build 19045)
+
+    Matrix products: default
+
+    locale:
+    [1] LC_COLLATE=English_United States.1252 
+    [2] LC_CTYPE=English_United States.1252   
+    [3] LC_MONETARY=English_United States.1252
+    [4] LC_NUMERIC=C                          
+    [5] LC_TIME=English_United States.1252    
+
+    attached base packages:
+    [1] stats     graphics  grDevices utils     datasets  methods   base     
+
+    other attached packages:
+     [1] dunn.test_1.3.6    multcomp_1.4-25    TH.data_1.1-2     
+     [4] MASS_7.3-60.0.1    survival_3.5-8     mvtnorm_1.2-5     
+     [7] RColorBrewer_1.1-3 wesanderson_0.3.7  lubridate_1.9.3   
+    [10] forcats_1.0.0      stringr_1.5.1      dplyr_1.1.0       
+    [13] purrr_0.3.4        readr_2.1.5        tidyr_1.2.1       
+    [16] tibble_3.2.1       ggplot2_3.4.1      tidyverse_2.0.0   
+
+    loaded via a namespace (and not attached):
+     [1] pillar_1.9.0      compiler_4.0.3    tools_4.0.3      
+     [4] lattice_0.22-6    lifecycle_1.0.3   gtable_0.3.1     
+     [7] timechange_0.3.0  pkgconfig_2.0.3   rlang_1.0.6      
+    [10] Matrix_1.6-5      cli_3.6.2         rstudioapi_0.16.0
+    [13] withr_3.0.0       generics_0.1.3    vctrs_0.5.2      
+    [16] hms_1.1.3         grid_4.0.3        tidyselect_1.2.1 
+    [19] glue_1.7.0        R6_2.5.1          fansi_1.0.6      
+    [22] tzdb_0.4.0        magrittr_2.0.3    codetools_0.2-20 
+    [25] scales_1.3.0      splines_4.0.3     colorspace_2.1-0 
+    [28] sandwich_3.1-0    utf8_1.2.4        stringi_1.8.3    
+    [31] munsell_0.5.1     zoo_1.8-12 
+
 ## Data
 
 Raw data available in
 <https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_rate.txt>
 
 ``` r
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Import data
 df <- read.delim("data/growth_rate.txt")
 df <- df %>% mutate_at(names(data_R)[1:3], as.factor)
@@ -475,9 +572,78 @@ summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
 
 # qPCR analysis
 
+## Libraries
+
+``` r
+library(plyr)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(ggpubr)
+
+# Stat
+library(multcomp)
+library(lme4)
+library(agricolae)
+
+# Summarize lm output
+library(jtools)
+
+# Function
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
+```
+
+    R version 4.0.3 (2020-10-10)
+    Platform: x86_64-w64-mingw32/x64 (64-bit)
+    Running under: Windows 10 x64 (build 19045)
+
+    Matrix products: default
+
+    locale:
+    [1] LC_COLLATE=English_United States.1252 
+    [2] LC_CTYPE=English_United States.1252   
+    [3] LC_MONETARY=English_United States.1252
+    [4] LC_NUMERIC=C                          
+    [5] LC_TIME=English_United States.1252    
+
+    attached base packages:
+    [1] stats     graphics  grDevices utils     datasets  methods  
+    [7] base     
+
+    other attached packages:
+     [1] jtools_2.2.2    agricolae_1.3-7 lme4_1.1-35.3  
+     [4] Matrix_1.6-5    multcomp_1.4-25 TH.data_1.1-2  
+     [7] MASS_7.3-60.0.1 survival_3.5-8  mvtnorm_1.2-5  
+    [10] ggpubr_0.4.0    ggplot2_3.4.1   readr_2.1.5    
+    [13] dplyr_1.1.0     plyr_1.8.9     
+
+    loaded via a namespace (and not attached):
+     [1] zoo_1.8-12        tidyselect_1.2.1  xfun_0.37        
+     [4] pander_0.6.5      purrr_0.3.4       splines_4.0.3    
+     [7] lattice_0.22-6    carData_3.0-5     colorspace_2.1-0 
+    [10] vctrs_0.5.2       generics_0.1.3    AlgDesign_1.2.1  
+    [13] utf8_1.2.4        rlang_1.0.6       pillar_1.9.0     
+    [16] nloptr_2.0.3      glue_1.7.0        withr_3.0.0      
+    [19] lifecycle_1.0.3   munsell_0.5.1     ggsignif_0.6.4   
+    [22] gtable_0.3.1      codetools_0.2-20  knitr_1.42       
+    [25] tzdb_0.4.0        fansi_1.0.6       broom_1.0.6      
+    [28] Rcpp_1.0.12       backports_1.4.1   scales_1.3.0     
+    [31] abind_1.4-5       digest_0.6.27     hms_1.1.3        
+    [34] rstatix_0.7.2     grid_4.0.3        cli_3.6.2        
+    [37] tools_4.0.3       sandwich_3.1-0    magrittr_2.0.3   
+    [40] tibble_3.2.1      cluster_2.1.6     crayon_1.5.2     
+    [43] car_3.1-2         tidyr_1.2.1       pkgconfig_2.0.3  
+    [46] minqa_1.2.7       rstudioapi_0.16.0 R6_2.5.1         
+    [49] boot_1.3-30       nlme_3.1-165      compiler_4.0.3 
+
 ## Data
 
 ``` r
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Import dataframe
 df <- read_delim("data/data_qPCR.txt", "\t", 
     escape_double = FALSE, show_col_types = FALSE)
@@ -847,8 +1013,6 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
 ## Libraries
 
 ``` r
-# R 4.4.1
-
 library(dplyr)
 library(readr) # Import csv files
 library(ggplot2)
@@ -865,9 +1029,83 @@ library(GeneOverlap)
 library(tidyverse)
 library(viridis)
 
-# Import GO functions (clone from https://github.com/johanzi/GOMAP_maize_B73_NAM5)
-source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
+# Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
+source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 ```
+
+    R version 4.0.3 (2020-10-10)
+    Platform: x86_64-w64-mingw32/x64 (64-bit)
+    Running under: Windows 10 x64 (build 19045)
+
+    Matrix products: default
+
+    locale:
+    [1] LC_COLLATE=English_United States.1252 
+    [2] LC_CTYPE=English_United States.1252   
+    [3] LC_MONETARY=English_United States.1252
+    [4] LC_NUMERIC=C                          
+    [5] LC_TIME=English_United States.1252    
+
+    attached base packages:
+     [1] parallel  stats4    grid      stats     graphics  grDevices
+     [7] utils     datasets  methods   base     
+
+    other attached packages:
+     [1] viridis_0.6.5               viridisLite_0.4.2          
+     [3] lubridate_1.9.3             stringr_1.5.1              
+     [5] purrr_0.3.4                 tibble_3.2.1               
+     [7] tidyverse_2.0.0             GeneOverlap_1.24.0         
+     [9] DESeq2_1.28.1               SummarizedExperiment_1.18.2
+    [11] DelayedArray_0.14.1         matrixStats_1.3.0          
+    [13] Biobase_2.48.0              GenomicRanges_1.40.0       
+    [15] GenomeInfoDb_1.24.2         IRanges_2.22.2             
+    [17] S4Vectors_0.26.1            BiocGenerics_0.34.0        
+    [19] VennDiagram_1.7.3           futile.logger_1.4.3        
+    [21] gridExtra_2.3               reshape2_1.4.4             
+    [23] kableExtra_1.4.0            tidyr_1.2.1                
+    [25] forcats_1.0.0               car_3.1-2                  
+    [27] carData_3.0-5               ggpubr_0.4.0               
+    [29] ggplot2_3.4.1               readr_2.1.5                
+    [31] dplyr_1.1.0                
+
+    loaded via a namespace (and not attached):
+     [1] bitops_1.0-7           bit64_4.0.5           
+     [3] RColorBrewer_1.1-3     tools_4.0.3           
+     [5] backports_1.4.1        utf8_1.2.4            
+     [7] R6_2.5.1               KernSmooth_2.23-24    
+     [9] DBI_1.2.3              colorspace_2.1-0      
+    [11] withr_3.0.0            tidyselect_1.2.1      
+    [13] bit_4.0.5              compiler_4.0.3        
+    [15] cli_3.6.2              formatR_1.14          
+    [17] xml2_1.3.5             caTools_1.18.2        
+    [19] scales_1.3.0           genefilter_1.70.0     
+    [21] systemfonts_1.0.6      digest_0.6.27         
+    [23] rmarkdown_2.25         svglite_2.1.3         
+    [25] XVector_0.28.0         pkgconfig_2.0.3       
+    [27] htmltools_0.5.2        fastmap_1.1.0         
+    [29] rlang_1.0.6            rstudioapi_0.16.0     
+    [31] RSQLite_2.3.7          generics_0.1.3        
+    [33] gtools_3.9.5           BiocParallel_1.22.0   
+    [35] RCurl_1.98-1.5         magrittr_2.0.3        
+    [37] GenomeInfoDbData_1.2.3 Matrix_1.6-5          
+    [39] Rcpp_1.0.12            munsell_0.5.1         
+    [41] fansi_1.0.6            abind_1.4-5           
+    [43] lifecycle_1.0.3        stringi_1.8.3         
+    [45] zlibbioc_1.34.0        gplots_3.1.3.1        
+    [47] plyr_1.8.9             blob_1.2.4            
+    [49] lattice_0.22-6         splines_4.0.3         
+    [51] annotate_1.66.0        hms_1.1.3             
+    [53] locfit_1.5-9.4         knitr_1.42            
+    [55] pillar_1.9.0           ggsignif_0.6.4        
+    [57] geneplotter_1.66.0     futile.options_1.0.1  
+    [59] XML_3.99-0.8           glue_1.7.0            
+    [61] evaluate_0.24.0        lambda.r_1.2.4        
+    [63] vctrs_0.5.2            tzdb_0.4.0            
+    [65] gtable_0.3.1           cachem_1.0.6          
+    [67] xfun_0.37              xtable_1.8-4          
+    [69] broom_1.0.6            rstatix_0.7.2         
+    [71] survival_3.5-8         AnnotationDbi_1.50.3  
+    [73] memoise_2.0.1          timechange_0.3.0 
 
 ## Data
 
@@ -942,26 +1180,27 @@ sed -i 's/^>\([1-9]\)/>chr\1/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa
 # Same for GTF file
 sed -i 's/^[1-9]/chr&/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf
 
-# Remove contigs
+# Remove contigs from fasta and gtf files
 sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa \
   > Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa
+  
 sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
   > Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.wo_contigs.gtf
 ```
 
 ## Genome index
 
-I could not make the command run in SLURM
-(/var/spool/slurm/d/job9144052/slurm_script: line 16: 21925 Illegal
-instruction) so I launched without queueing:
-
 ``` bash
 # Load mapper
 module load hisat2/2.1.0
 
-# Create reference genome
+# Create reference genome with indexes having for prefix B73_NAM5
 hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa B73_NAM5
 ```
+
+## Mapping
+
+Map reads with hisat2 (v2.1.0).
 
 ``` bash
 
@@ -1050,12 +1289,42 @@ The `cts.txt` file is available on github
 
 ## coldata file
 
+| sample | line      | genotype | stage | leaf_part |
+|--------|-----------|----------|-------|-----------|
+| J306   | WT        | WT       | V3L4  | D         |
+| J308   | WT        | WT       | V3L4  | B         |
+| J310   | WT        | WT       | V3L4  | D         |
+| J312   | WT        | WT       | V3L4  | B         |
+| J314   | WT        | WT       | V3L4  | D         |
+| J316   | WT        | WT       | V3L4  | B         |
+| J324   | WT        | WT       | V3L4  | B         |
+| J326   | WT        | WT       | V3L4  | D         |
+| J352   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J354   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J356   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J358   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J360   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J362   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J372   | IR_327-38 | Vgt1_IR  | V3L4  | B         |
+| J374   | IR_327-38 | Vgt1_IR  | V3L4  | D         |
+| J376   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J378   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+| J380   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J382   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+| J384   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J386   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+| J400   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
+| J402   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
+
 The `coldata.txt` file is available on github
 (<https://github.com/johanzi/scripts_zicola_vgt1/data/coldata.txt>).
 
 ## Load cts and coldata
 
 ``` r
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Adding check.names = FALSE prevent X prefixes to be added to the library names
 cts = read.table("data/cts.txt", header=TRUE, row.names=1, check.names = FALSE)
 
@@ -1253,6 +1522,10 @@ ZCN8_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_p
 ``` r
 # Both text files are available in github 
 # https://github.com/johanzi/scripts_zicola_vgt1/data
+
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 df_DEGs_part_B <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_B.txt")
 df_DEGs_part_D <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_D.txt")
 
@@ -1326,8 +1599,6 @@ df_ego_analysis_significant %>% arrange(qvalue) %>%
 ## Libraries
 
 ``` r
-# R 4.4.1
-
 library(dplyr)
 library(readr) # Import csv files
 library(ggplot2)
@@ -1345,9 +1616,76 @@ library(GeneOverlap)
 library(tidyverse)
 library(motifStack)
 
-# Import GO functions (clone from https://github.com/johanzi/GOMAP_maize_B73_NAM5)
-source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
+# Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
+source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 ```
+
+    R version 4.0.3 (2020-10-10)
+    Platform: x86_64-w64-mingw32/x64 (64-bit)
+    Running under: Windows 10 x64 (build 19045)
+
+    Matrix products: default
+
+    locale:
+    [1] LC_COLLATE=English_United States.1252  LC_CTYPE=English_United States.1252   
+    [3] LC_MONETARY=English_United States.1252 LC_NUMERIC=C                          
+    [5] LC_TIME=English_United States.1252    
+
+    attached base packages:
+     [1] parallel  stats4    grid      stats     graphics  grDevices utils     datasets 
+     [9] methods   base     
+
+    other attached packages:
+     [1] motifStack_1.32.1           Biostrings_2.56.0          
+     [3] XVector_0.28.0              ade4_1.7-22                
+     [5] MotIV_1.43.0                grImport2_0.3-1            
+     [7] lubridate_1.9.3             stringr_1.5.1              
+     [9] purrr_0.3.4                 tibble_3.2.1               
+    [11] tidyverse_2.0.0             GeneOverlap_1.24.0         
+    [13] DESeq2_1.28.1               SummarizedExperiment_1.18.2
+    [15] DelayedArray_0.14.1         matrixStats_1.3.0          
+    [17] Biobase_2.48.0              GenomicRanges_1.40.0       
+    [19] GenomeInfoDb_1.24.2         IRanges_2.22.2             
+    [21] S4Vectors_0.26.1            BiocGenerics_0.34.0        
+    [23] VennDiagram_1.7.3           futile.logger_1.4.3        
+    [25] gridExtra_2.3               reshape2_1.4.4             
+    [27] kableExtra_1.4.0            tidyr_1.2.1                
+    [29] forcats_1.0.0               car_3.1-2                  
+    [31] carData_3.0-5               ggpubr_0.4.0               
+    [33] viridis_0.6.5               viridisLite_0.4.2          
+    [35] ggplot2_3.4.1               readr_2.1.5                
+    [37] dplyr_1.1.0                
+
+    loaded via a namespace (and not attached):
+     [1] colorspace_2.1-0         ggsignif_0.6.4           base64enc_0.1-3         
+     [4] rstudioapi_0.16.0        rGADEM_2.36.0            bit64_4.0.5             
+     [7] AnnotationDbi_1.50.3     fansi_1.0.6              xml2_1.3.5              
+    [10] splines_4.0.3            cachem_1.0.6             geneplotter_1.66.0      
+    [13] knitr_1.42               seqLogo_1.54.3           Rsamtools_2.4.0         
+    [16] broom_1.0.6              annotate_1.66.0          png_0.1-8               
+    [19] compiler_4.0.3           backports_1.4.1          Matrix_1.6-5            
+    [22] fastmap_1.1.0            cli_3.6.2                formatR_1.14            
+    [25] htmltools_0.5.2          tools_4.0.3              gtable_0.3.1            
+    [28] glue_1.7.0               GenomeInfoDbData_1.2.3   Rcpp_1.0.12             
+    [31] vctrs_0.5.2              svglite_2.1.3            rtracklayer_1.48.0      
+    [34] xfun_0.37                timechange_0.3.0         lifecycle_1.0.3         
+    [37] gtools_3.9.5             rstatix_0.7.2            XML_3.99-0.8            
+    [40] MASS_7.3-60.0.1          zlibbioc_1.34.0          scales_1.3.0            
+    [43] BSgenome_1.56.0          hms_1.1.3                lambda.r_1.2.4          
+    [46] RColorBrewer_1.1-3       memoise_2.0.1            stringi_1.8.3           
+    [49] RSQLite_2.3.7            genefilter_1.70.0        caTools_1.18.2          
+    [52] BiocParallel_1.22.0      rlang_1.0.6              pkgconfig_2.0.3         
+    [55] systemfonts_1.0.6        bitops_1.0-7             evaluate_0.24.0         
+    [58] lattice_0.22-6           htmlwidgets_1.5.4        GenomicAlignments_1.24.0
+    [61] bit_4.0.5                tidyselect_1.2.1         plyr_1.8.9              
+    [64] magrittr_2.0.3           R6_2.5.1                 gplots_3.1.3.1          
+    [67] generics_0.1.3           DBI_1.2.3                pillar_1.9.0            
+    [70] withr_3.0.0              survival_3.5-8           abind_1.4-5             
+    [73] RCurl_1.98-1.5           crayon_1.5.2             futile.options_1.0.1    
+    [76] KernSmooth_2.23-24       utf8_1.2.4               tzdb_0.4.0              
+    [79] rmarkdown_2.25           jpeg_0.1-10              locfit_1.5-9.4          
+    [82] blob_1.2.4               digest_0.6.27            xtable_1.8-4            
+    [85] munsell_0.5.1   
 
 ## Data
 
@@ -1418,7 +1756,7 @@ while read i; do
 done < SRR_to_EREB.txt
 ```
 
-## Adapter trimming
+## Adapter trimming and deduplication
 
 ``` bash
 
@@ -1431,10 +1769,12 @@ for i in raw/*gz; do
       [[ -e trimmed/${name}_2.trimmed.fastq.gz ]]; then
     echo "$i already processed"
   else 
-    fastp --thread 16 --in1 raw/${name}_1.fastq.gz \
+    fastp --thread 16 \
+    --in1 raw/${name}_1.fastq.gz \
     --in2 raw/${name}_2.fastq.gz \
     --out1 trimmed/${name}_1.trimmed.fastq.gz \
     --out2 trimmed/${name}_2.trimmed.fastq.gz \
+    --dedup \
     --json trimmed/${name}.json \
     --html trimmed/${name}.html
   fi
@@ -1493,23 +1833,12 @@ while read i; do
       bowtie2 -p 10 \
         -x $index \
         -1 ./trimmed/${i}_1.trimmed.fastq.gz \
-        -2 ./trimmed/${i}_2.trimmed.fastq.gz 2> mapped/${i}_bt2.log | \
+        -2 ./trimmed/${i}_2.trimmed.fastq.gz | \
         samtools view -Sb -F 4 -f 3 -@ 2 | \
-        samtools sort -@ 2 2>>mapped/${i}_bt2.log | \
-        samtools rmdup - mapped/${i}.bam \
-        2>>mapped/${i}_bt2.log
+        samtools sort -@ 2 | \
+        samtools rmdup - mapped/${i}.bam
     fi
 done < prefix_fastq.txt
-```
-
-Summary of the mapping
-
-``` bash
-# Name sample
-for i in *log; do echo "$i" | cut -d_ -f1-2; done
-
-# Number of reads (R1+R2)
-for i in *log; do head -n2 $i | tail -n1 | cut -d' ' -f3; done
 ```
 
 ## Peak calling
@@ -1533,9 +1862,8 @@ done
 ```
 
 Create bash script `peak_calling.sh` for peak calling. Note that
-`SRR12022262_control.bam` contained the mapped reads of the ChIP-seq
-input control and provided the background levels to perform peak
-calling.
+`SRR12022262_control.bam` contain the mapped reads of the ChIP-seq input
+control and provides the background level to perform peak calling.
 
 ``` bash
 #!/usr/bin/env bash
@@ -1581,7 +1909,10 @@ java -Xmx10G -jar /home/zicola/bin/gem/gem.jar \
   --fold 3 \
   --q 3 \
   --nrf \
-  --outNP 
+  --outNP \
+  --outHOMER \
+  --outMEME
+  
 ```
 
 ``` bash
@@ -1605,6 +1936,8 @@ while read i; do
 done < list_samples_bam.txt
 ```
 
+All peaks are 201-long.
+
 ### Summary mapping and peak calling
 
 ``` bash
@@ -1617,38 +1950,43 @@ while read i; do
 done < list_samples_bam.txt
 ```
 
-| sample                     | Overall alignment rate | GEM peaks |
-|----------------------------|------------------------|-----------|
-| SRR8525044_EREB34_bt2.log  | 96.25%                 | 7,023     |
-| SRR8525011_EREB18_bt2.log  | 75.69%                 | 9,180     |
-| SRR8524985_EREB71_bt2.log  | 82.27%                 | 14,058    |
-| SRR8524986_EREB71_bt2.log  | 55.70%                 | 16,025    |
-| SRR8525043_EREB34_bt2.log  | 85.21%                 | 19,066    |
-| SRR8525082_EREB17_bt2.log  | 93.71%                 | 22,730    |
-| SRR8525086_EREB198_bt2.log | 96.63%                 | 22,767    |
-| SRR8525083_EREB17_bt2.log  | 93.87%                 | 23,818    |
-| SRR8525012_EREB18_bt2.log  | 45.21%                 | 25,600    |
-| SRR8525113_EREB98_bt2.log  | 93.05%                 | 34,561    |
-| SRR8525120_EREB97_bt2.log  | 33.56%                 | 36,508    |
-| SRR8525114_EREB98_bt2.log  | 79.17%                 | 38,460    |
-| SRR8525077_EREB211_bt2.log | 90.18%                 | 43,501    |
-| SRR8525013_EREB102_bt2.log | 78.65%                 | 45,483    |
-| SRR8525014_EREB102_bt2.log | 54.08%                 | 46,800    |
-| SRR8525151_EREB109_bt2.log | 93.75%                 | 47,773    |
-| SRR8525105_EREB54_bt2.log  | 97.14%                 | 47,985    |
-| SRR8525078_EREB211_bt2.log | 66.73%                 | 48,076    |
-| SRR8525136_EREB147_bt2.log | 84.66%                 | 55,085    |
-| SRR8525047_EREB198_bt2.log | 86.43%                 | 56,230    |
-| SRR8525048_EREB109_bt2.log | 84.49%                 | 60,063    |
-| SRR8525118_EREB97_bt2.log  | 80.12%                 | 60,541    |
-| SRR8524995_EREB172_bt2.log | 84.02%                 | 66,184    |
-| SRR8525134_EREB147_bt2.log | 94.05%                 | 68,270    |
-| SRR8525104_EREB54_bt2.log  | 97.72%                 | 74,060    |
-| SRR8525068_EREB209_bt2.log | 70.39%                 | 75,235    |
-| SRR8524996_EREB172_bt2.log | 92.81%                 | 86,132    |
-| SRR8525069_EREB209_bt2.log | 88.57%                 | 96,090    |
+Summary of the number of peaks called by GEM for each sample:
 
-The number of peaks vary greatly across samples (from 7,000 to 96,000)
+| TF      | sample              | peaks_GEM |
+|---------|---------------------|-----------|
+| EREB102 | SRR8525013_EREB102  | 62,485    |
+| EREB102 | SRR8525014_EREB102  | 49,922    |
+| EREB109 | SRR8525048_EREB109  | 119,914   |
+| EREB109 | SRR8525151_EREB109  | 52,394    |
+| EREB147 | SRR8525134_EREB147  | 77,240    |
+| EREB147 | SRR8525136_EREB147  | 62,525    |
+| EREB17  | SRR8525082_EREB17   | 25,534    |
+| EREB17  | SRR8525083_EREB17   | 32,706    |
+| EREB172 | SRR8524995_EREB172  | 66,435    |
+| EREB172 | SRR8524996_EREB172  | 88,245    |
+| EREB18  | SRR8525011_EREB18   | 26,317    |
+| EREB18  | SRR8525012_EREB18   | 26,789    |
+| EREB198 | SRR8525047_EREB198  | 57,714    |
+| EREB198 | SRR8525086_EREB198  | 29,103    |
+| EREB209 | SRR8525068_EREB209  | 73,347    |
+| EREB209 | SRR8525069_EREB209  | 99,247    |
+| EREB211 | SRR8525077_EREB211  | 118,118   |
+| EREB211 | SRR8525078_EREB211  | 47,657    |
+| EREB34  | SRR8525043_EREB34   | 18,228    |
+| EREB34  | SRR8525044_EREB34   | 35,840    |
+| EREB54  | SRR8525104_EREB54   | 67,131    |
+| EREB54  | SRR8525105_EREB54   | 71,437    |
+| EREB71  | SRR8524985_EREB71   | 13,304    |
+| EREB71  | SRR8524986_EREB71   | 16,306    |
+| EREB97  | SRR8525118_EREB97   | 65,991    |
+| EREB97  | SRR8525120_EREB97   | 39,087    |
+| EREB98  | SRR8525113_EREB98   | 34,389    |
+| EREB98  | SRR8525114_EREB98   | 67,383    |
+| ZmRap27 | SRR29006028_ZmRap27 | 49,609    |
+| ZmRap27 | SRR29006029_ZmRap27 | 70,754    |
+
+The number of peaks vary greatly across samples (from 13,204 to
+119,914).
 
 ### Reproducible peaks with IDR
 
@@ -1698,6 +2036,9 @@ Number of peaks passing IDR cutoff of 0.05 - 12748/50537 (25.2%)
 
 mkdir IDR_output
 
+# Keep only TF name
+cut -d_ -f2 list_samples_bam.txt | uniq > list_IDR.txt
+
 while read i; do
   echo "Processing $i"
   if [[ -e IDR_output/${i}_idr_peak.txt ]]; then
@@ -1713,79 +2054,87 @@ while read i; do
       --rank signal.value --idr-threshold 0.01 \
       --output-file IDR_output/${i}_idr_peak.txt
   fi
-done < list_samples_bam.txt
+done < list_IDR.txt
 ```
 
-#### Retrieve peaks from one replicate
+| TF      | IDR_peaks |
+|---------|-----------|
+| EREB102 | 11,084    |
+| EREB109 | 6,653     |
+| EREB147 | 20,675    |
+| EREB17  | 6,511     |
+| EREB172 | 35,763    |
+| EREB18  | 2,157     |
+| EREB198 | 9,133     |
+| EREB209 | 27,981    |
+| EREB211 | 10,853    |
+| EREB34  | 792       |
+| EREB54  | 23,477    |
+| EREB71  | 1,895     |
+| EREB97  | 2,274     |
+| EREB98  | 6,307     |
+| ZmRap27 | 1,846     |
 
-IDR created merged peaks with overlapping of each replicates but this
-can lead to uncentered binding motif for the binding motif analysis. It
-is therefore suggested to consider only the peaks of one replicate and
-retrieve the overlaps of the merged peaks produced by IDR.
+We get from 792 to 35,763 reproducible peaks for each TF.
+
+#### Retrieve peaks from replicates
+
+Retrieve peaks considered as reproducible from each replicate. Note that
+overlapping peaks will be merged and the length of the peaks from GEM
+(201 bp) will vary at these locations.
 
 ``` bash
 
-# Keep replicable peaks from first replicate
-mkdir IDR_output/rep1_peaks/
+module load samtools seqkit
 
-while read i; do
-  rep1=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | head -n1)
-  echo "Keep replicable peaks from rep1"
-      bedtools intersect -a $rep1 -b IDR_output/${i}_idr_peak.txt -wa \
-      -u > IDR_output/rep1_peaks/${i}_rep1_passedIDR.narrowPeak
-done < list_EREB.txt
+cd IDR_output
 
-# Keep replicable peaks from second replicate
-mkdir IDR_output/rep2_peaks/
+mkdir rep1_IDR_peaks
+mkdir rep2_IDR_peaks
 
-while read i; do
-  rep2=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | tail -n1)
-  echo "Keep replicable peaks from rep2"
-      bedtools intersect -a $rep2 -b IDR_output/${i}_idr_peak.txt -wa \
-      -u > IDR_output/rep2_peaks/${i}_rep2_passedIDR.narrowPeak
-done < list_EREB.txt
-```
+# Retrieve coordinates of the peaks for first and second replicates
+for i in *txt; do
+  cut -f1,13-16 $i > rep1_IDR_peaks/${i%%_*}_rep1.bed
+  cut -f1,17-20 $i > rep2_IDR_peaks/${i%%_*}_rep2.bed
+done
 
-Extract fasta sequences for all peaks
+# Get fasta for each peak
+mkdir rep1_IDR_peaks/fasta
+mkdir rep2_IDR_peaks/fasta
 
-``` bash
-# Extract fasta sequences
-
-mkdir IDR_output/rep1_peaks/fasta
-mkdir IDR_output/rep2_peaks/fasta
-
+# Location of the fasta file from B73 NAM5 genome
 genome_file="/path/to/Zm_NAM5.fa"
 
-for i in IDR_output/rep1_peaks/*narrowPeak; do
-  if [[ -e IDR_output/rep2_peaks/fasta/${i%.*}.fa ]]; then
-    echo "$i already processed"
-  else
-    fastaFromBed -fi $genome_file -bed $i -fo IDR_output/rep1_peaks/fasta/${i%.*}.fa
-  fi
+for i in *txt; do
+  fastaFromBed -fi $genome_file -bed rep1_IDR_peaks/${i%%_*}.bed \
+  -fo rep1_IDR_peaks/fasta/${i%%_*}_rep1.fa
+  fastaFromBed -fi $genome_file -bed rep2_IDR_peaks/${i%%_*}.bed \
+  -fo rep2_IDR_peaks/fasta/${i%%_*}_rep1.fa
 done
 
-for i in IDR_output/rep2_peaks/*narrowPeak; do
-  if [[ -e IDR_output/rep2_peaks/fasta/${i%.*}.fa ]]; then
-    echo "$i already processed"
-  else
-    fastaFromBed -fi $genome_file -bed $i -fo IDR_output/rep2_peaks/fasta/${i%.*}.fa
-  fi
+# Keep only top 1000 peaks for MEME-CHIP analysis
+mkdir rep1_IDR_peaks/fasta/top_1000
+mkdir rep2_IDR_peaks/fasta/top_1000
+
+for i in *txt; do
+  seqkit head -n 1000 rep1_IDR_peaks/fasta/${i%%_*}_rep1.fa > \
+  rep1_IDR_peaks/fasta/top_1000/${i%%_*}_rep1.top1000.fa
+  seqkit head -n 1000 rep2_IDR_peaks/fasta/${i%%_*}_rep2.fa > \
+  rep2_IDR_peaks/fasta/top_1000/${i%%_*}_rep2.top1000.fa
 done
 ```
 
-### MEME-CHIP analysis
+## MEME-CHIP analysis
 
-#### MEME-CHIP local installation
+### MEME-CHIP local installation
 
 ``` bash
 # Go to a directory containing the fasta files to be analyzed
 # Make sure this directory and subdirectories are set in chmod 777
 # chmod -R 777 /path/to/meme/analysis
-cd /path/to/meme/analysis
+chmod -R 777 /path/to/meme/analysis && cd /path/to/meme/analysis
 
-chmod -R 777 /path/to/meme/analysis
-
-# Get the last version of memesuit
+# Get the last version of memesuite (v5.5.5)
 docker pull memesuite/memesuite
 
 # Run memesuite
@@ -1796,60 +2145,39 @@ docker run -v `pwd`:/home/meme -d memesuite/memesuite:latest
 docker exec -it $(docker ps -q) /bin/sh
 ```
 
-Keep only top 1000 peaks for the analysis
+Run MEME-CHIP for all top 1000 peaks. Run with the mode with default
+motif size of 15-nt (-maxw 15) and 8-nt (-maxw 8):
 
 ``` bash
 
-for i in IDR_output/rep1_peaks/fasta/*fa; do
-  seqkit head -n 1000 $i > IDR_output/rep1_peaks/fasta/top_1000_peaks/${i%.*}.top1000.fa
-done
-
-for i in IDR_output/rep2_peaks/fasta/*fa; do
-  seqkit head -n 1000 $i > IDR_output/rep2_peaks/fasta/top_1000_peaks/${i%.*}.top1000.fa
-done
-```
-
-Run MEME-CHIP for all fasta files. Run with the mode with default motif
-size of 15-nt (-maxw 15) and 8-nt (-maxw 8)
-
-``` bash
+# Gather all fasta files in one folder
+mdkir meme_chip_analysis
+cp rep1_IDR_peaks/fasta/top_1000/*_rep1.top1000.fa meme_chip_analysis
+cp rep2_IDR_peaks/fasta/top_1000/*_rep2.top1000.fa meme_chip_analysis
 
 # Default max motif length (-maxw 15)
-## Rep1
-for i in IDR_output/rep1_peaks/fasta/top_1000_peaks/*fa; do
+mkdir meme_chip_analysis/analysis_maxw_15nt
+
+for i in meme_chip_analysis/*fa; do
   name=$(basename "$i" | cut -d_ -f1)
   meme-chip -dna -maxw 15 -o \
-      meme_chip/rep1_peaks/top_1000_peaks_maxw_15/$name \
+      meme_chip_analysis/analysis_maxw_15nt/$name \
       -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
 done
 
-## Rep2
-for i in IDR_output/rep2_peaks/fasta/top_1000_peaks/*fa; do
-  name=$(basename "$i" | cut -d_ -f1)
-  meme-chip -dna -maxw 15 -o \
-      meme_chip/rep2_peaks/top_1000_peaks_maxw_15/$name \
-      -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
-done
 
 # Max motif length of 8-nt (-maxw 8)
-## Rep1
-for i in IDR_output/rep1_peaks/fasta/top_1000_peaks/*fa; do
-  name=$(basename "$i" | cut -d_ -f1)
-  meme-chip -dna -maxw 8 -o \
-      meme_chip/rep1_peaks/top_1000_peaks_maxw_8/$name \
-      -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
-done
+mkdir meme_chip_analysis/analysis_maxw_8nt
 
-## Rep2
-for i in IDR_output/rep2_peaks/fasta/top_1000_peaks/*fa; do
+for i in meme_chip_analysis/*fa; do
   name=$(basename "$i" | cut -d_ -f1)
   meme-chip -dna -maxw 8 -o \
-      meme_chip/rep2_peaks/top_1000_peaks_maxw_8/$name \
+      meme_chip_analysis/analysis_maxw_8nt/$name \
       -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
 done
 ```
 
-#### Motif visualization
+### Motif visualization
 
 Gather the `combined.meme` files which contains the motifs found across
 the different analyses of MEME-CHIP and ranked by most to least
@@ -1868,12 +2196,17 @@ done
 In R, load the top motif of each `combined.meme` file for display with
 motifStack.
 
+#### Motif width of 15-nt max
+
 ``` r
+# Set directory to the cloned github repo scripts_zicola_vgt1
+setwd("/path/to/scripts_zicola_vgt1")
+
 # Gather list of combined.meme files
-temp = list.files(path="/path/to/output_meme_combined", pattern="*.txt")
+temp = list.files(path="data/meme_chip/output_meme_combined_maxw15", pattern="*.txt")
 
 # Load combined.meme files
-motifs_EREB = lapply(paste("/path/to/output_meme_combined/", temp, sep=""),
+motifs_EREB = lapply(paste("data/meme_chip/output_meme_combined_maxw15/", temp, sep=""),
                      function(x) importMatrix(x, format="meme", to="pcm")[[1]])
 
 # Rename each elements with the TF name
@@ -1888,8 +2221,208 @@ for (i in 1:length(motifs_EREB)){
 names(motifs_EREB) <- names
 
 # Display the stacked motifs
-motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
+#motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
+motifStack(pfms=motifs_EREB, layout="radialPhylog")
 ```
+
+![](images/motif_stack_maxw_15nt.png)
+
+#### Motif width of 8-nt max
+
+``` r
+# Gather list of combined.meme files
+temp = list.files(path="data/meme_chip/output_meme_combined_maxw8", pattern="*.txt")
+
+# Load combined.meme files
+motifs_EREB = lapply(paste("data/meme_chip/output_meme_combined_maxw8/", temp, sep=""),
+                     function(x) importMatrix(x, format="meme", to="pcm")[[1]])
+
+# Rename each elements with the TF name
+names <-  gsub(".txt", "", temp)
+
+# Extract top motif (first in the list) for each TF
+for (i in 1:length(motifs_EREB)){
+  motifs_EREB[[i]]$name <- names[[i]]
+}
+
+# Rename motif with the TF name
+names(motifs_EREB) <- names
+
+# Display the stacked motifs
+#motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
+motifStack(pfms=motifs_EREB, layout="radialPhylog")
+```
+
+![](images/motif_stack_maxw_8nt.png)
+
+## ZmRap2.7 read density around TSS
+
+Visualize enrichment in ZmRap2.7 ChIP-seq data around the
+transcriptional start sites of genes.
+
+### Libraries
+
+Install R libraries needed for ngs.plot:
+
+``` r
+install.packages("doMC", dep=T)
+install.packages("caTools", dep=T)
+install.packages("utils", dep=T)
+
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.19")
+source("http://bioconductor.org/biocLite.R")
+BiocManager::install(c("BSgenome", "Rsamtools","ShortRead"))
+```
+
+``` r
+library(doMC)
+library(caTools)
+library(utils)
+library(BSgenome)
+library(Rsamtools)
+library(ShortRead)
+```
+
+    R version 4.4.1 (2024-06-14)
+    Platform: x86_64-pc-linux-gnu
+    Running under: Ubuntu 20.04.6 LTS
+
+    Matrix products: default
+    BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0 
+    LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+
+    locale:
+     [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+     [3] LC_TIME=de_DE.UTF-8        LC_COLLATE=en_US.UTF-8    
+     [5] LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=en_US.UTF-8   
+     [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                 
+     [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+    [11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+
+    time zone: Europe/Berlin
+    tzcode source: system (glibc)
+
+    attached base packages:
+    [1] stats4    parallel  stats     graphics  grDevices utils     datasets 
+    [8] methods   base     
+
+    other attached packages:
+     [1] ShortRead_1.62.0            GenomicAlignments_1.40.0   
+     [3] SummarizedExperiment_1.34.0 Biobase_2.64.0             
+     [5] MatrixGenerics_1.16.0       matrixStats_1.3.0          
+     [7] BiocParallel_1.38.0         Rsamtools_2.20.0           
+     [9] BSgenome_1.72.0             rtracklayer_1.64.0         
+    [11] BiocIO_1.14.0               Biostrings_2.72.1          
+    [13] XVector_0.44.0              GenomicRanges_1.56.1       
+    [15] GenomeInfoDb_1.40.1         IRanges_2.38.1             
+    [17] S4Vectors_0.42.1            BiocGenerics_0.50.0        
+    [19] caTools_1.18.2              doMC_1.3.8                 
+    [21] iterators_1.0.14            foreach_1.5.2              
+
+    loaded via a namespace (and not attached):
+     [1] SparseArray_1.4.8       bitops_1.0-7            jpeg_0.1-10            
+     [4] lattice_0.22-5          grid_4.4.1              RColorBrewer_1.1-3     
+     [7] jsonlite_1.8.8          Matrix_1.6-5            restfulr_0.0.15        
+    [10] httr_1.4.7              UCSC.utils_1.0.0        XML_3.99-0.17          
+    [13] codetools_0.2-19        abind_1.4-5             crayon_1.5.2           
+    [16] DelayedArray_0.30.1     yaml_2.3.8              S4Arrays_1.4.1         
+    [19] tools_4.4.1             deldir_2.0-4            interp_1.1-6           
+    [22] GenomeInfoDbData_1.2.12 hwriter_1.3.2.1         curl_5.2.0             
+    [25] R6_2.5.1                png_0.1-8               zlibbioc_1.50.0        
+    [28] pwalign_1.0.0           Rcpp_1.0.12             latticeExtra_0.6-30    
+    [31] rjson_0.2.21            compiler_4.4.1          RCurl_1.98-1.14    
+
+### Install ngs.plot and the maize database
+
+ngs.plot can be download from GitHub
+(<https://github.com/shenlab-sinai/ngsplot>).
+
+Use ngsplot database for B73 AGPv3 genome assembly (download archive
+`ngsplotdb_AGPv3_26_3.00.tar.gz` on
+<https://drive.google.com/drive/folders/0B1PVLadG_dCKNEsybkh5TE9XZ1E?resourcekey=0-ux6XMoJr0qaS6lemqPJBpQ>)
+
+``` bash
+# Clone repository
+cd ~/bin
+git clone https://github.com/shenlab-sinai/ngsplot
+
+# Add to ~/.bashrc
+export PATH="~/bin/ngsplot/bin:$PATH"
+export NGSPLOT="~/bin/ngsplot"
+
+# Move archive file into ~/bin/ngsplot and install
+ngsplotdb.py install ngsplotdb_AGPv3_26_3.00.tar.gz
+
+# Check if installation worked
+ngsplotdb.py list
+
+#ID       Assembly Species  EnsVer   NPVer    InstalledFeatures        
+#AGPv3  AGPv3   zea_mays    26.0    3.0 exon,genebody,tss,tes
+```
+
+### Map ChIP-seq data on B73 AGPv3
+
+Use ngs.plot but I need to remap the ChIP-seq reads to B73 AGPv3:
+
+``` bash
+
+# Download B73 AGPv3 fasta
+wget https://download.maizegdb.org/B73_RefGen_v3/B73_RefGen_v3.fa.gz
+
+gunzip B73_RefGen_v3/B73_RefGen_v3.fa.gz
+
+# Build index
+bowtie2-build -f B73_RefGen_v3.fa B73_RefGen_v3
+
+# Map the two replicates for ZmRap2.7 and the control
+
+index="/home/zicola/fasta/B73_AGPv3/B73_RefGen_v3"
+
+bowtie2 -p 10 \
+  -x $index \
+  -1 trimmed/SRR29006028_ZmRap27_1.trimmed.fastq.gz \
+  -2 trimmed/SRR29006028_ZmRap27_2.trimmed.fastq.gz | \
+  samtools view -b -F 4 -f 3 -@ 2 | \
+  samtools sort -@ 4 | \
+  samtools rmdup - mapped_AGPv3/SRR29006028_ZmRap27.bam
+  
+bowtie2 -p 10 \
+  -x $index \
+  -1 trimmed/SRR29006029_ZmRap27_1.trimmed.fastq.gz \
+  -2 trimmed/SRR29006029_ZmRap27_2.trimmed.fastq.gz | \
+  samtools view -b -F 4 -f 3 -@ 2 | \
+  samtools sort -@ 4 | \
+  samtools rmdup - mapped_AGPv3/SRR29006029_ZmRap27.bam
+
+bowtie2 -p  10 \
+  -x $index \
+  -1 trimmed/SRR12022262_control_1.trimmed.fastq.gz \
+  -2 trimmed/SRR12022262_control_2.trimmed.fastq.gz | \
+  samtools view -b -F 4 -f 3 -@ 4 | \
+  samtools sort -@ 4 | \
+  samtools rmdup - mapped_AGPv3/SRR12022262_control.bam
+  
+```
+
+### Run ngs.plot
+
+Create a configuration file `config_file.txt`:
+
+| mapped_AGPv3/SRR29006029_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam | -1  | Replicate_1 |
+|---------------------------------------------------------------------------|-----|-------------|
+| mapped_AGPv3/SRR29006028_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam | -1  | Replicate_2 |
+
+``` bash
+# Read density at TSS (-/+ 1 kb) with normalization by the control sample
+ngs.plot.r -P 0 -G AGPv3 -R tss -C ngsplot/config_file.txt \
+-O ngsplot/ChIP_TSS_1kb -T ngsplot/ChIP_TSS_1kb_normalized -L 1000
+```
+
+Output file is `ngsplot/ChIP_TSS_1kb_normalized.avgprof.pdf`
+
+![](images/ngsplot_ZmRap27.png)
 
 # 4C-seq analysis
 
@@ -1927,15 +2460,95 @@ library(ShortRead)
 library(GenomicAlignments)
 library(GenomicRanges)
 library(BSgenome)
-library(BSgenome.zmv5)
 library(rtracklayer)
 
 # The peakC package available from https://github.com/deWitLab/peakC/.
 library(devtools)
 
-install_github("deWitLab/peakC")
+#install_github("deWitLab/peakC")
 library(peakC)
+
+# Load after you created the package 
+# See part "Create BSgenome for B73 NAM5"
+library(BSgenome.zmv5)
 ```
+
+    R version 4.4.1 (2024-06-14)
+    Platform: x86_64-pc-linux-gnu
+    Running under: Ubuntu 20.04.6 LTS
+
+    Matrix products: default
+    BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0 
+    LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+
+    locale:
+      [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+    [3] LC_TIME=de_DE.UTF-8        LC_COLLATE=en_US.UTF-8    
+    [5] LC_MONETARY=de_DE.UTF-8    LC_MESSAGES=en_US.UTF-8   
+    [7] LC_PAPER=de_DE.UTF-8       LC_NAME=C                 
+    [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+    [11] LC_MEASUREMENT=de_DE.UTF-8 LC_IDENTIFICATION=C       
+
+    time zone: Europe/Berlin
+    tzcode source: system (glibc)
+
+    attached base packages:
+      [1] stats4    stats     graphics  grDevices utils     datasets  methods  
+    [8] base     
+
+    other attached packages:
+      [1] peakC_0.2                   devtools_2.4.5             
+    [3] usethis_2.2.3               BSgenome.zmv5_1.0          
+    [5] BSgenome_1.72.0             rtracklayer_1.64.0         
+    [7] BiocIO_1.14.0               ShortRead_1.62.0           
+    [9] GenomicAlignments_1.40.0    SummarizedExperiment_1.34.0
+    [11] Biobase_2.64.0              MatrixGenerics_1.16.0      
+    [13] matrixStats_1.3.0           Rsamtools_2.20.0           
+    [15] GenomicRanges_1.56.1        Biostrings_2.72.1          
+    [17] GenomeInfoDb_1.40.1         XVector_0.44.0             
+    [19] IRanges_2.38.1              S4Vectors_0.42.1           
+    [21] BiocParallel_1.38.0         BiocGenerics_0.50.0        
+    [23] isotone_1.1-1               caTools_1.18.2             
+    [25] config_0.3.2                optparse_1.7.5             
+    [27] ggraph_2.2.1                lubridate_1.9.3            
+    [29] forcats_1.0.0               stringr_1.5.1              
+    [31] dplyr_1.1.4                 purrr_1.0.2                
+    [33] readr_2.1.4                 tidyr_1.3.0                
+    [35] tibble_3.2.1                ggplot2_3.5.1              
+    [37] tidyverse_2.0.0            
+
+    loaded via a namespace (and not attached):
+      [1] RColorBrewer_1.1-3      rstudioapi_0.15.0       jsonlite_1.8.8         
+    [4] magrittr_2.0.3          farver_2.1.1            fs_1.6.3               
+    [7] zlibbioc_1.50.0         vctrs_0.6.5             memoise_2.0.1          
+    [10] RCurl_1.98-1.14         htmltools_0.5.7         S4Arrays_1.4.1         
+    [13] curl_5.2.0              SparseArray_1.4.8       htmlwidgets_1.6.4      
+    [16] cachem_1.0.8            igraph_2.0.3            mime_0.12              
+    [19] lifecycle_1.0.4         pkgconfig_2.0.3         Matrix_1.6-5           
+    [22] R6_2.5.1                fastmap_1.1.1           GenomeInfoDbData_1.2.12
+    [25] shiny_1.8.1.1           digest_0.6.33           colorspace_2.1-0       
+    [28] pkgload_1.3.3           hwriter_1.3.2.1         fansi_1.0.6            
+    [31] timechange_0.2.0        nnls_1.5                httr_1.4.7             
+    [34] polyclip_1.10-6         abind_1.4-5             compiler_4.4.1         
+    [37] remotes_2.5.0           withr_2.5.2             viridis_0.6.5          
+    [40] pkgbuild_1.4.3          ggforce_0.4.2           MASS_7.3-60            
+    [43] DelayedArray_0.30.1     sessioninfo_1.2.2       rjson_0.2.21           
+    [46] tools_4.4.1             httpuv_1.6.15           glue_1.6.2             
+    [49] restfulr_0.0.15         promises_1.3.0          grid_4.4.1             
+    [52] generics_0.1.3          gtable_0.3.4            tzdb_0.4.0             
+    [55] hms_1.1.3               tidygraph_1.3.1         utf8_1.2.4             
+    [58] ggrepel_0.9.5           pillar_1.9.0            later_1.3.2            
+    [61] getopt_1.20.4           tweenr_2.0.3            lattice_0.22-5         
+    [64] deldir_2.0-4            tidyselect_1.2.0        miniUI_0.1.1.1         
+    [67] gridExtra_2.3           graphlayouts_1.1.1      stringi_1.8.3          
+    [70] UCSC.utils_1.0.0        yaml_2.3.8              codetools_0.2-19       
+    [73] interp_1.1-6            cli_3.6.2               xtable_1.8-4           
+    [76] munsell_0.5.0           Rcpp_1.0.12             png_0.1-8              
+    [79] XML_3.99-0.17           parallel_4.4.1          ellipsis_0.3.2         
+    [82] latticeExtra_0.6-30     jpeg_0.1-10             profvis_0.3.8          
+    [85] urlchecker_1.0.1        bitops_1.0-7            pwalign_1.0.0          
+    [88] viridisLite_0.4.2       scales_1.3.0            crayon_1.5.2           
+    [91] rlang_1.1.2        
 
 ## Data
 
