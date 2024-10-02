@@ -3,12 +3,12 @@ title: "Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in mai
 author: "Johan Zicola"
 date: "`r format(Sys.time())`"
 output:
-  pdf_document:
+  github_document:
     toc: true
   html_document:
     toc: true
     df_print: paged
-  github_document:
+  pdf_document:
     toc: true
   html_notebook:
     toc: true
@@ -110,8 +110,7 @@ df <- read.table("data/flowering_time.txt",
 df$experiment <- as.factor(df$experiment)
 
 # Order lines
-df$line <- factor(df$line, levels=c("WT","325-2","326-20","326-40",
-                                    "327-16","327-38","331-6"))
+df$line <- factor(df$line, levels=c("WT","327-16","327-38","331-6"))
 
 ```
 
@@ -119,7 +118,9 @@ df$line <- factor(df$line, levels=c("WT","325-2","326-20","326-40",
 
 ```{r}
 ggplot(df, aes(line, DPS, fill=transgene)) + 
-  geom_boxplot() +  
+  geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=DPS, group=transgene), size=2, alpha=0.4)  +
   stat_summary(fun.data = give.n, geom = "text") + 
   ggtitle("Days to pollen shed") +  
   theme_bw() + 
@@ -129,11 +130,12 @@ ggplot(df, aes(line, DPS, fill=transgene)) +
         axis.ticks = element_line(color = "black")) +
         theme(plot.title = element_text(hjust = 0.5)) +
         scale_y_continuous(labels = scales::comma_format()) +
-        scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
+        scale_fill_manual(values=c("#E8AE07","#FB756C"))
 
 ```
 
 ![](images/DPS.png)
+
 
 ```{r warning=FALSE}
 
@@ -141,7 +143,7 @@ ggplot(df, aes(line, DPS, fill=experiment)) +
   geom_boxplot(outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
              aes(group=experiment)) +
-  ggtitle("Days to pollen shed") +  
+  ggtitle("Days to pollen shed") +  ylab("Days to pollen shed") + xlab("Genotype") +
   theme_bw() +  
   theme(plot.title = element_text(hjust = 0.5))   +
   theme(axis.text.x = element_text(color="black"),
@@ -187,16 +189,13 @@ summary(Dunnett)
 Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = DPS ~ line + experiment)
+Fit: aov(formula = DPS ~ line + experiment, data = df)
 
 Linear Hypotheses:
                  Estimate Std. Error t value Pr(>|t|)    
-325-2 - WT == 0   -0.7463     0.5194  -1.437   0.5661    
-326-20 - WT == 0  -0.8279     0.6010  -1.378   0.6098    
-326-40 - WT == 0  -1.8374     0.6650  -2.763   0.0348 *  
-327-16 - WT == 0  -3.4374     0.6650  -5.169   <1e-04 ***
-327-38 - WT == 0  -3.8582     0.5806  -6.645   <1e-04 ***
-331-6 - WT == 0   -4.0094     0.5093  -7.872   <1e-04 ***
+327-16 - WT == 0  -3.7775     0.6925  -5.455 8.77e-07 ***
+327-38 - WT == 0  -3.9199     0.5982  -6.553  < 1e-07 ***
+331-6 - WT == 0   -3.7517     0.5296  -7.085  < 1e-07 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 (Adjusted p values reported -- single-step method)
@@ -219,6 +218,22 @@ ggplot(df, aes(line, silking, fill=transgene)) +
         scale_y_continuous(labels = scales::comma_format()) +
         scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
 
+
+ggplot(df, aes(line, silking, fill=transgene)) + 
+  geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=silking, group=transgene), size=2, alpha=0.4)  +
+  stat_summary(fun.data = give.n, geom = "text") + 
+  ggtitle("Days to silking") +  
+  theme_bw() + ylab("Days to silking") +
+  theme(plot.title = element_text(hjust = 0.5), 
+        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
+        axis.text.y = element_text(color="black"), 
+        axis.ticks = element_line(color = "black")) +
+        theme(plot.title = element_text(hjust = 0.5)) +
+        scale_y_continuous(labels = scales::comma_format()) +
+        scale_fill_manual(values=c("#E8AE07","#FB756C"))
+
 ```
 
 ![](images/silking.png)
@@ -229,7 +244,7 @@ ggplot(df, aes(line, silking, fill=experiment)) +
   geom_boxplot(outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
              aes(group=experiment)) +
-  ggtitle("Days to silking") +  
+  ggtitle("Days to silking") +  ylab("Days to silking") + xlab("Genotype") +
   theme_bw() +  
   theme(plot.title = element_text(hjust = 0.5))   +
   theme(axis.text.x = element_text(color="black"),
@@ -276,12 +291,9 @@ Fit: aov(formula = silking ~ line + experiment, data = df)
 
 Linear Hypotheses:
                  Estimate Std. Error t value Pr(>|t|)    
-325-2 - WT == 0   -1.3450     0.5626  -2.390    0.092 .  
-326-20 - WT == 0  -1.5062     0.6441  -2.339    0.104    
-326-40 - WT == 0  -3.2447     0.7254  -4.473   <1e-04 ***
-327-16 - WT == 0  -4.4447     0.7254  -6.127   <1e-04 ***
-327-38 - WT == 0  -4.4076     0.6337  -6.956   <1e-04 ***
-331-6 - WT == 0   -4.5252     0.5556  -8.144   <1e-04 ***
+327-16 - WT == 0  -4.7714     0.7862  -6.069   <1e-06 ***
+327-38 - WT == 0  -4.4667     0.6791  -6.577   <1e-06 ***
+331-6 - WT == 0   -4.2777     0.6012  -7.115   <1e-06 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 (Adjusted p values reported -- single-step method)
@@ -292,18 +304,21 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 ## Node number
 
 ```{r}
+
 ggplot(df, aes(line, node, fill=transgene)) + 
-  geom_boxplot() +  
+  geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=node, group=transgene), size=2, alpha=0.4)  +
   stat_summary(fun.data = give.n, geom = "text") + 
   ggtitle("Node number") +  
-  theme_bw() + 
+  theme_bw() + ylab("Node number") +
   theme(plot.title = element_text(hjust = 0.5), 
         axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
         axis.text.y = element_text(color="black"), 
         axis.ticks = element_line(color = "black")) +
         theme(plot.title = element_text(hjust = 0.5)) +
         scale_y_continuous(labels = scales::comma_format()) +
-        scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
+        scale_fill_manual(values=c("#E8AE07","#FB756C"))
 
 ```
 
@@ -315,7 +330,7 @@ ggplot(df, aes(line, node, fill=experiment)) +
   geom_boxplot(outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
              aes(group=experiment)) +
-  ggtitle("Node number") +  
+  ggtitle("Node number") + ylab("Node number") + xlab("Genotype") +
   theme_bw() +  
   theme(plot.title = element_text(hjust = 0.5))   +
   theme(axis.text.x = element_text(color="black"),
@@ -362,12 +377,9 @@ Fit: aov(formula = node ~ line + experiment, data = df)
 
 Linear Hypotheses:
                  Estimate Std. Error t value Pr(>|t|)    
-325-2 - WT == 0   -0.3836     0.2007  -1.911    0.261    
-326-20 - WT == 0  -0.2505     0.2221  -1.128    0.783    
-326-40 - WT == 0   0.1854     0.2536   0.731    0.963    
-327-16 - WT == 0  -1.1479     0.2536  -4.526   <1e-04 ***
-327-38 - WT == 0  -1.5665     0.2221  -7.053   <1e-04 ***
-331-6 - WT == 0   -1.0073     0.1956  -5.150   <1e-04 ***
+327-16 - WT == 0  -1.2467     0.2542  -4.904 1.09e-05 ***
+327-38 - WT == 0  -1.5877     0.2203  -7.207  < 1e-05 ***
+331-6 - WT == 0   -0.9197     0.1962  -4.688 2.46e-05 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 (Adjusted p values reported -- single-step method)
@@ -1841,7 +1853,7 @@ samtools faidx B73_NAM5.fa
 
 ```
 
-
+Map the fastq files and remove duplicate reads.
 
 ```{bash, eval=FALSE}
 
@@ -1880,6 +1892,8 @@ done < prefix_fastq.txt
 
 
 ## Peak calling
+
+The peak calling is performed on individual mapped bam files using the GEM algorithm (Guo et al., 2012)
 
 GEM requires chromosome files in separate folders. The fasta files should have the name of the chromosome only (creates bug in GEM otherwise).
 
@@ -2125,7 +2139,7 @@ Retrieve peaks considered as reproducible from each replicate. Note that overlap
 
 ```{bash, eval=FALSE}
 
-module load samtools seqkit
+module load bedtools seqkit
 
 cd IDR_output
 
@@ -2166,6 +2180,60 @@ done
 ```
 
 
+#### Retrieve peaks from replicates original GEM file
+
+```{bash, eval=FALSE}
+
+module load bedtools seqkit
+
+cut -d_ -f2 prefix_fastq.txt | sort | uniq | grep -v "control" > list_EREB.txt
+
+mkdir IDR_output/rep1_IDR_GEM_peaks
+mkdir IDR_output/rep2_IDR_GEM_peak
+
+# Keep replicable peaks from first replicates
+while read i; do
+  rep1=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | head -n1)
+  bedtools intersect -a $rep1 -b IDR_output/${i}_idr_peak.txt -wa -u >          IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed
+done < list_EREB.txt
+
+# Keep replicable peaks from second replicates
+while read i; do
+  rep2=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | tail -n1)
+  bedtools intersect -a $rep2 -b IDR_output/${i}_idr_peak.txt -wa -u >          IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed
+done < list_EREB.txt
+
+
+# Location of the fasta file from B73 NAM5 genome
+genome_file="/path/to/Zm_NAM5.fa"
+
+genome_file="/home/zicola/fasta/B73_NAM5/B73_NAM5_chr_only/Zm_NAM5.fa"
+
+mkdir IDR_output/rep1_IDR_GEM_peaks/fasta/
+mkdir IDR_output/rep2_IDR_GEM_peaks/fasta/
+
+# Extract fasta sequence
+while read i; do
+  fastaFromBed -fi $genome_file -bed IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed \
+  -fo IDR_output/rep1_IDR_GEM_peaks/fasta/${i}_rep1.fa
+  fastaFromBed -fi $genome_file -bed IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed \
+  -fo IDR_output/rep2_IDR_GEM_peaks/fasta/${i}_rep2.fa
+done  < list_EREB.txt
+
+# Keep only top 1000 peaks for MEME-CHIP analysis
+mkdir IDR_output/rep1_IDR_GEM_peaks/fasta/top1000
+mkdir IDR_output/rep2_IDR_GEM_peaks/fasta/top1000
+
+while read i; do
+  seqkit head -n 1000 IDR_output/rep1_IDR_GEM_peaks/fasta/${i}_rep1.fa > \
+  IDR_output/rep1_IDR_GEM_peaks/fasta/top1000/${i}_rep1.top1000.fa
+  seqkit head -n 1000 IDR_output/rep2_IDR_GEM_peaks/fasta/${i}_rep2.fa > \
+ IDR_output/rep2_IDR_GEM_peaks/fasta/top1000/${i}_rep2.top1000.fa
+done  < list_EREB.txt
+
+```
+
+
 ## MEME-CHIP analysis
 
 ### MEME-CHIP local installation
@@ -2201,21 +2269,28 @@ cp rep2_IDR_peaks/fasta/top_1000/*_rep2.top1000.fa meme_chip_analysis
 mkdir meme_chip_analysis/analysis_maxw_15nt
 
 for i in meme_chip_analysis/*fa; do
-  name=$(basename "$i" | cut -d_ -f1)
-  meme-chip -dna -maxw 15 -o \
+  name=$(basename "$i" | cut -d. -f1)
+  if [ -e meme_chip_analysis/analysis_maxw_15nt/$name ]; then
+    echo "$i already processed"
+  else
+    meme-chip -dna -maxw 15 -o \
       meme_chip_analysis/analysis_maxw_15nt/$name \
       -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
+  fi
 done
-
 
 # Max motif length of 8-nt (-maxw 8)
 mkdir meme_chip_analysis/analysis_maxw_8nt
 
 for i in meme_chip_analysis/*fa; do
-  name=$(basename "$i" | cut -d_ -f1)
-  meme-chip -dna -maxw 8 -o \
+  name=$(basename "$i" | cut -d. -f1)
+  if [ -e meme_chip_analysis/analysis_maxw_8nt/$name ]; then
+    echo "$i already processed"
+  else
+    meme-chip -dna -maxw 8 -o \
       meme_chip_analysis/analysis_maxw_8nt/$name \
       -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
+  fi
 done
 
 
@@ -2883,7 +2958,6 @@ exportPeakCPeaks(resPeakC=resPeakC,bedFile=peaksFile,name="Husk_peakC_peaks")
 Gather the normalized read count at Vgt1 and uva to assess the difference between replicates and tissues.
 
 ```{r}
-setwd("/home/zicola/bin/pipe4C/")
 
 # chr8:135590574..135593098 (take a bit more downstream of Vgt1 
 # to get the BglII site)
@@ -2894,68 +2968,50 @@ gr_vgt1 <- makeGRangesFromDataFrame(
         end = 135593098,
         keep.extra.columns = TRUE))
 
-# chr8:135587754..135589590
-gr_uva1 <- makeGRangesFromDataFrame(
-    data.frame(
-        chr = "chr8",
-        start = 135587754,
-        end = 135589590,
-        keep.extra.columns = TRUE))
-
 # Get values for uva1 and vgt1 region (chr8:135587501..135593000)
 
-V1 <- readRDS("out_vgt1/RDS/V2_IST_rep1.rds")
-V2 <- readRDS("out_vgt1/RDS/V2_IST_rep2.rds")
-V3 <- readRDS("out_vgt1/RDS/V2_IST_rep3.rds")
+V1 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep1.rds")
+V2 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep2.rds")
+V3 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep3.rds")
 
-H1 <- readRDS("out_vgt1/RDS/Husk_rep1.rds")
-H2 <- readRDS("out_vgt1/RDS/Husk_rep2.rds")
-H3 <- readRDS("out_vgt1/RDS/Husk_rep3.rds")
+H1 <- readRDS("data/pipe4C/out_vgt1/RDS/Husk_rep1.rds")
+H2 <- readRDS("data/pipe4C/out_vgt1/RDS/Husk_rep2.rds")
+H3 <- readRDS("data/pipe4C/out_vgt1/RDS/Husk_rep3.rds")
 
 list_v <- list(V1,V2,V3)
 list_h <- list(H1,H2,H3)
 
 data_Vgt1_v <- lapply(list_v, function(x) subsetByOverlaps(x$reads, gr_vgt1))
-data_uva1_v <- lapply(list_v, function(x) subsetByOverlaps(x$reads, gr_uva1))
 
 data_vgt1_h <- lapply(list_h, function(x) subsetByOverlaps(x$reads, gr_vgt1))
-data_uva1_h <- lapply(list_h, function(x) subsetByOverlaps(x$reads, gr_uva1))
 
 
 norm4C_vgt1_h <- lapply(data_vgt1_h, function(x) sum(x$norm4C))
-norm4C_uva1_h <- lapply(data_uva1_h, function(x) sum(x$norm4C))
 
 norm4C_vgt1_v <- lapply(data_Vgt1_v, function(x) sum(x$norm4C))
-norm4C_uva1_v <- lapply(data_uva1_v, function(x) sum(x$norm4C))
 
-v_col_norm4C <- cbind(norm4C_uva1_v, norm4C_uva1_h, norm4C_vgt1_v, norm4C_vgt1_h)
+v_col_norm4C <- cbind(norm4C_vgt1_v, norm4C_vgt1_h)
 
 # Create a dataframe
-df_norm4C <- data.frame(uva1_v=unlist(norm4C_uva1_v), 
-                        uva1_h=unlist(norm4C_uva1_h), 
-                        vgt1_v=unlist(norm4C_vgt1_v), 
+df_norm4C <- data.frame(vgt1_v=unlist(norm4C_vgt1_v), 
                         vgt1_h=unlist(norm4C_vgt1_h))
 
-df_norm4C_long <- df_norm4C %>% gather(replicate, norm4C,uva1_v:vgt1_h)
+df_norm4C_long <- df_norm4C %>% gather(replicate, norm4C,vgt1_v:vgt1_h)
 
-df_norm4C_long <- cbind(df_norm4C_long, rep(paste0("rep",1:3),4), 
-                        c(rep("uva1",6), rep("vgt1",6)), 
+df_norm4C_long <- cbind(df_norm4C_long, rep(paste0("rep",1:3),2), 
                         c(rep("V2_IST",3), 
-                          rep("Husk",3),
-                          rep("V2_IST",3), 
                           rep("Husk",3)))
 
-colnames(df_norm4C_long) <- c("sample","norm4C","rep","region","tissue")
+colnames(df_norm4C_long) <- c("sample","norm4C","rep","tissue")
 
 # Order 
 df_norm4C_long$tissue <- factor(df_norm4C_long$tissue, 
                                 levels=c("V2_IST","Husk"), ordered=T)
 
 # Plot
-ggplot(df_norm4C_long, aes(y=norm4C, x=tissue, fill=region)) +
-  geom_boxplot() +
-  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-               aes(y=norm4C, group=region), size=2)  +
+ggplot(df_norm4C_long, aes(y=norm4C, x=tissue)) +
+  geom_boxplot(fill="#FFC000") +
+  geom_point(size=2)  +
   theme_bw() +
   ylab("Normalized read count") +
   xlab("Tissue") +
@@ -2964,9 +3020,26 @@ ggplot(df_norm4C_long, aes(y=norm4C, x=tissue, fill=region)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  scale_fill_manual(values=c("#00B050","#FFC000")) +
-  ggtitle("4C-seq normalized read count at uva1 and Vgt1")
+  ggtitle("4C-seq normalized read count Vgt1")
 
 ```
 
 ![](images/4C_plot.png)
+
+Test if significant difference between the two tissues.
+
+```{r}
+with(df_norm4C_long, t.test(norm4C[tissue=="V2_IST"], norm4C[tissue=="Husk"], var.equal=FALSE))
+```
+```
+	Welch Two Sample t-test
+
+data:  norm4C[tissue == "V2_IST"] and norm4C[tissue == "Husk"]
+t = 0.91833, df = 2.1492, p-value = 0.4495
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -1865639  2967303
+sample estimates:
+mean of x mean of y 
+  2274033   1723201 
+```
