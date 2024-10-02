@@ -397,6 +397,7 @@ library(wesanderson)
 library(RColorBrewer)
 library(multcomp)
 library(dunn.test)
+library(car)
 ```
 
 
@@ -444,51 +445,187 @@ loaded via a namespace (and not attached):
 
 Raw data available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_rate.txt
 
+
 ```{r}
-# Set directory to the cloned github repo scripts_zicola_vgt1
-setwd("/path/to/scripts_zicola_vgt1")
-
 # Import data
-df <- read.delim("data/growth_rate.txt")
-df <- df %>% mutate_at(names(data_R)[1:3], as.factor)
+data_R <- read.delim("data/growth_speed.txt")
 
-df <- df %>% filter(!line %in% c("N28","C22-4"))
+data_R$genotype <- as.factor(data_R$genotype)
 
-# Order lines
-df$line <- factor(df$line, levels=c("WT","327-16","327-38","331-06"))
+# Growth rate data
+df_growth_speed <- data_R[, 1:20]
 
-# Plot data
-ggplot(df, aes(x=stage, y=days_to_stage, fill=line)) +
-  geom_boxplot() + 
+df_growth_speed <- df_growth_speed %>% gather(stage, DAS, V3:V21)
+
+stage_order <- paste("V",3:21, sep="")
+
+df_growth_speed$stage <- factor(df_growth_speed$stage, levels=stage_order, ordered=T)
+
+# Flowering data
+df_flo_time <- data_R %>% dplyr::select(genotype, DPS, silking, node)
+
+```
+
+
+## Growth speed all stages
+
+
+```{r}
+
+data_summary <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+ return(data_sum)
+}
+
+df2 <- data_summary(df_growth_speed, varname="DAS", 
+                    groupnames=c("genotype", "stage"))
+
+# filter(stage!="V21") 
+df2 %>% ggplot(aes(x=stage, y=DAS, group=genotype, color=genotype)) + 
+  geom_line() +
+  geom_point()+
+  geom_errorbar(aes(ymin=DAS-sd, ymax=DAS+sd), width=.2,
+                 position=position_dodge(0.05)) + theme_bw()+ 
+  theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(labels = scales::comma_format())
+
+```
+
+![](images/growth_speed_all_stages.png)
+
+
+## Days to pollen shed
+
+```{r}
+
+df_flo_time %>% ggplot(aes(genotype, DPS, fill=genotype)) + 
+  geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=DPS, group=genotype), size=2, alpha=0.4)  +
+  stat_summary(fun.data = give.n, geom = "text") + 
+  ggtitle("Days to pollen shed") +  ylab("Days to pollen shed") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), 
+        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
+        axis.text.y = element_text(color="black"), 
+        axis.ticks = element_line(color = "black")) +
+        theme(plot.title = element_text(hjust = 0.5)) +
+        scale_y_continuous(labels = scales::comma_format())
+
+```
+
+![](images/DPS_growth_speed_experiment.png)
+
+## Days to silking
+
+
+```{r}
+
+df_flo_time %>% ggplot(aes(genotype, silking, fill=genotype)) + 
+  geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=silking, group=genotype), size=2, alpha=0.4)  +
+  stat_summary(fun.data = give.n, geom = "text") + 
+  ggtitle("Days to silking") +  ylab("Days to silking") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), 
+        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
+        axis.text.y = element_text(color="black"), 
+        axis.ticks = element_line(color = "black")) +
+        theme(plot.title = element_text(hjust = 0.5)) +
+        scale_y_continuous(labels = scales::comma_format())
+
+```
+
+
+![](images/silking_growth_speed_experiment.png)
+
+## Node number
+
+
+```{r}
+
+df_flo_time %>% ggplot(aes(genotype, node, fill=genotype)) + 
+  geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=node, group=genotype), size=2, alpha=0.4)  +
+  stat_summary(fun.data = give.n, geom = "text") + 
+  ggtitle("Node number") +  ylab("Node number") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5), 
+        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
+        axis.text.y = element_text(color="black"), 
+        axis.ticks = element_line(color = "black")) +
+        theme(plot.title = element_text(hjust = 0.5)) +
+        scale_y_continuous(labels = scales::comma_format())
+
+```
+
+![](images/node_number_growth_speed_experiment.png)
+
+## Growth speed V3 and V4
+
+```{r}
+df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% ggplot(aes(x=stage, y=DAS, fill=genotype)) +
+  geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=DAS, group=genotype), size=2, alpha=0.4) + 
   theme_bw() + 
   ylab("Days to stage") +
-  ggtitle("Growth speed of with type and transgenic line") + 
+  ggtitle("Growth speed of with type and transgenic lines") + 
+  theme(axis.text.x = element_text(color="black"), 
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+        theme(plot.title = element_text(hjust = 0.5)) + 
+        scale_y_continuous(labels = scales::comma_format())
+
+```
+
+![](images/growth_speed_V3_v4_all_genotypes.png)
+
+Restrict to WT B104 and Vgt1-IR transgenic lines:
+
+```{r}
+
+df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) %>% ggplot(aes(x=stage, y=DAS, fill=genotype)) +
+  geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
+              aes(y=DAS, group=genotype), size=2, alpha=0.4) + 
+  theme_bw() + 
+  ylab("Days to stage") +
+  ggtitle("Growth speed of with type and transgenic lines") + 
   theme(axis.text.x = element_text(color="black"), 
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) + 
         theme(plot.title = element_text(hjust = 0.5)) + 
         scale_y_continuous(labels = scales::comma_format()) +
-        scale_fill_brewer(palette="OrRd")
+        scale_fill_manual(values=c("#F8766D","#FDCC8A","#FC8D59","#FFC000"))
+
 
 ```
-
-![](images/growth_speed.png)
+![](images/growth_speed_V3_v4.png)
 
 
 ## Statistical analysis at V3
 
 ```{r}
 
-df_v3 <- df %>% subset(stage=="V3")
+df_growth_speed_V3 <- df_growth_speed %>% subset(stage=="V3") %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06"))
 
-fit <- aov(days_to_stage ~ line, data=df_v3)
+fit <- aov(DAS ~ genotype, data=df_growth_speed_V3)
 
 # Test homoscedasticity, if p-value > 5%, Ho all variances
 # are equals is not rejected
-bartlett.test(days_to_stage~line, data=df_v3)
+bartlett.test(DAS~genotype, data=df_growth_speed_V3)
 
 #Alternatively (need library "car")
-leveneTest(days_to_stage~line, data=df)
+leveneTest(DAS~genotype, data=df_growth_speed_V3)
 
 # Check normality of residual distribution
 plot(fit, which=2)
@@ -496,7 +633,7 @@ plot(fit, which=2)
 # Check independence of residuals (residual errors have a mean of zero)
 plot(fit, which=1)
 
-summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
+summary(glht(fit, linfct=mcp(genotype="Dunnett"), alternative="two.sided"))
 
 ```
 
@@ -506,15 +643,16 @@ summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
 Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = days_to_stage ~ line, data = df_v3)
+Fit: aov(formula = DAS ~ genotype, data = df_growth_speed_V3)
 
 Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-327-16 - WT == 0  -3.7222     0.3020  -12.33   <1e-10 ***
-327-38 - WT == 0  -3.1930     0.2988  -10.69   <1e-10 ***
-331-06 - WT == 0  -2.3750     0.2865   -8.29   <1e-10 ***
+                           Estimate Std. Error t value Pr(>|t|)    
+Vgt1-IR_327-16 - B104 == 0  -3.7556     0.3223  -11.65   <1e-10 ***
+Vgt1-IR_327-38 - B104 == 0  -3.2263     0.3193  -10.11   <1e-10 ***
+Vgt1-IR_331-06 - B104 == 0  -2.4083     0.3076   -7.83   <1e-10 ***
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+(Adjusted p values reported -- single-step method)
 
 ```
 
@@ -523,16 +661,16 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05
 
 ```{r}
 
-df_v4 <- df %>% subset(stage=="V4")
+df_growth_speed_V4 <- df_growth_speed %>% subset(stage=="V4") %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06"))
 
-fit <- aov(days_to_stage ~ line, data=df_v4)
+fit <- aov(DAS ~ genotype, data=df_growth_speed_V4)
 
 # Test homoscedasticity, if p-value > 5%, Ho all variances
 # are equals is not rejected
-bartlett.test(days_to_stage~line, data=df_v4)
+bartlett.test(DAS~genotype, data=df_growth_speed_V4)
 
 #Alternatively (need library "car")
-leveneTest(days_to_stage~line, data=df)
+leveneTest(DAS~genotype, data=df_growth_speed_V4)
 
 # Check normality of residual distribution
 plot(fit, which=2)
@@ -540,9 +678,7 @@ plot(fit, which=2)
 # Check independence of residuals (residual errors have a mean of zero)
 plot(fit, which=1)
 
-summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
-
-
+summary(glht(fit, linfct=mcp(genotype="Dunnett"), alternative="two.sided"))
 ```
 
 ```
@@ -551,13 +687,13 @@ summary(glht(fit, linfct=mcp(line="Dunnett"), alternative="two.sided"))
 Multiple Comparisons of Means: Dunnett Contrasts
 
 
-Fit: aov(formula = days_to_stage ~ line, data = df_v4)
+Fit: aov(formula = DAS ~ genotype, data = df_growth_speed_V4)
 
 Linear Hypotheses:
-                 Estimate Std. Error t value Pr(>|t|)    
-327-16 - WT == 0  -1.5278     0.3212  -4.756  < 0.001 ***
-327-38 - WT == 0  -2.1360     0.3178  -6.720  < 0.001 ***
-331-06 - WT == 0  -1.0417     0.3048  -3.418  0.00299 ** 
+                           Estimate Std. Error t value Pr(>|t|)    
+Vgt1-IR_327-16 - B104 == 0  -1.4444     0.3419  -4.225   <0.001 ***
+Vgt1-IR_327-38 - B104 == 0  -2.0526     0.3387  -6.061   <0.001 ***
+Vgt1-IR_331-06 - B104 == 0  -0.9583     0.3263  -2.937   0.0113 *  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 (Adjusted p values reported -- single-step method)
