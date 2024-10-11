@@ -443,8 +443,7 @@ loaded via a namespace (and not attached):
 
 ## Data
 
-Raw data available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_rate.txt
-
+Raw data available in https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_speed.txt. The values are in number of days from the V2 stage, apart from "node", which represents the number of nodes at maturity.
 
 ```{r}
 # Import data
@@ -455,7 +454,8 @@ data_R$genotype <- as.factor(data_R$genotype)
 # Growth rate data
 df_growth_speed <- data_R[, 1:20]
 
-df_growth_speed <- df_growth_speed %>% gather(stage, DAS, V3:V21)
+# DAV2 stands for days after V2 stage
+df_growth_speed <- df_growth_speed %>% gather(stage, DAV2, V3:V21)
 
 stage_order <- paste("V",3:21, sep="")
 
@@ -484,14 +484,14 @@ data_summary <- function(data, varname, groupnames){
  return(data_sum)
 }
 
-df2 <- data_summary(df_growth_speed, varname="DAS", 
+df2 <- data_summary(df_growth_speed, varname="DAV2", 
                     groupnames=c("genotype", "stage"))
 
 # filter(stage!="V21") 
-df2 %>% ggplot(aes(x=stage, y=DAS, group=genotype, color=genotype)) + 
+df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) + 
   geom_line() +
   geom_point()+
-  geom_errorbar(aes(ymin=DAS-sd, ymax=DAS+sd), width=.2,
+  geom_errorbar(aes(ymin=DAV2-sd, ymax=DAV2+sd), width=.2,
                  position=position_dodge(0.05)) + theme_bw()+ 
   theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(labels = scales::comma_format())
 
@@ -522,6 +522,56 @@ df_flo_time %>% ggplot(aes(genotype, DPS, fill=genotype)) +
 
 ![](images/DPS_growth_speed_experiment.png)
 
+```{r}
+# Test homoscedasticity, if p-value > 5%, Ho all variances
+# are equals is not rejected
+
+df_flo_time_IR <- df_flo_time %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) 
+
+
+bartlett.test(DPS~genotype, data=df_flo_time_IR)
+
+#Alternatively (need library "car")
+leveneTest(DPS~genotype, data=df_flo_time_IR)
+
+# Normality residuals
+with(df_flo_time_IR, shapiro.test(DPS))
+
+#ANOVA
+fit = aov(DPS~genotype, data=df_flo_time_IR)
+
+# Check normality of residual distribution
+plot(fit, which=2)
+
+# Check independence of residuals (residual errors have a mean of zero)
+plot(fit, which=1)
+
+# Perform Dunnett posthoc test
+Dunnett <- glht(fit, linfct=mcp(genotype = "Dunnett"), alternative="two.sided")
+summary(Dunnett)
+
+```
+
+```
+	 Simultaneous Tests for General Linear Hypotheses
+
+Multiple Comparisons of Means: Dunnett Contrasts
+
+
+Fit: aov(formula = DPS ~ genotype, data = df_flo_time_IR)
+
+Linear Hypotheses:
+                           Estimate Std. Error t value Pr(>|t|)    
+Vgt1-IR_327-16 - B104 == 0   -2.700      1.109  -2.434    0.042 *  
+Vgt1-IR_327-38 - B104 == 0   -7.884      1.099  -7.175   <0.001 ***
+Vgt1-IR_331-06 - B104 == 0   -6.783      1.059  -6.408   <0.001 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+(Adjusted p values reported -- single-step method)
+
+```
+
+
 ## Days to silking
 
 
@@ -546,6 +596,53 @@ df_flo_time %>% ggplot(aes(genotype, silking, fill=genotype)) +
 
 ![](images/silking_growth_speed_experiment.png)
 
+
+```{r}
+# Test homoscedasticity, if p-value > 5%, Ho all variances
+# are equals is not rejected
+
+bartlett.test(silking~genotype, data=df_flo_time_IR)
+
+#Alternatively (need library "car")
+leveneTest(silking~genotype, data=df_flo_time_IR)
+
+# Normality residuals
+with(df_flo_time_IR, shapiro.test(silking))
+
+#ANOVA
+fit = aov(silking~genotype, data=df_flo_time_IR)
+
+# Check normality of residual distribution
+plot(fit, which=2)
+
+# Check independence of residuals (residual errors have a mean of zero)
+plot(fit, which=1)
+
+# Perform Dunnett posthoc test
+Dunnett <- glht(fit, linfct=mcp(genotype = "Dunnett"), alternative="two.sided")
+summary(Dunnett)
+
+```
+
+```
+	 Simultaneous Tests for General Linear Hypotheses
+
+Multiple Comparisons of Means: Dunnett Contrasts
+
+
+Fit: aov(formula = silking ~ genotype, data = df_flo_time_IR)
+
+Linear Hypotheses:
+                           Estimate Std. Error t value Pr(>|t|)    
+Vgt1-IR_327-16 - B104 == 0    0.125      1.220   0.102  0.99877    
+Vgt1-IR_327-38 - B104 == 0   -6.165      1.210  -5.096  < 0.001 ***
+Vgt1-IR_331-06 - B104 == 0   -3.917      1.172  -3.343  0.00319 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+(Adjusted p values reported -- single-step method)
+```
+
+
 ## Node number
 
 
@@ -569,13 +666,60 @@ df_flo_time %>% ggplot(aes(genotype, node, fill=genotype)) +
 
 ![](images/node_number_growth_speed_experiment.png)
 
+
+```{r}
+# Test homoscedasticity, if p-value > 5%, Ho all variances
+# are equals is not rejected
+
+bartlett.test(node~genotype, data=df_flo_time_IR)
+
+#Alternatively (need library "car")
+leveneTest(node~genotype, data=df_flo_time_IR)
+
+# Normality residuals
+with(df_flo_time_IR, shapiro.test(node))
+
+#ANOVA
+fit = aov(node~genotype, data=df_flo_time_IR)
+
+# Check normality of residual distribution
+plot(fit, which=2)
+
+# Check independence of residuals (residual errors have a mean of zero)
+plot(fit, which=1)
+
+# Perform Dunnett posthoc test
+Dunnett <- glht(fit, linfct=mcp(genotype = "Dunnett"), alternative="two.sided")
+summary(Dunnett)
+
+```
+
+```
+	 Simultaneous Tests for General Linear Hypotheses
+
+Multiple Comparisons of Means: Dunnett Contrasts
+
+
+Fit: aov(formula = node ~ genotype, data = df_flo_time_IR)
+
+Linear Hypotheses:
+                           Estimate Std. Error t value Pr(>|t|)    
+Vgt1-IR_327-16 - B104 == 0  -0.9000     0.2074  -4.340 0.000131 ***
+Vgt1-IR_327-38 - B104 == 0  -1.0053     0.2054  -4.894  < 1e-04 ***
+Vgt1-IR_331-06 - B104 == 0  -1.3167     0.1979  -6.653  < 1e-04 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+(Adjusted p values reported -- single-step method)
+```
+
+
 ## Growth speed V3 and V4
 
 ```{r}
-df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% ggplot(aes(x=stage, y=DAS, fill=genotype)) +
+df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% ggplot(aes(x=stage, y=DAV2, fill=genotype)) +
   geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
   geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-              aes(y=DAS, group=genotype), size=2, alpha=0.4) + 
+              aes(y=DAV2, group=genotype), size=2, alpha=0.4) + 
   theme_bw() + 
   ylab("Days to stage") +
   ggtitle("Growth speed of with type and transgenic lines") + 
