@@ -5,13 +5,13 @@ date: "`r format(Sys.time())`"
 output:
   github_document:
     toc: true
+  html_notebook:
+    toc: true
+  pdf_document:
+    toc: true
   html_document:
     toc: true
     df_print: paged
-  pdf_document:
-    toc: true
-  html_notebook:
-    toc: true
 documentclass: article
 classoption: a4paper
 geometry: margin=1in
@@ -1941,6 +1941,23 @@ library(motifStack)
 # Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
 source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 
+# Functions for motifStack
+
+format_motif <- function(motif, colorblind=FALSE, RC=FALSE){
+  # Set colors to blind-color friendly
+  if(colorblind==TRUE){
+    motif$color <- c(A="#a6cee3", C="#33a02c",G="#1f78b4",T="#b2df8a")
+  } else {
+    motif$color <- c(A="#78CB3A", C="#0809C7",G="#CAC936",T="#AE0018")
+    }
+  # Set to RC if needed
+  if(RC==TRUE){
+    motif <- matrixReverseComplement(motif)
+  }
+  # Plot motif
+  return(motif)
+}
+
 ```
 
 
@@ -2016,37 +2033,41 @@ loaded via a namespace (and not attached):
 
 ## Data
 
-| Accession    | Gene name B73 NAM5       | EREB name |
-|--------------|--------------------------|-----------|
-| SRR8525048   | Zm00001eb311180          | EREB109   |
-| SRR8525151   | Zm00001eb311180          | EREB109   |
-| SRR8525136   | Zm00001eb150840          | EREB147   |
-| SRR8525134   | Zm00001eb150840          | EREB147   |
-| SRR8525082   | Zm00001eb194220          | EREB17    |
-| SRR8525083   | Zm00001eb194220          | EREB17    |
-| SRR8524996   | Zm00001eb038070          | EREB172   |
-| SRR8524995   | Zm00001eb038070          | EREB172   |
-| SRR8525012   | Zm00001eb255160          | EREB18    |
-| SRR8525011   | Zm00001eb255160          | EREB18    |
-| SRR8525086   | Zm00001eb074930          | EREB198   |
-| SRR8525047   | Zm00001eb074930          | EREB198   |
-| SRR8525068   | Zm00001eb171050          | EREB209   |
-| SRR8525069   | Zm00001eb171050          | EREB209   |
-| SRR8525077   | Zm00001d053859           | EREB211   |
-| SRR8525078   | Zm00001d053859           | EREB211   |
-| SRR8525044   | Zm00001eb296430          | EREB34    |
-| SRR8525043   | Zm00001eb296430          | EREB34    |
-| SRR8525105   | Zm00001eb413930          | EREB54    |
-| SRR8525104   | Zm00001eb413930          | EREB54    |
-| SRR8524985   | Zm00001eb401290          | EREB71    |
-| SRR8524986   | Zm00001eb401290          | EREB71    |
-| SRR8525118   | Zm00001eb071190          | EREB97    |
-| SRR8525120   | Zm00001eb071190          | EREB97    |
-| SRR12022262  | ChIP-seq   input control | control   |
-| SRR29006028  | Zm00001eb355240          | ZmRap27   |
-| SRR29006029  | Zm00001eb355240          | ZmRap27   |
+| Accession    | Name    |
+|--------------|---------|
+| SRR12022262  | control |
+| SRR8525048   | EREB109 |
+| SRR8525151   | EREB109 |
+| SRR8525082   | EREB17  |
+| SRR8525083   | EREB17  |
+| SRR8525077   | EREB211 |
+| SRR8525078   | EREB211 |
+| SRR8525113   | EREB98  |
+| SRR8525114   | EREB98  |
+| SRR8525105   | EREB54  |
+| SRR8525104   | EREB54  |
+| SRR8524985   | EREB71  |
+| SRR8524986   | EREB71  |
+| SRR8525013   | EREB102 |
+| SRR8525014   | EREB102 |
+| SRR8525012   | EREB18  |
+| SRR8525011   | EREB18  |
+| SRR8524996   | EREB172 |
+| SRR8524995   | EREB172 |
+| SRR8525118   | EREB97  |
+| SRR8525120   | EREB97  |
+| SRR8525068   | EREB209 |
+| SRR8525069   | EREB209 |
+| SRR8525136   | EREB147 |
+| SRR8525134   | EREB147 |
+| SRR8525044   | EREB34  |
+| SRR8525043   | EREB34  |
+| SRR8525086   | EREB198 |
+| SRR8525047   | EREB198 |
+| SRR29006029  | ZmRap27 |
+| SRR29006028  | ZmRap27 |
 
-The first 26 samples were published in [Tu et al 2020](https://www.nature.com/articles/s41467-020-18832-8) The last 2 samples were generated in this study (PRJNA1110977).
+The first 28 samples were published in [Tu et al 2020](https://www.nature.com/articles/s41467-020-18832-8) The last 2 samples were generated in this study (PRJNA1110977).
 
 Download data by pasting the first column of the table above into the text file `list_SRR.txt`.
 
@@ -2411,56 +2432,9 @@ done < list_IDR.txt
 
 We get from 792 to 35,763 reproducible peaks for each TF.
 
-
-
 #### Retrieve peaks from replicates
 
-Retrieve peaks considered as reproducible from each replicate. Note that overlapping peaks will be merged and the length of the peaks from GEM (201 bp) will vary at these locations.
-
-```{bash, eval=FALSE}
-
-module load bedtools seqkit
-
-cd IDR_output
-
-mkdir rep1_IDR_peaks
-mkdir rep2_IDR_peaks
-
-# Retrieve coordinates of the peaks for first and second replicates
-for i in *txt; do
-  cut -f1,13-16 $i > rep1_IDR_peaks/${i%%_*}_rep1.bed
-  cut -f1,17-20 $i > rep2_IDR_peaks/${i%%_*}_rep2.bed
-done
-
-# Get fasta for each peak
-mkdir rep1_IDR_peaks/fasta
-mkdir rep2_IDR_peaks/fasta
-
-# Location of the fasta file from B73 NAM5 genome
-genome_file="/path/to/Zm_NAM5.fa"
-
-for i in *txt; do
-  fastaFromBed -fi $genome_file -bed rep1_IDR_peaks/${i%%_*}.bed \
-  -fo rep1_IDR_peaks/fasta/${i%%_*}_rep1.fa
-  fastaFromBed -fi $genome_file -bed rep2_IDR_peaks/${i%%_*}.bed \
-  -fo rep2_IDR_peaks/fasta/${i%%_*}_rep1.fa
-done
-
-# Keep only top 1000 peaks for MEME-CHIP analysis
-mkdir rep1_IDR_peaks/fasta/top_1000
-mkdir rep2_IDR_peaks/fasta/top_1000
-
-for i in *txt; do
-  seqkit head -n 1000 rep1_IDR_peaks/fasta/${i%%_*}_rep1.fa > \
-  rep1_IDR_peaks/fasta/top_1000/${i%%_*}_rep1.top1000.fa
-  seqkit head -n 1000 rep2_IDR_peaks/fasta/${i%%_*}_rep2.fa > \
-  rep2_IDR_peaks/fasta/top_1000/${i%%_*}_rep2.top1000.fa
-done
-
-```
-
-
-#### Retrieve peaks from replicates original GEM file
+Retrieve peaks considered as reproducible from each replicate.
 
 ```{bash, eval=FALSE}
 
@@ -2469,46 +2443,78 @@ module load bedtools seqkit
 cut -d_ -f2 prefix_fastq.txt | sort | uniq | grep -v "control" > list_EREB.txt
 
 mkdir IDR_output/rep1_IDR_GEM_peaks
-mkdir IDR_output/rep2_IDR_GEM_peak
+mkdir IDR_output/rep2_IDR_GEM_peaks
 
-# Keep replicable peaks from first replicates
+# Keep reproducible peaks from first replicates
 while read i; do
   rep1=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | head -n1)
   bedtools intersect -a $rep1 -b IDR_output/${i}_idr_peak.txt -wa -u >          IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed
 done < list_EREB.txt
 
-# Keep replicable peaks from second replicates
+# Keep reproducible peaks from second replicates
 while read i; do
   rep2=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | tail -n1)
   bedtools intersect -a $rep2 -b IDR_output/${i}_idr_peak.txt -wa -u >          IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed
 done < list_EREB.txt
 
+# Keep overlap of the two replicates
+while read i; do
+  bedtools intersect -a IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed -b IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed -wa -u >  IDR_output/intersect_rep1_rep2/${i}.bed
+done < list_EREB.txt
+
+# Remove the peaks overlapping the gene position (NAM5 coordinates available) 
+# for all EREB apart from EREB102 and EREB98 (only annotated in AGPv4)
+
+# Bed files with all gene coordinates
+bed_genes="Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed"
+
+while read i; do
+  name=$(echo "$i" | cut -f1)
+  ID=$(echo "$i" | cut -f2)
+  grep -w $ID $bed_genes > ${ID}.bed
+  bedtools intersect -v -a IDR_output/intersect_rep1_rep2/${name}.bed -b ${ID}.bed > IDR_output/intersect_rep1_rep2/cleaned/${name}.bed
+done < name_to_gene.txt
+
+```
+
+Number of reproducible peaks:
+
+| TF      | IDR_peaks |
+|---------|-----------|
+| EREB102 | 14,128    |
+| EREB109 | 8,413     |
+| EREB147 | 24,266    |
+| EREB17  | 7,321     |
+| EREB172 | 41,736    |
+| EREB18  | 2,591     |
+| EREB198 | 10,746    |
+| EREB209 | 31,539    |
+| EREB211 | 13,012    |
+| EREB34  | 957       |
+| EREB54  | 25,652    |
+| EREB71  | 2,130     |
+| EREB97  | 2,962     |
+| EREB98  | 6,964     |
+| ZmRap27 | 2,200     |
+
+Get fasta sequences and keep only the top 1000 peaks for MEME-CHIP analysis.
+
+```{bash, eval=FALSE}
 
 # Location of the fasta file from B73 NAM5 genome
-genome_file="/path/to/Zm_NAM5.fa"
-
 genome_file="/home/zicola/fasta/B73_NAM5/B73_NAM5_chr_only/Zm_NAM5.fa"
-
-mkdir IDR_output/rep1_IDR_GEM_peaks/fasta/
-mkdir IDR_output/rep2_IDR_GEM_peaks/fasta/
 
 # Extract fasta sequence
 while read i; do
-  fastaFromBed -fi $genome_file -bed IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed \
-  -fo IDR_output/rep1_IDR_GEM_peaks/fasta/${i}_rep1.fa
-  fastaFromBed -fi $genome_file -bed IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed \
-  -fo IDR_output/rep2_IDR_GEM_peaks/fasta/${i}_rep2.fa
+  fastaFromBed -fi $genome_file -bed IDR_output/intersect_rep1_rep2/cleaned/${i}.bed  -fo IDR_output/intersect_rep1_rep2/cleaned/fasta/${i}.fa
 done  < list_EREB.txt
 
 # Keep only top 1000 peaks for MEME-CHIP analysis
-mkdir IDR_output/rep1_IDR_GEM_peaks/fasta/top1000
-mkdir IDR_output/rep2_IDR_GEM_peaks/fasta/top1000
+mkdir IDR_output/intersect_rep1_rep2/cleaned/fasta/top1000
 
 while read i; do
-  seqkit head -n 1000 IDR_output/rep1_IDR_GEM_peaks/fasta/${i}_rep1.fa > \
-  IDR_output/rep1_IDR_GEM_peaks/fasta/top1000/${i}_rep1.top1000.fa
-  seqkit head -n 1000 IDR_output/rep2_IDR_GEM_peaks/fasta/${i}_rep2.fa > \
- IDR_output/rep2_IDR_GEM_peaks/fasta/top1000/${i}_rep2.top1000.fa
+  seqkit head -n 1000 IDR_output/intersect_rep1_rep2/cleaned/fasta/${i}.fa > \
+  IDR_output/intersect_rep1_rep2/cleaned/fasta/top1000/${i}.top1000.fa
 done  < list_EREB.txt
 
 ```
@@ -2530,51 +2536,39 @@ docker pull memesuite/memesuite
 # Run memesuite
 docker run -v `pwd`:/home/meme -d memesuite/memesuite:latest
 
+# One can also run using the server interface:
+# docker run -v `pwd`:/home/meme -d -p 8080:8080 memesuite/memesuite:latest
+# Then open a web browser and go to http://localhost:8080/meme_5.5.5/
+
 # Get into interactive mode using container id
 # Here I assume only one container is running 
 docker exec -it $(docker ps -q) /bin/sh
 
 ```
 
-Run MEME-CHIP for all top 1000 peaks. Run with the mode with default motif size of 15-nt (-maxw 15) and 8-nt (-maxw 8):
+Download the TF database from https://meme-suite.org/meme/doc/download.html#seq_dbs. The file should be in `motif_databases/ARABD/ArabidopsisPBM_20140210.meme` once the archive is decompressed.
+
+```{bash, eval=FALSE}
+# Open archive
+tar xzvf motif_databases.12.25.tgz
+
+# Check file
+file motif_databases/ARABD/ArabidopsisPBM_20140210.meme
+motif_databases/ARABD/ArabidopsisPBM_20140210.meme: ASCII text
+
+```
+
+### MEME-CHIP run
 
 ```{bash, eval=FALSE}
 
-# Gather all fasta files in one folder
-mdkir meme_chip_analysis
-cp rep1_IDR_peaks/fasta/top_1000/*_rep1.top1000.fa meme_chip_analysis
-cp rep2_IDR_peaks/fasta/top_1000/*_rep2.top1000.fa meme_chip_analysis
-
-# Default max motif length (-maxw 15)
-mkdir meme_chip_analysis/analysis_maxw_15nt
-
-for i in meme_chip_analysis/*fa; do
-  name=$(basename "$i" | cut -d. -f1)
-  if [ -e meme_chip_analysis/analysis_maxw_15nt/$name ]; then
-    echo "$i already processed"
-  else
-    meme-chip -dna -maxw 15 -o \
-      meme_chip_analysis/analysis_maxw_15nt/$name \
-      -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
-  fi
+for i in meme_chip_analysis/new_analysis/*fa; do
+  meme-chip -dna -db motif_databases/ARABD/ArabidopsisPBM_20140210.meme -maxw 8 \
+  -o ${i%%.*}  -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
 done
-
-# Max motif length of 8-nt (-maxw 8)
-mkdir meme_chip_analysis/analysis_maxw_8nt
-
-for i in meme_chip_analysis/*fa; do
-  name=$(basename "$i" | cut -d. -f1)
-  if [ -e meme_chip_analysis/analysis_maxw_8nt/$name ]; then
-    echo "$i already processed"
-  else
-    meme-chip -dna -maxw 8 -o \
-      meme_chip_analysis/analysis_maxw_8nt/$name \
-      -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 $i
-  fi
-done
-
 
 ```
+
 
 ### Motif visualization
 
@@ -2585,30 +2579,66 @@ Gather the `combined.meme` files which contains the motifs found across the diff
 # Rename each combined.meme with the TF name
 for i in *; do
   if [ -e ${i}/combined.meme ]; then
-    cp ${i}/combined.meme output_meme_combined/${i}.txt
+    cp ${i}/combined.meme summary_meme_chip//${i}.txt
   fi
 done
 
 ```
 
-In R, load the top motif of each `combined.meme` file for display with motifStack.
+#### Motif ZmRap2.7 vs TOE1 and SPL1
 
-#### Motif width of 15-nt max 
+The top MEME-ChIP motif for ZmRap2.7 is similar to TOE1 and SPL1 binding motif.
+
+Download TOE1 motif from Franco Zorilla 2014 https://footprintdb.eead.csic.es/index.php?motif=44ea4c59f616f5ca92af81fd877294d0
+
+The TOE2 motif is very slightly different
+https://footprintdb.eead.csic.es/index.php?motif=73188131fc858bfb8d76bed9e00b1284
+
+Download SPL1 motif from Franco Zorilla 2014 https://footprintdb.eead.csic.es/index.php?db=ArabidopsisPBM:20140210&motif=SPL1
 
 ```{r}
 
-# Set directory to the cloned github repo scripts_zicola_vgt1
+zmrap27 <- importMatrix("data/meme_chip/summary_meme_chip/ZmRap27.txt", format="meme", to="pcm")[[1]]
+
+TOE1 <- importMatrix("data/meme_chip/TOE1_7272.motif.transfac",  format="transfac", to="auto")[[1]]
+
+SPL1 <- importMatrix("data/meme_chip/SPL1_7261.motif.transfac",  format="transfac", to="auto")[[1]]
+
+list_motifs <- lapply(list(TOE1, zmrap27, SPL1), format_motif)
+
+motifStack(pfms=list_motifs, layout="tree",  ncex=1)
+
+```
+
+![](images/motif_SPL1_TOE1_ZmRap27.png)
+
+
+The second biggest hit for ZmRap2.7 with 136 site is the DEAR3 motif (https://www.arabidopsis.org/locus?key=34350) (https://footprintdb.eead.csic.es/index.php?db=ArabidopsisPBM:20140210&motif=DEAR3).
+> DEAR3, DREB AND EAR MOTIF PROTEIN 3, encodes a member of the DREB subfamily A-5 of ERF/AP2 transcription factor family. The protein contains one AP2 domain. There are 16 members in this subfamily including RAP2.1, RAP2.9 and RAP2.10.
+
+This motif looks like the top motif of all 14 maize EREB top motif.
+
+#### ZmRap2.7 vs EREB TFs
+
+Compare the DEAR3 motif found for ZmRap2.7 with the top motif of all 14 EREB from the Tu et al 2020 dataset.
+
+```{r}
 setwd("/path/to/scripts_zicola_vgt1")
 
-# Gather list of combined.meme files
-temp = list.files(path="data/meme_chip/output_meme_combined_maxw15", pattern="*.txt")
+temp = list.files(path="data/meme_chip/summary_meme_chip", pattern="*.txt")
+
+# Remove ZmRap2.7
+temp <- temp[1:14]
 
 # Load combined.meme files
-motifs_EREB = lapply(paste("data/meme_chip/output_meme_combined_maxw15/", temp, sep=""),
+motifs_EREB = lapply(paste("data/meme_chip/summary_meme_chip/", temp, sep=""),
                      function(x) importMatrix(x, format="meme", to="pcm")[[1]])
 
+# Add now ZmRap2.7 DEAR3 motif (fourth position in meme-chip summary
+motifs_EREB[[15]] <- importMatrix("data/meme_chip/summary_meme_chip/ZmRap27.txt", format="meme", to="pcm")[[4]]
+
 # Rename each elements with the TF name
-names <-  gsub(".txt", "", temp)
+names <-  gsub(".txt", "", list.files(path="ChIP_ZmRap27/asus_analysis/summary_meme_chip", pattern="*.txt"))
 
 # Extract top motif (first in the list) for each TF
 for (i in 1:length(motifs_EREB)){
@@ -2619,41 +2649,12 @@ for (i in 1:length(motifs_EREB)){
 names(motifs_EREB) <- names
 
 # Display the stacked motifs
-#motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
-motifStack(pfms=motifs_EREB, layout="radialPhylog")
+motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
+#motifStack(pfms=motifs_EREB, layout="radialPhylog")
 
 ```
 
-![](images/motif_stack_maxw_15nt.png)
-
-#### Motif width of 8-nt max 
-
-```{r}
-# Gather list of combined.meme files
-temp = list.files(path="data/meme_chip/output_meme_combined_maxw8", pattern="*.txt")
-
-# Load combined.meme files
-motifs_EREB = lapply(paste("data/meme_chip/output_meme_combined_maxw8/", temp, sep=""),
-                     function(x) importMatrix(x, format="meme", to="pcm")[[1]])
-
-# Rename each elements with the TF name
-names <-  gsub(".txt", "", temp)
-
-# Extract top motif (first in the list) for each TF
-for (i in 1:length(motifs_EREB)){
-  motifs_EREB[[i]]$name <- names[[i]]
-}
-
-# Rename motif with the TF name
-names(motifs_EREB) <- names
-
-# Display the stacked motifs
-#motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
-motifStack(pfms=motifs_EREB, layout="radialPhylog")
-
-```
-
-![](images/motif_stack_maxw_8nt.png)
+![](images/motifstack_tree_ereb.png)
 
 
 ## ZmRap2.7 read density around TSS
@@ -2830,6 +2831,201 @@ ngs.plot.r -P 0 -G AGPv3 -R tss -C ngsplot/config_file.txt \
 Output file is `ngsplot/ChIP_TSS_1kb_normalized.avgprof.pdf`
 
 ![](images/ngsplot_ZmRap27.png)
+
+
+## Overlap ZmRap2.7 peaks with genic regions
+
+Check overlap with 10 kb upstream to 5 kb downstream genic regions.
+
+Download gtf file with B73 NAM5 gene coordinates here:https://datacommons.cyverse.org/browse/iplant/home/shared/ncsu-plantreplication/work/References/maize/AGPv5.0/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf
+
+### Extract genic regions
+
+```{bash, eval=FALSE}
+
+# Gff to bed
+gff2bed < Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed
+
+# Keep only gene features
+awk '$8=="gene"' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed
+
+# Get 10 kb upstream to 5 kb downstream
+bedtools slop -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed -g B73_NAM5_genome_Pt_Mt.fa.fai -s -l 10000 -r 5000 > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed
+
+# Sort
+bedtools sort -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed 
+
+# Merge overlapping features
+bedtools merge -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed  > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.merged.bed
+
+```
+
+
+### Genes overlapped
+
+```{bash, eval=FALSE}
+
+cd /media/zicola/SSD_data/chip_seq_zmrap27
+
+genic_regions="/home/zicola/fasta/B73_NAM5/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed"
+
+# Get unique genes overlapped
+
+bedtools intersect -a $genic_regions -b ZmRap27.bed -wa  | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | uniq > ZmRap27_up10kb_down5kb.geneID
+
+wc -l ZmRap27_up10kb_down5kb.geneID
+2110
+
+```
+
+2,110 genes found with ZmRap2.7 peaks within 10 kb upstream to 5 kb downstream.
+
+## Overlap with DEGs
+
+```{r}
+df_DEGs_part_B <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_B.txt")
+df_DEGs_part_D <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_D.txt")
+
+geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb.geneID", header=F)
+
+geneID_chip <- unlist(geneID_chip)
+# 385 genes with ZmRap2.7 in promoter region (5kb)
+
+geneID_union_B_D <- union(df_DEGs_part_B$geneID, df_DEGs_part_D$geneID)
+# 2134 DEGs union
+
+length(union(geneID_union_B_D, geneID_chip))
+# 3984 genes in total 
+
+require(GeneOverlap)
+
+gs=39035
+
+overlap <-  newGeneOverlap(geneID_union_B_D, geneID_chip, genome.size = gs)
+#print(overlap)
+
+print(testGeneOverlap(overlap))
+# 260 intersect
+
+```
+
+```
+Detailed information about this GeneOverlap object:
+listA size=2134, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
+listB size=2110, e.g. Zm00001eb000620 Zm00001eb000860 Zm00001eb000870
+Intersection size=260, e.g. Zm00001eb001850 Zm00001eb006000 Zm00001eb008660
+Union size=3984, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
+Genome size=39035
+# Contingency Table:
+      notA  inA
+notB 35051 1874
+inB   1850  260
+Overlapping p-value=8.6e-36
+Odds ratio=2.6
+Overlap tested using Fisher's exact test (alternative=greater)
+Jaccard Index=0.1
+```
+
+### Venn Diagram
+
+```{r}
+grid.newpage()
+draw.pairwise.venn(area1 = 2110, area2 = 2134, cross.area = 260, category = c("ChIP-seq","DEGs"), lty="blank", fill = c("#fc8d62","#66c2a5"))
+```
+
+![](images/venn_diagram_DEG_CHIP.png)
+
+
+### GO analysis 2110 target ChIP
+
+
+```{r}
+
+ego <- ego_analysis(geneID_chip)
+
+lapply(ego, function(x) sum(x@result$p.adjust < 0.05))
+
+# 21 BP terms and 1 MF term significant
+
+dotplot(ego[[1]],showCategory=21,x="FoldEnrich", title="BP ZmRap2.7 ChIP-seq peak (2,110 genes)")
+#dotplot(ego[[2]],showCategory=10, title="CC ZmRap2.7 ChIP-seq peaks")
+#dotplot(ego[[3]],showCategory=10, title="MF ZmRap2.7 ChIP-seq peak")
+
+# I need to remove "regulation of cell death"  as it is obsolete
+#  "negative regulation of programmed cell death" does not seem to be obsolete (https://www.ebi.ac.uk/QuickGO/term/GO:0043069)
+# Turn list of enrichResult objects into one dataframe
+df_ego_analysis <- enrichResult2dataframe(ego)
+
+# Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
+df_ego_analysis_significant <- df_ego_analysis %>% dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941") 
+
+df_ego_analysis_significant %>% filter(ontology=="BP") %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +
+  geom_point(aes(size = Count))  + xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 2,110 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_size_area(max_size = 10) + scale_color_viridis()
+
+
+# Save 
+write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_2110_genes_ChIP_ZmRap27.txt", delim="\t")
+
+
+# Get list genes in significant terms
+list_genes_GO_2110 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+
+# 356 genes found
+
+```
+
+![](images/BP_GO_2110_ChIP_genes.png)
+
+
+### GO analysis 260 overlapping genes
+
+```{r}
+
+ego <- ego_analysis(overlap@intersection)
+
+lapply(ego, function(x) sum(x@result$p.adjust < 0.05))
+# 32 BP terms significant
+
+# dotplot(ego[[1]],showCategory=20,x="FoldEnrich", title="BP ZmRap2.7 ChIP-seq peak (260 genes)")
+
+df_overlap <- enrichResult2dataframe(ego)
+
+df_overlap_sig <- df_overlap %>% dplyr::filter(p.adjust < 0.05)
+
+# Remove obsolete terms GO:0007568  and GO:0010941 (regulation of cell death and ageing). See https://www.ebi.ac.uk/QuickGO/term/GO:0007568 and 
+
+
+# Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
+df_ego_analysis_significant <- df_overlap_sig %>% dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941")  %>% dplyr::filter(ID != "GO:0007568")
+
+df_ego_analysis_significant %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  geom_point(aes(size = Count))+ xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 260 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_color_viridis()  + scale_size_area(max_size = 10) 
+
+write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_260_genes_DEG_ChIP_ZmRap27.txt", delim="\t")
+
+
+# Get list genes in significant terms
+list_genes_GO_260 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+
+# 78
+
+```
+
+![](images/BP_GO_260_ChIP_DEG_overlap_genes.png)
+
+Check the overlap of the genes contributing to the significant GO terms for the ChIP-seq target genes and the overlap
+
+```{r}
+
+require(GeneOverlap)
+
+overlap <-  newGeneOverlap(list_genes_GO_2110, list_genes_GO_260, genome.size = 2110)
+#print(overlap)
+
+print(testGeneOverlap(overlap))
+# 69 intersect
+
+```
+
 
 # 4C-seq analysis
 
