@@ -1331,7 +1331,7 @@ library(tidyverse)
 library(viridis)
 
 # Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
-source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
+source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 
 ```
 
@@ -1777,7 +1777,7 @@ ZmRap27_plot <- plotCounts(dds, gene="Zm00001eb355240", intgroup="genotype",
 
 ZmRap27_plot %<>% rownames_to_column(var="sample") %>% mutate_at("sample", as.factor)
 
-ZmRap27_plot_all <- merge(ZmRap27_plot, coldata_5, by="sample")
+ZmRap27_plot_all <- merge(ZmRap27_plot, coldata, by="sample")
 
 ZmRap27_plot_all$genotype.x <- factor(ZmRap27_plot_all$genotype.x, 
                                       levels=c("WT","Vgt1_IR"), ordered=T)
@@ -1799,17 +1799,20 @@ ZmRap27_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=lea
 
 ![](images/ZmRap27_expression.png)
 
+
+
+
 ## Plot expression of ZCN8
 
 ```{r}
-ZCN8_plot <- plotCounts(dds_5, gene="Zm00001eb353250", 
+ZCN8_plot <- plotCounts(dds, gene="Zm00001eb353250", 
                         intgroup="genotype", returnData = T)
 
 # The row names are the individual, so I can retrieve which lines they are from
 
 ZCN8_plot %<>% rownames_to_column(var="sample") %>% mutate_at("sample", as.factor)
 
-ZCN8_plot_all <- merge(ZCN8_plot, coldata_5, by="sample")
+ZCN8_plot_all <- merge(ZCN8_plot, coldata, by="sample")
 
 ZCN8_plot_all$genotype.x <- factor(ZCN8_plot_all$genotype.x, 
                                    levels=c("WT","Vgt1_IR"), ordered=T)
@@ -1830,6 +1833,37 @@ ZCN8_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_p
 
 ![](images/ZCN8_expression.png)
 
+## Plot expression of ZmCOL9
+
+```{r}
+ZmCOL9_plot <- plotCounts(dds, gene="Zm00001eb189080", intgroup="genotype", 
+                           main = "ZmCOL9", returnData = T)
+
+# The row names are the individual, so I can retrieve which lines they are from
+
+ZmCOL9_plot %<>% rownames_to_column(var="sample") %>% mutate_at("sample", as.factor)
+
+ZmCOL9_plot_all <- merge(ZmCOL9_plot, coldata, by="sample")
+
+ZmCOL9_plot_all$genotype.x <- factor(ZmCOL9_plot_all$genotype.x, 
+                                      levels=c("WT","Vgt1_IR"), ordered=T)
+
+# Choose manually the shape of the signs for each line (scale_shape_manual)
+ZmCOL9_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_part)) +
+  geom_boxplot(fill="white", position=position_dodge(width=0.9), outlier.colour=NA) +
+  geom_point(position=position_jitterdodge(dodge.width=0.9), 
+             aes(shape=line, group=leaf_part), size=2) +
+  theme_bw() +
+  scale_shape_manual(values=c(15, 16, 2)) +
+  ylab("Normalized read count") +
+  xlab("Genotype") +
+  ggtitle("ZmCOL9 expression") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual(values = c("#BCD35F","#DDAB8A"))
+
+```
+
+![](images/ZmCOL9_expression.png)
 
 ## Union DEGs leaf part B and D
 
@@ -1846,8 +1880,7 @@ df_DEGs_part_D <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_D
 
 # Check how many genes are expressed
 # Franziska uses as background the number of genes expressed in her RNA-seq data
-sum(rowSums(cts_5)>50)
-
+# sum(rowSums(cts_5)>50)
 # 21702 / 43459 genes have more than 50 reads across the 24 samples
 
 require(GeneOverlap)
@@ -1910,6 +1943,10 @@ df_ego_analysis_significant %>% arrange(qvalue) %>%
   scale_size_area(max_size = 10) +
   scale_color_viridis()
 
+
+# Get list genes in significant terms
+list_genes_GO_2134 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+
 ```
 
 ![](images/BP_GO_2134_genes.png)
@@ -1939,10 +1976,9 @@ library(tidyverse)
 library(motifStack)
 
 # Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
-source("/path/to/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
+source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 
 # Functions for motifStack
-
 format_motif <- function(motif, colorblind=FALSE, RC=FALSE){
   # Set colors to blind-color friendly
   if(colorblind==TRUE){
@@ -2873,12 +2909,12 @@ genic_regions="/home/zicola/fasta/B73_NAM5/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.
 
 bedtools intersect -a $genic_regions -b ZmRap27.bed -wa  | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | uniq > ZmRap27_up10kb_down5kb.geneID
 
-wc -l ZmRap27_up10kb_down5kb.geneID
-2110
+wc -l ZmRap27_up10kb_down5kb_geneID.txt
+2109
 
 ```
 
-2,110 genes found with ZmRap2.7 peaks within 10 kb upstream to 5 kb downstream.
+2,109 genes found with ZmRap2.7 peaks within 10 kb upstream to 5 kb downstream.
 
 ## Overlap with DEGs
 
@@ -2886,10 +2922,10 @@ wc -l ZmRap27_up10kb_down5kb.geneID
 df_DEGs_part_B <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_B.txt")
 df_DEGs_part_D <- read.delim("data/significant_genes_genotype_DESeq2_leaf_part_D.txt")
 
-geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb.geneID", header=F)
+geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb_geneID.txt", header=F)
 
 geneID_chip <- unlist(geneID_chip)
-# 385 genes with ZmRap2.7 in promoter region (5kb)
+# 2109 genes with ZmRap2.7 in promoter region (5kb)
 
 geneID_union_B_D <- union(df_DEGs_part_B$geneID, df_DEGs_part_D$geneID)
 # 2134 DEGs union
@@ -2905,22 +2941,25 @@ overlap <-  newGeneOverlap(geneID_union_B_D, geneID_chip, genome.size = gs)
 #print(overlap)
 
 print(testGeneOverlap(overlap))
-# 260 intersect
+# 259 intersect
+
+# Export list 259 genes
+write(overlap@intersection, "data/259_overlap_geneID.txt")
 
 ```
 
 ```
 Detailed information about this GeneOverlap object:
 listA size=2134, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
-listB size=2110, e.g. Zm00001eb000620 Zm00001eb000860 Zm00001eb000870
-Intersection size=260, e.g. Zm00001eb001850 Zm00001eb006000 Zm00001eb008660
+listB size=2109, e.g. Zm00001eb000620 Zm00001eb000860 Zm00001eb000870
+Intersection size=259, e.g. Zm00001eb001850 Zm00001eb006000 Zm00001eb008660
 Union size=3984, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
 Genome size=39035
 # Contingency Table:
       notA  inA
-notB 35051 1874
-inB   1850  260
-Overlapping p-value=8.6e-36
+notB 35051 1875
+inB   1850  259
+Overlapping p-value=2.1e-35
 Odds ratio=2.6
 Overlap tested using Fisher's exact test (alternative=greater)
 Jaccard Index=0.1
@@ -2930,14 +2969,13 @@ Jaccard Index=0.1
 
 ```{r}
 grid.newpage()
-draw.pairwise.venn(area1 = 2110, area2 = 2134, cross.area = 260, category = c("ChIP-seq","DEGs"), lty="blank", fill = c("#fc8d62","#66c2a5"))
+draw.pairwise.venn(area1 = 2109, area2 = 2134, cross.area = 259, category = c("ChIP-seq","DEGs"), lty="blank", fill = c("#fc8d62","#66c2a5"))
 ```
 
 ![](images/venn_diagram_DEG_CHIP.png)
 
 
-### GO analysis 2110 target ChIP
-
+### GO analysis 2109 target ChIP
 
 ```{r}
 
@@ -2947,7 +2985,7 @@ lapply(ego, function(x) sum(x@result$p.adjust < 0.05))
 
 # 21 BP terms and 1 MF term significant
 
-dotplot(ego[[1]],showCategory=21,x="FoldEnrich", title="BP ZmRap2.7 ChIP-seq peak (2,110 genes)")
+dotplot(ego[[1]],showCategory=21,x="FoldEnrich", title="BP ZmRap2.7 ChIP-seq peak (2,109 genes)")
 #dotplot(ego[[2]],showCategory=10, title="CC ZmRap2.7 ChIP-seq peaks")
 #dotplot(ego[[3]],showCategory=10, title="MF ZmRap2.7 ChIP-seq peak")
 
@@ -2960,24 +2998,24 @@ df_ego_analysis <- enrichResult2dataframe(ego)
 df_ego_analysis_significant <- df_ego_analysis %>% dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941") 
 
 df_ego_analysis_significant %>% filter(ontology=="BP") %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +
-  geom_point(aes(size = Count))  + xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 2,110 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_size_area(max_size = 10) + scale_color_viridis()
+  geom_point(aes(size = Count))  + xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 2,109 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_size_area(max_size = 10) + scale_color_viridis()
 
 
 # Save 
-write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_2110_genes_ChIP_ZmRap27.txt", delim="\t")
+write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_2109_genes_ChIP_ZmRap27.txt", delim="\t")
 
 
 # Get list genes in significant terms
-list_genes_GO_2110 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+list_genes_GO_2109 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
 
 # 356 genes found
 
 ```
 
-![](images/BP_GO_2110_ChIP_genes.png)
+![](images/BP_GO_2109_ChIP_genes.png)
 
 
-### GO analysis 260 overlapping genes
+### GO analysis 259 overlapping genes
 
 ```{r}
 
@@ -2998,33 +3036,70 @@ df_overlap_sig <- df_overlap %>% dplyr::filter(p.adjust < 0.05)
 # Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
 df_ego_analysis_significant <- df_overlap_sig %>% dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941")  %>% dplyr::filter(ID != "GO:0007568")
 
-df_ego_analysis_significant %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  geom_point(aes(size = Count))+ xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 260 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_color_viridis()  + scale_size_area(max_size = 10) 
+df_ego_analysis_significant %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  geom_point(aes(size = Count))+ xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 259 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_color_viridis()  + scale_size_area(max_size = 10) 
 
-write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_260_genes_DEG_ChIP_ZmRap27.txt", delim="\t")
+write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_259_genes_DEG_ChIP_ZmRap27.txt", delim="\t")
 
 
 # Get list genes in significant terms
-list_genes_GO_260 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+list_genes_GO_259 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
 
 # 78
 
 ```
 
-![](images/BP_GO_260_ChIP_DEG_overlap_genes.png)
+![](images/BP_GO_259_ChIP_DEG_overlap_genes.png)
 
 Check the overlap of the genes contributing to the significant GO terms for the ChIP-seq target genes and the overlap
 
 ```{r}
-
-require(GeneOverlap)
-
-overlap <-  newGeneOverlap(list_genes_GO_2110, list_genes_GO_260, genome.size = 2110)
-#print(overlap)
-
-print(testGeneOverlap(overlap))
-# 69 intersect
-
+length(Reduce(intersect, list(list_genes_GO_2134, list_genes_GO_2109, list_genes_GO_259)))
 ```
+
+69 in common.
+
+
+
+## Overlap with FT orthologs in maize
+
+24 ortholog of FLOWERING LOCUS identified using https://phylogenes.arabidopsis.org/tree/PTHR11362 and initially identified in [Danilevskaya et al 2008](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2230559/). Note that ZCN22 does not exist and ZCN23 is a pseudogene.
+
+| gene name | ID              |
+|-----------|-----------------|
+| ZCN1      | Zm00001eb164120 |
+| ZCN2      | Zm00001eb181410 |
+| ZCN3      | Zm00001eb406740 |
+| ZCN4      | Zm00001eb084030 |
+| ZCN5      | Zm00001eb421900 |
+| ZCN6      | Zm00001eb197000 |
+| ZCN7      | Zm00001eb293080 |
+| ZCN8      | Zm00001eb353250 |
+| ZCN9      | Zm00001eb334510 |
+| ZCN10     | Zm00001eb126300 |
+| ZCN11     | Zm00001eb281410 |
+| ZCN12     | Zm00001eb153190 |
+| ZCN13     | Zm00001eb239360 |
+| ZCN14     | Zm00001eb338650 |
+| ZCN15     | Zm00001eb271180 |
+| ZCN16     | Zm00001eb246470 |
+| ZCN17     | Zm00001eb090320 |
+| ZCN18     | Zm00001eb102650 |
+| ZCN19     | Zm00001eb425430 |
+| ZCN20     | Zm00001eb411580 |
+| ZCN21     | Zm00001eb085740 |
+| ZCN24     | Zm00001eb318290 |
+| ZCN25     | Zm00001eb078980 |
+| ZCN26     | Zm00001eb384770 |
+
+```{r}
+geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb_geneID.txt", header=F)
+
+FT_homologs <- read.delim("data/FT_homologs.txt", header=F)
+
+intersect(geneID_chip, FT_homologs)
+```
+
+No overlap. ZmRap2.7 does not seem to bound to any of the *FT* homologs identified in maize.
 
 
 # 4C-seq analysis
