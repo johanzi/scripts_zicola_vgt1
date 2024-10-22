@@ -1,0 +1,32 @@
+AC  7261|SPL1(ArabidopsisPBM 20140210)
+XX
+NA  SPL1
+XX
+DE  SPL1
+XX
+OS  Arabidopsis thaliana
+XX
+BF  8893;
+XX
+P0      A      C      G      T
+01 0.3126 0.1336 0.2853 0.2686      d
+02 0.0307 0.8802 0.0080 0.0811      C
+03 0.0100 0.9239 0.0129 0.0532      C
+04 0.0138 0.0020 0.9819 0.0023      G
+05 0.0016 0.0083 0.0056 0.9845      T
+06 0.9845 0.0056 0.0083 0.0016      A
+07 0.0023 0.9819 0.0020 0.0138      C
+08 0.0532 0.0129 0.9239 0.0100      G
+09 0.0811 0.0080 0.8802 0.0307      G
+10 0.6005 0.2152 0.0102 0.1741      a
+XX
+LN  https://footprintdb.eead.csic.es//index.php?motif=d54aab0f95b81e735afc7d4b0ddbbdb5
+XX
+RN  [1];
+RX  PUBMED: 24477691
+RL  Franco-Zorrilla J.M, LÃ³pez-Vidriero I, Carrasco J.L, Godoy M, Vera P, Solano R. DNA-binding specificities of plant transcription factors and their potential to define target genes. Proceedings of the National Academy of Sciences of the United States of America : (2014).
+RN  [2];
+RX  PUBMED: 24234003
+RL  Sebastian, A., Contreras-Moreira, B. footprintDB: a database of transcription factors with annotated cis elements and binding interfaces. Bioinformatics 30, 258-65 (2014).
+XX
+//

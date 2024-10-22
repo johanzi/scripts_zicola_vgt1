@@ -1,0 +1,32 @@
+AC  7272|TOE1_2(ArabidopsisPBM 20140210)
+XX
+NA  TOE1
+XX
+DE  TOE1
+XX
+OS  Arabidopsis thaliana
+XX
+BF  8897;
+XX
+P0      A      C      G      T
+01 0.4218 0.0498 0.3232 0.2052      r
+02 0.7497 0.0299 0.0360 0.1845      A
+03 0.7918 0.0125 0.0091 0.1865      A
+04 0.0339 0.9169 0.0210 0.0282      C
+05 0.1364 0.6393 0.2075 0.0168      c
+06 0.0404 0.0270 0.0079 0.9247      T
+07 0.6784 0.0165 0.2619 0.0432      r
+08 0.0758 0.6300 0.2535 0.0407      s
+09 0.0315 0.0090 0.9273 0.0322      G
+10 0.9078 0.0251 0.0096 0.0576      A
+XX
+LN  https://footprintdb.eead.csic.es//index.php?motif=44ea4c59f616f5ca92af81fd877294d0
+XX
+RN  [1];
+RX  PUBMED: 24477691
+RL  Franco-Zorrilla J.M, LÃ³pez-Vidriero I, Carrasco J.L, Godoy M, Vera P, Solano R. DNA-binding specificities of plant transcription factors and their potential to define target genes. Proceedings of the National Academy of Sciences of the United States of America : (2014).
+RN  [2];
+RX  PUBMED: 24234003
+RL  Sebastian, A., Contreras-Moreira, B. footprintDB: a database of transcription factors with annotated cis elements and binding interfaces. Bioinformatics 30, 258-65 (2014).
+XX
+//
