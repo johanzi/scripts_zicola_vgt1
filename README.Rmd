@@ -2484,18 +2484,22 @@ mkdir IDR_output/rep2_IDR_GEM_peaks
 # Keep reproducible peaks from first replicates
 while read i; do
   rep1=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | head -n1)
-  bedtools intersect -a $rep1 -b IDR_output/${i}_idr_peak.txt -wa -u >          IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed
+  bedtools intersect -a $rep1 -b IDR_output/${i}_idr_peak.txt -wa -u > \
+  IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed
 done < list_EREB.txt
 
 # Keep reproducible peaks from second replicates
 while read i; do
   rep2=$(ls -1 peak_calling/*${i}/*${i}.GEM_events.narrowPeak | tail -n1)
-  bedtools intersect -a $rep2 -b IDR_output/${i}_idr_peak.txt -wa -u >          IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed
+  bedtools intersect -a $rep2 -b IDR_output/${i}_idr_peak.txt -wa -u > \
+  IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed
 done < list_EREB.txt
 
 # Keep overlap of the two replicates
 while read i; do
-  bedtools intersect -a IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed -b IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed -wa -u >  IDR_output/intersect_rep1_rep2/${i}.bed
+  bedtools intersect -a IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed -b \
+  IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed -wa -u >  \
+  IDR_output/intersect_rep1_rep2/${i}.bed
 done < list_EREB.txt
 
 # Remove the peaks overlapping the gene position (NAM5 coordinates available) 
@@ -2508,7 +2512,8 @@ while read i; do
   name=$(echo "$i" | cut -f1)
   ID=$(echo "$i" | cut -f2)
   grep -w $ID $bed_genes > ${ID}.bed
-  bedtools intersect -v -a IDR_output/intersect_rep1_rep2/${name}.bed -b ${ID}.bed > IDR_output/intersect_rep1_rep2/cleaned/${name}.bed
+  bedtools intersect -v -a IDR_output/intersect_rep1_rep2/${name}.bed -b ${ID}.bed > \
+  IDR_output/intersect_rep1_rep2/cleaned/${name}.bed
 done < name_to_gene.txt
 
 ```
@@ -2671,10 +2676,13 @@ motifs_EREB = lapply(paste("data/meme_chip/summary_meme_chip/", temp, sep=""),
                      function(x) importMatrix(x, format="meme", to="pcm")[[1]])
 
 # Add now ZmRap2.7 DEAR3 motif (fourth position in meme-chip summary
-motifs_EREB[[15]] <- importMatrix("data/meme_chip/summary_meme_chip/ZmRap27.txt", format="meme", to="pcm")[[4]]
+motifs_EREB[[15]] <- importMatrix("data/meme_chip/summary_meme_chip/ZmRap27.txt",
+                                  format="meme", to="pcm")[[4]]
 
 # Rename each elements with the TF name
-names <-  gsub(".txt", "", list.files(path="ChIP_ZmRap27/asus_analysis/summary_meme_chip", pattern="*.txt"))
+names <-  gsub(".txt", "", 
+               list.files(path="ChIP_ZmRap27/asus_analysis/summary_meme_chip", 
+                          pattern="*.txt"))
 
 # Extract top motif (first in the list) for each TF
 for (i in 1:length(motifs_EREB)){
@@ -2886,13 +2894,12 @@ gff2bed < Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf > Zea_mays.Zm-B73-REFERENCE-N
 awk '$8=="gene"' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed
 
 # Get 10 kb upstream to 5 kb downstream
-bedtools slop -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed -g B73_NAM5_genome_Pt_Mt.fa.fai -s -l 10000 -r 5000 > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed
+bedtools slop -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed \
+-g B73_NAM5_genome_Pt_Mt.fa.fai -s -l 10000 -r 5000 > \
+Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed
 
 # Sort
 bedtools sort -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed 
-
-# Merge overlapping features
-bedtools merge -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed  > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.merged.bed
 
 ```
 
@@ -2901,13 +2908,11 @@ bedtools merge -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorte
 
 ```{bash, eval=FALSE}
 
-cd /media/zicola/SSD_data/chip_seq_zmrap27
-
-genic_regions="/home/zicola/fasta/B73_NAM5/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed"
-
 # Get unique genes overlapped
+genic_regions="data/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed"
 
-bedtools intersect -a $genic_regions -b ZmRap27.bed -wa  | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | uniq > ZmRap27_up10kb_down5kb.geneID
+bedtools intersect -a $genic_regions -b data/ZmRap27_peaks.bed -wa  \
+  | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | uniq > data/ZmRap27_up10kb_down5kb_geneID.txt
 
 wc -l ZmRap27_up10kb_down5kb_geneID.txt
 2109
