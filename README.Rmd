@@ -1835,6 +1835,15 @@ ZCN8_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_p
 
 ## Plot expression of ZmCOL9
 
+
+```{r}
+
+
+plotCounts(dds, gene="Zm00001eb057540", intgroup="genotype", 
+                           main = "ZMM4")
+```
+
+
 ```{r}
 ZmCOL9_plot <- plotCounts(dds, gene="Zm00001eb189080", intgroup="genotype", 
                            main = "ZmCOL9", returnData = T)
