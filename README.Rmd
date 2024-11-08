@@ -2504,7 +2504,7 @@ while read i; do
   IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed
 done < list_EREB.txt
 
-# Keep overlap of the two replicates
+# Keep peaks of rep1 that overlap peaks in rep2
 while read i; do
   bedtools intersect -a IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed -b \
   IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed -wa -u >  \
@@ -2664,6 +2664,7 @@ motifStack(pfms=list_motifs, layout="tree",  ncex=1)
 
 
 The second biggest hit for ZmRap2.7 with 136 site is the DEAR3 motif (https://www.arabidopsis.org/locus?key=34350) (https://footprintdb.eead.csic.es/index.php?db=ArabidopsisPBM:20140210&motif=DEAR3).
+
 > DEAR3, DREB AND EAR MOTIF PROTEIN 3, encodes a member of the DREB subfamily A-5 of ERF/AP2 transcription factor family. The protein contains one AP2 domain. There are 16 members in this subfamily including RAP2.1, RAP2.9 and RAP2.10.
 
 This motif looks like the top motif of all 14 maize EREB top motif.
@@ -3110,7 +3111,7 @@ geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb_geneID.txt", header=F)
 
 FT_homologs <- read.delim("data/FT_homologs.txt", header=F)
 
-intersect(geneID_chip, FT_homologs)
+intersect(geneID_chip$V1, FT_homologs$V1)
 ```
 
 No overlap. ZmRap2.7 does not seem to bound to any of the *FT* homologs identified in maize.
@@ -3296,7 +3297,6 @@ done < table_SRR.txt
 
 Use only first 10 chromosomes. Each chromosome should be in a separate fasta file
 
-
 ```{bash, eval=FALSE}
 cd /home/zicola/B73_NAM5/
 
@@ -3356,13 +3356,11 @@ seqnames: c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr1
 Forge the package in R: 
 
 ```{r}
-
 # Set working directory containing the extdata/zm_seqs directory
 setwd("/home/zicola/B73_NAM5/")
 
 library(BSgenome)
 forgeBSgenomeDataPkg("ZmaysZm5_seed")
-
 ```
 
 Build the package in bash:
@@ -3373,7 +3371,6 @@ cd /home/zicola/fasta/B73_NAM5
 R CMD build BSgenome.zmv5
 R CMD check BSgenome.zmv5_1.0.tar.gz
 R CMD INSTALL BSgenome.zmv5_1.0.tar.gz
-
 ```
 
 Check if it works:
@@ -3517,6 +3514,18 @@ exportPeakCPeaks(resPeakC=resPeakC,bedFile=peaksFile,name="Husk_peakC_peaks")
 
 ```
 
+Remove the two lines header
+
+```{bash, eval=FALSE}
+
+sed -i '/^chr/!d' V2_IST_peakC_peaks.bed
+sed -i '/^chr/!d' Husk_peakC_peaks.bed
+
+
+```
+
+
+Note that V2-IST and husk have 14 peaks and 12 peaks, respectively. All peaks overlap with 2 peaks being uniquely present in V2-IST.
 
 ## Plot normalized read count at Vgt1
 
@@ -3524,17 +3533,11 @@ Gather the normalized read count at Vgt1 and uva to assess the difference betwee
 
 ```{r}
 
-# chr8:135590574..135593098 (take a bit more downstream of Vgt1 
-# to get the BglII site)
-gr_vgt1 <- makeGRangesFromDataFrame(
-    data.frame(
-        chr = "chr8",
-        start = 135590574,
-        end = 135593098,
-        keep.extra.columns = TRUE))
+# Get all peaks coordinates in Grange
+gr_V2 <-  rtracklayer::import("data/pipe4C/out_vgt1/V2_IST_peakC_peaks_wo_header.bed")
+names(gr_V2) <- c(paste("peak",rep(1:14), sep=""))
 
-# Get values for uva1 and vgt1 region (chr8:135587501..135593000)
-
+# Load pipe4C R objects
 V1 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep1.rds")
 V2 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep2.rds")
 V3 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep3.rds")
@@ -3546,38 +3549,50 @@ H3 <- readRDS("data/pipe4C/out_vgt1/RDS/Husk_rep3.rds")
 list_v <- list(V1,V2,V3)
 list_h <- list(H1,H2,H3)
 
-data_Vgt1_v <- lapply(list_v, function(x) subsetByOverlaps(x$reads, gr_vgt1))
-
-data_vgt1_h <- lapply(list_h, function(x) subsetByOverlaps(x$reads, gr_vgt1))
-
-
-norm4C_vgt1_h <- lapply(data_vgt1_h, function(x) sum(x$norm4C))
-
-norm4C_vgt1_v <- lapply(data_Vgt1_v, function(x) sum(x$norm4C))
-
-v_col_norm4C <- cbind(norm4C_vgt1_v, norm4C_vgt1_h)
-
-# Create a dataframe
-df_norm4C <- data.frame(vgt1_v=unlist(norm4C_vgt1_v), 
-                        vgt1_h=unlist(norm4C_vgt1_h))
-
-df_norm4C_long <- df_norm4C %>% gather(replicate, norm4C,vgt1_v:vgt1_h)
-
-df_norm4C_long <- cbind(df_norm4C_long, rep(paste0("rep",1:3),2), 
+# Create a function that summarize the normalized read count overlapping
+# the GRange object given as input
+retrieve_norm4C <- function(gr_object){
+  data_v <- lapply(list_v, function(x) subsetByOverlaps(x$reads, gr_object))
+  data_h <- lapply(list_h, function(x) subsetByOverlaps(x$reads, gr_object))
+  norm4C_v <- lapply(data_v, function(x) sum(x$norm4C))
+  norm4C_h <- lapply(data_h, function(x) sum(x$norm4C))
+  v_col_norm4C <- cbind(norm4C_v, norm4C_h)
+  # Create a dataframe
+  df_norm4C <- data.frame(v=unlist(norm4C_v), 
+                        h=unlist(norm4C_h))
+  df_norm4C_long <- df_norm4C %>% gather(replicate, norm4C,v:h)
+  df_norm4C_long <- cbind(df_norm4C_long, rep(paste0("rep",1:3),2), 
                         c(rep("V2_IST",3), 
                           rep("Husk",3)))
-
-colnames(df_norm4C_long) <- c("sample","norm4C","rep","tissue")
-
-# Order 
-df_norm4C_long$tissue <- factor(df_norm4C_long$tissue, 
+  colnames(df_norm4C_long) <- c("sample","norm4C","rep","tissue")
+  
+  # Order 
+  df_norm4C_long$tissue <- factor(df_norm4C_long$tissue, 
                                 levels=c("V2_IST","Husk"), ordered=T)
+  
+  # Add a column for the peak name
+  df_norm4C_long$peak <- c(rep(names(gr_object), 6))
+  
+  df_norm4C_long$sample <- as.factor(df_norm4C_long$sample)
+  df_norm4C_long$rep <- as.factor(df_norm4C_long$rep)
+  df_norm4C_long$peak <- as.factor(df_norm4C_long$peak)
+                           
+  return(df_norm4C_long)
+}
+
+# Retrieve norm4C values for each peaks
+res <- lapply(seq_along(gr_V2), function(i) retrieve_norm4C(gr_V2[i]))
+
+# Bind all dataframes
+df_norm4C_long <- do.call("rbind", res)
+
 
 # Plot
-ggplot(df_norm4C_long, aes(y=norm4C, x=tissue)) +
-  geom_boxplot(fill="#FFC000") +
-  geom_point(size=2)  +
+ggplot(df_norm4C_long, aes(y=norm4C, x=peak, fill=tissue)) +
+  geom_boxplot() +
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), size=2)  +
   theme_bw() +
+  scale_fill_manual(values = c("#1b9e77","#7570b3")) +
   ylab("Normalized read count") +
   xlab("Tissue") +
   theme(axis.text.x = element_text(color="black"),
@@ -3585,11 +3600,39 @@ ggplot(df_norm4C_long, aes(y=norm4C, x=tissue)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  ggtitle("4C-seq normalized read count Vgt1")
+  ggtitle("4C-seq normalized read count") + theme(axis.text.x = element_text(angle=90, hjust=1))
 
 ```
 
-![](images/4C_plot.png)
+![](images/4C_seq_14_peaks_V2.png)
+
+
+Restrict to peaks visible in Figure 6.
+
+```{r}
+
+df_norm4C_long %>% filter(!peak %in% c("peak1","peak2","peak3","peak12","peak13","peak14")) %>%
+  ggplot(aes(y=norm4C, x=peak, fill=tissue)) +
+  geom_boxplot() +
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), size=2)  +
+  theme_bw() +
+  scale_fill_manual(values = c("#1b9e77","#7570b3")) +
+  ylab("Normalized read count") +
+  xlab("") +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  ggtitle("4C-seq normalized read count")
+
+```
+
+![](images/4C_seq_subset_peaks_V2.png)
+
+
+
+
 
 Test if significant difference between the two tissues.
 
@@ -3608,3 +3651,7 @@ sample estimates:
 mean of x mean of y 
   2274033   1723201 
 ```
+
+
+
+
