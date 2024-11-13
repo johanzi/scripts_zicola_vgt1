@@ -3662,28 +3662,50 @@ df_norm4C_long %>% filter(!peak %in%
 ![](images/4C_seq_subset_peaks_V2.png)
 
 
-
-
-
-Test if significant difference between the two tissues.
+Test if significant difference between the two tissues bu integrating data from peak 6 to 11.
 
 ```{r}
-with(df_norm4C_long, t.test(norm4C[tissue=="V2_IST"], norm4C[tissue=="Husk"], 
+df_norm4C_long_sub <- df_norm4C_long %>% filter(!peak %in% 
+                            c("peak1","peak2","peak3","peak4","peak5",
+                              "peak12","peak13","peak14")) 
+
+ggplot(df_norm4C_long_sub, aes(y=norm4C, x=tissue, fill=tissue)) +
+  geom_boxplot() +
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), size=2)  +
+  theme_bw() +
+  scale_fill_manual(values = c("#1b9e77","#7570b3")) +
+  ylab("Normalized read count") +
+  xlab("Tissue") +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  ggtitle("4C-seq normalized read count from peak 6 to 11")
+
+
+```
+
+![](images/4C_seq_per_tissue.png)
+
+```{r}
+with(df_norm4C_long_sub, t.test(norm4C[tissue=="V2_IST"], norm4C[tissue=="Husk"],
                             var.equal=FALSE))
 ```
+
 ```
 	Welch Two Sample t-test
 
 data:  norm4C[tissue == "V2_IST"] and norm4C[tissue == "Husk"]
-t = 0.91833, df = 2.1492, p-value = 0.4495
+t = 1.4314, df = 22.319, p-value = 0.1662
 alternative hypothesis: true difference in means is not equal to 0
 95 percent confidence interval:
- -1865639  2967303
+ -154876.5  846838.3
 sample estimates:
 mean of x mean of y 
-  2274033   1723201 
+  2202870   1856889 
 ```
 
-
+Not significant.
 
 
