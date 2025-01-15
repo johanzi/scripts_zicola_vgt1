@@ -2,160 +2,100 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2024-10-25 12:01:40
+2025-01-15 17:19:04
 
--   <a href="#introduction" id="toc-introduction">Introduction</a>
--   <a href="#flowering-time-analysis"
-    id="toc-flowering-time-analysis">Flowering time analysis</a>
-    -   <a href="#libraries" id="toc-libraries">Libraries</a>
-    -   <a href="#data" id="toc-data">Data</a>
-    -   <a href="#days-to-pollen-shed" id="toc-days-to-pollen-shed">Days to
-        pollen shed</a>
-    -   <a href="#days-to-silking" id="toc-days-to-silking">Days to silking</a>
-    -   <a href="#node-number" id="toc-node-number">Node number</a>
--   <a href="#growth-speed-analysis" id="toc-growth-speed-analysis">Growth
-    speed analysis</a>
-    -   <a href="#libraries-1" id="toc-libraries-1">Libraries</a>
-    -   <a href="#data-1" id="toc-data-1">Data</a>
-    -   <a href="#growth-speed-all-stages"
-        id="toc-growth-speed-all-stages">Growth speed all stages</a>
-    -   <a href="#days-to-pollen-shed-1" id="toc-days-to-pollen-shed-1">Days to
-        pollen shed</a>
-    -   <a href="#days-to-silking-1" id="toc-days-to-silking-1">Days to
-        silking</a>
-    -   <a href="#node-number-1" id="toc-node-number-1">Node number</a>
-    -   <a href="#growth-speed-v3-and-v4" id="toc-growth-speed-v3-and-v4">Growth
-        speed V3 and V4</a>
-    -   <a href="#statistical-analysis-at-v3"
-        id="toc-statistical-analysis-at-v3">Statistical analysis at V3</a>
-    -   <a href="#statistical-analysis-at-v4"
-        id="toc-statistical-analysis-at-v4">Statistical analysis at V4</a>
--   <a href="#qpcr-analysis" id="toc-qpcr-analysis">qPCR analysis</a>
-    -   <a href="#libraries-2" id="toc-libraries-2">Libraries</a>
-    -   <a href="#data-2" id="toc-data-2">Data</a>
-    -   <a href="#zmrap27-expression-analysis"
-        id="toc-zmrap27-expression-analysis">ZmRap2.7 expression analysis</a>
-        -   <a href="#zmrap27-expression-in-v3l4"
-            id="toc-zmrap27-expression-in-v3l4">ZmRap2.7 expression in V3L4</a>
-        -   <a href="#zmrap27-expression-in-v4l5"
-            id="toc-zmrap27-expression-in-v4l5">ZmRap2.7 expression in V4L5</a>
-        -   <a href="#zmrap27-expression-in-v5l6"
-            id="toc-zmrap27-expression-in-v5l6">ZmRap2.7 expression in V5L6</a>
-    -   <a href="#zcn8-expression-analysis"
-        id="toc-zcn8-expression-analysis">ZCN8 expression analysis</a>
-        -   <a href="#zcn8-expression-in-v3l4" id="toc-zcn8-expression-in-v3l4">ZCN8
-            expression in V3L4</a>
-        -   <a href="#zcn8-expression-in-v4l5" id="toc-zcn8-expression-in-v4l5">ZCN8
-            expression in V4L5</a>
-        -   <a href="#zcn8-expression-in-v5l6" id="toc-zcn8-expression-in-v5l6">ZCN8
-            expression in V5L6</a>
-    -   <a href="#zmmads4-expression-analysis"
-        id="toc-zmmads4-expression-analysis">ZmMADS4 expression analysis</a>
-        -   <a href="#zmmads4-expression-in-v3l4"
-            id="toc-zmmads4-expression-in-v3l4">ZmMADS4 expression in V3L4</a>
-        -   <a href="#zmmads4-expression-in-v4l5"
-            id="toc-zmmads4-expression-in-v4l5">ZmMADS4 expression in V4L5</a>
-        -   <a href="#zmmads4-expression-in-v5l6"
-            id="toc-zmmads4-expression-in-v5l6">ZmMADS4 expression in V5L6</a>
--   <a href="#rna-seq-analysis" id="toc-rna-seq-analysis">RNA-seq
-    analysis</a>
-    -   <a href="#libraries-3" id="toc-libraries-3">Libraries</a>
-    -   <a href="#data-3" id="toc-data-3">Data</a>
-    -   <a href="#adapter-trimming" id="toc-adapter-trimming">Adapter
-        trimming</a>
-    -   <a href="#mapping-on-b73-nam5-reference"
-        id="toc-mapping-on-b73-nam5-reference">Mapping on B73 NAM5 reference</a>
-    -   <a href="#genome-index" id="toc-genome-index">Genome index</a>
-    -   <a href="#mapping" id="toc-mapping">Mapping</a>
-    -   <a href="#read-count" id="toc-read-count">Read count</a>
-    -   <a href="#read-count-matrix" id="toc-read-count-matrix">Read count
-        matrix</a>
-    -   <a href="#coldata-file" id="toc-coldata-file">coldata file</a>
-    -   <a href="#load-cts-and-coldata" id="toc-load-cts-and-coldata">Load cts
-        and coldata</a>
-    -   <a href="#create-dds-deseq-data-set-object"
-        id="toc-create-dds-deseq-data-set-object">Create dds (DESeq Data Set)
-        object</a>
-    -   <a href="#pca" id="toc-pca">PCA</a>
-    -   <a href="#subanalysis---leaf-part-b"
-        id="toc-subanalysis---leaf-part-b">Subanalysis - leaf part B</a>
-    -   <a href="#subanalysis---leaf-part-d"
-        id="toc-subanalysis---leaf-part-d">Subanalysis - leaf part D</a>
-    -   <a href="#plot-expression-of-zmrap27"
-        id="toc-plot-expression-of-zmrap27">Plot expression of ZmRap2.7</a>
-    -   <a href="#plot-expression-of-zcn8" id="toc-plot-expression-of-zcn8">Plot
-        expression of ZCN8</a>
-    -   <a href="#plot-expression-of-zmcol9"
-        id="toc-plot-expression-of-zmcol9">Plot expression of ZmCOL9</a>
-    -   <a href="#union-degs-leaf-part-b-and-d"
-        id="toc-union-degs-leaf-part-b-and-d">Union DEGs leaf part B and D</a>
-    -   <a href="#venn-diagram" id="toc-venn-diagram">Venn Diagram</a>
-    -   <a href="#go-enrichment-analysis" id="toc-go-enrichment-analysis">GO
-        enrichment analysis</a>
--   <a href="#chip-seq-analysis" id="toc-chip-seq-analysis">ChIP-seq
-    analysis</a>
-    -   <a href="#libraries-4" id="toc-libraries-4">Libraries</a>
-    -   <a href="#data-4" id="toc-data-4">Data</a>
-    -   <a href="#adapter-trimming-and-deduplication"
-        id="toc-adapter-trimming-and-deduplication">Adapter trimming and
-        deduplication</a>
-    -   <a href="#mapping-1" id="toc-mapping-1">Mapping</a>
-    -   <a href="#peak-calling" id="toc-peak-calling">Peak calling</a>
-        -   <a href="#summary-mapping-and-peak-calling"
-            id="toc-summary-mapping-and-peak-calling">Summary mapping and peak
-            calling</a>
-        -   <a href="#reproducible-peaks-with-idr"
-            id="toc-reproducible-peaks-with-idr">Reproducible peaks with IDR</a>
-    -   <a href="#meme-chip-analysis" id="toc-meme-chip-analysis">MEME-CHIP
-        analysis</a>
-        -   <a href="#meme-chip-local-installation"
-            id="toc-meme-chip-local-installation">MEME-CHIP local installation</a>
-        -   <a href="#meme-chip-run" id="toc-meme-chip-run">MEME-CHIP run</a>
-        -   <a href="#motif-visualization" id="toc-motif-visualization">Motif
-            visualization</a>
-    -   <a href="#zmrap27-read-density-around-tss"
-        id="toc-zmrap27-read-density-around-tss">ZmRap2.7 read density around
-        TSS</a>
-        -   <a href="#libraries-5" id="toc-libraries-5">Libraries</a>
-        -   <a href="#install-ngsplot-and-the-maize-database"
-            id="toc-install-ngsplot-and-the-maize-database">Install ngs.plot and the
-            maize database</a>
-        -   <a href="#map-chip-seq-data-on-b73-agpv3"
-            id="toc-map-chip-seq-data-on-b73-agpv3">Map ChIP-seq data on B73
-            AGPv3</a>
-        -   <a href="#run-ngsplot" id="toc-run-ngsplot">Run ngs.plot</a>
-    -   <a href="#overlap-zmrap27-peaks-with-genic-regions"
-        id="toc-overlap-zmrap27-peaks-with-genic-regions">Overlap ZmRap2.7 peaks
-        with genic regions</a>
-        -   <a href="#extract-genic-regions" id="toc-extract-genic-regions">Extract
-            genic regions</a>
-        -   <a href="#genes-overlapped" id="toc-genes-overlapped">Genes
-            overlapped</a>
-    -   <a href="#overlap-with-degs" id="toc-overlap-with-degs">Overlap with
-        DEGs</a>
-        -   <a href="#venn-diagram-1" id="toc-venn-diagram-1">Venn Diagram</a>
-        -   <a href="#go-analysis-2109-target-chip"
-            id="toc-go-analysis-2109-target-chip">GO analysis 2109 target ChIP</a>
-        -   <a href="#go-analysis-259-overlapping-genes"
-            id="toc-go-analysis-259-overlapping-genes">GO analysis 259 overlapping
-            genes</a>
-    -   <a href="#overlap-with-ft-orthologs-in-maize"
-        id="toc-overlap-with-ft-orthologs-in-maize">Overlap with FT orthologs in
-        maize</a>
--   <a href="#4c-seq-analysis" id="toc-4c-seq-analysis">4C-seq analysis</a>
-    -   <a href="#libraries-6" id="toc-libraries-6">Libraries</a>
-    -   <a href="#data-5" id="toc-data-5">Data</a>
-    -   <a href="#create-bsgenome-for-b73-nam5"
-        id="toc-create-bsgenome-for-b73-nam5">Create BSgenome for B73 NAM5</a>
-    -   <a href="#update-confylm-file" id="toc-update-confylm-file">Update
-        conf.ylm file</a>
-    -   <a href="#create-a-vpinfo-file" id="toc-create-a-vpinfo-file">Create a
-        VPinfo file</a>
-    -   <a href="#run-pipe4c" id="toc-run-pipe4c">Run pipe4C</a>
-    -   <a href="#identify-peaks" id="toc-identify-peaks">Identify peaks</a>
-    -   <a href="#plot-normalized-read-count-at-vgt1"
-        id="toc-plot-normalized-read-count-at-vgt1">Plot normalized read count
-        at Vgt1</a>
+- [Introduction](#introduction)
+- [Flowering time analysis](#flowering-time-analysis)
+  - [Libraries](#libraries)
+  - [Data](#data)
+  - [Days to pollen shed](#days-to-pollen-shed)
+  - [Days to silking](#days-to-silking)
+  - [Node number](#node-number)
+- [Growth speed analysis](#growth-speed-analysis)
+  - [Libraries](#libraries-1)
+  - [Data](#data-1)
+  - [Growth speed all stages](#growth-speed-all-stages)
+  - [Days to pollen shed](#days-to-pollen-shed-1)
+  - [Days to silking](#days-to-silking-1)
+  - [Node number](#node-number-1)
+  - [Growth speed V3 and V4](#growth-speed-v3-and-v4)
+  - [Statistical analysis at V3](#statistical-analysis-at-v3)
+  - [Statistical analysis at V4](#statistical-analysis-at-v4)
+- [qPCR analysis](#qpcr-analysis)
+  - [Libraries](#libraries-2)
+  - [Data](#data-2)
+  - [ZmRap2.7 expression analysis](#zmrap27-expression-analysis)
+    - [ZmRap2.7 expression in V3L4](#zmrap27-expression-in-v3l4)
+    - [ZmRap2.7 expression in V4L5](#zmrap27-expression-in-v4l5)
+    - [ZmRap2.7 expression in V5L6](#zmrap27-expression-in-v5l6)
+  - [ZCN8 expression analysis](#zcn8-expression-analysis)
+    - [ZCN8 expression in V3L4](#zcn8-expression-in-v3l4)
+    - [ZCN8 expression in V4L5](#zcn8-expression-in-v4l5)
+    - [ZCN8 expression in V5L6](#zcn8-expression-in-v5l6)
+  - [ZmMADS4 expression analysis](#zmmads4-expression-analysis)
+    - [ZmMADS4 expression in V3L4](#zmmads4-expression-in-v3l4)
+    - [ZmMADS4 expression in V4L5](#zmmads4-expression-in-v4l5)
+    - [ZmMADS4 expression in V5L6](#zmmads4-expression-in-v5l6)
+- [RNA-seq analysis](#rna-seq-analysis)
+  - [Libraries](#libraries-3)
+  - [Data](#data-3)
+  - [Adapter trimming](#adapter-trimming)
+  - [Mapping on B73 NAM5 reference](#mapping-on-b73-nam5-reference)
+  - [Genome index](#genome-index)
+  - [Mapping](#mapping)
+  - [Read count](#read-count)
+  - [Read count matrix](#read-count-matrix)
+  - [coldata file](#coldata-file)
+  - [Load cts and coldata](#load-cts-and-coldata)
+  - [Create dds (DESeq Data Set)
+    object](#create-dds-deseq-data-set-object)
+  - [PCA](#pca)
+  - [Subanalysis - leaf part B](#subanalysis---leaf-part-b)
+  - [Subanalysis - leaf part D](#subanalysis---leaf-part-d)
+  - [Plot expression of ZmRap2.7](#plot-expression-of-zmrap27)
+  - [Plot expression of ZCN8](#plot-expression-of-zcn8)
+  - [Plot expression of ZmCOL9](#plot-expression-of-zmcol9)
+  - [Union DEGs leaf part B and D](#union-degs-leaf-part-b-and-d)
+  - [Venn Diagram](#venn-diagram)
+  - [GO enrichment analysis](#go-enrichment-analysis)
+- [ChIP-seq analysis](#chip-seq-analysis)
+  - [Libraries](#libraries-4)
+  - [Data](#data-4)
+  - [Adapter trimming and
+    deduplication](#adapter-trimming-and-deduplication)
+  - [Mapping](#mapping-1)
+  - [Peak calling](#peak-calling)
+    - [Summary mapping and peak
+      calling](#summary-mapping-and-peak-calling)
+    - [Reproducible peaks with IDR](#reproducible-peaks-with-idr)
+  - [MEME-CHIP analysis](#meme-chip-analysis)
+    - [MEME-CHIP local installation](#meme-chip-local-installation)
+    - [MEME-CHIP run](#meme-chip-run)
+    - [Motif visualization](#motif-visualization)
+    - [Libraries](#libraries-5)
+    - [Install ngs.plot and the maize
+      database](#install-ngsplot-and-the-maize-database)
+    - [Map ChIP-seq data on B73 AGPv3](#map-chip-seq-data-on-b73-agpv3)
+    - [Run ngs.plot](#run-ngsplot)
+  - [Overlap ZmRap2.7 peaks with genic
+    regions](#overlap-zmrap27-peaks-with-genic-regions)
+    - [Extract genic regions](#extract-genic-regions)
+    - [Genes overlapped](#genes-overlapped)
+  - [Overlap with DEGs](#overlap-with-degs)
+    - [Venn Diagram](#venn-diagram-1)
+    - [GO analysis 2109 target ChIP](#go-analysis-2109-target-chip)
+    - [GO analysis 259 overlapping
+      genes](#go-analysis-259-overlapping-genes)
+- [4C-seq analysis](#4c-seq-analysis)
+  - [Libraries](#libraries-6)
+  - [Data](#data-5)
+  - [Create BSgenome for B73 NAM5](#create-bsgenome-for-b73-nam5)
+  - [Update conf.ylm file](#update-confylm-file)
+  - [Create a VPinfo file](#create-a-vpinfo-file)
+  - [Run pipe4C](#run-pipe4c)
+  - [Identify peaks](#identify-peaks)
+  - [Plot normalized read count at
+    Vgt1](#plot-normalized-read-count-at-vgt1)
 
 # Introduction
 
@@ -596,7 +536,11 @@ df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) +
   geom_point()+
   geom_errorbar(aes(ymin=DAV2-sd, ymax=DAV2+sd), width=.2,
                  position=position_dodge(0.05)) + theme_bw()+ 
-  theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5)) + scale_y_continuous(labels = scales::comma_format())
+  theme(axis.text.x = element_text(color="black"), 
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_y_continuous(labels = scales::comma_format())
 ```
 
 ![](images/growth_speed_all_stages.png)
@@ -625,7 +569,8 @@ df_flo_time %>% ggplot(aes(genotype, DPS, fill=genotype)) +
 # Test homoscedasticity, if p-value > 5%, Ho all variances
 # are equals is not rejected
 
-df_flo_time_IR <- df_flo_time %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) 
+df_flo_time_IR <- df_flo_time %>% filter(genotype %in% 
+                           c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) 
 
 
 bartlett.test(DPS~genotype, data=df_flo_time_IR)
@@ -793,7 +738,8 @@ summary(Dunnett)
 ## Growth speed V3 and V4
 
 ``` r
-df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% ggplot(aes(x=stage, y=DAV2, fill=genotype)) +
+df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% 
+  ggplot(aes(x=stage, y=DAV2, fill=genotype)) +
   geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
   geom_point(position=position_jitterdodge(dodge.width = 0.8), 
               aes(y=DAV2, group=genotype), size=2, alpha=0.4) + 
@@ -812,7 +758,8 @@ df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% ggplot(aes(x=stage, y=DA
 Restrict to WT B104 and Vgt1-IR transgenic lines:
 
 ``` r
-df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) %>% ggplot(aes(x=stage, y=DAS, fill=genotype)) +
+df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) %>% 
+  ggplot(aes(x=stage, y=DAS, fill=genotype)) +
   geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
   geom_point(position=position_jitterdodge(dodge.width = 0.8), 
               aes(y=DAS, group=genotype), size=2, alpha=0.4) + 
@@ -1350,7 +1297,11 @@ with(df[(df$stage=="V4L5" & df$part=="D"),] ,
 ## Libraries
 
 ``` r
+library(conflicted)
 library(dplyr)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::select)
+
 library(readr) # Import csv files
 library(ggplot2)
 library(ggpubr) # Easy plotting
@@ -1369,6 +1320,12 @@ library(viridis)
 # Import GO functions (git clone https://github.com/johanzi/GOMAP_maize_B73_NAM5)
 source("S:/git_repositories/GOMAP_maize_B73_NAM5/go_functions.R", chdir = T)
 ```
+
+The GO term enrichment analysis is performed using the scripts from
+another GitHub repository
+(<https://github.com/johanzi/GOMAP_maize_B73_NAM5>). This repository
+needs to be cloned locally and the `go_functions.R` script needs to be
+sourced (see chunk of code above).
 
     R version 4.0.3 (2020-10-10)
     Platform: x86_64-w64-mingw32/x64 (64-bit)
@@ -1809,7 +1766,8 @@ ZmRap27_plot_all$genotype.x <- factor(ZmRap27_plot_all$genotype.x,
                                       levels=c("WT","Vgt1_IR"), ordered=T)
 
 # Choose manually the shape of the signs for each line (scale_shape_manual)
-ZmRap27_plot_all %>% ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_part)) +
+ZmRap27_plot_all %>% 
+  ggplot(aes(x=genotype.x, y=count, color=leaf_part, fill=leaf_part)) +
   geom_boxplot(fill="white", position=position_dodge(width=0.9), outlier.colour=NA) +
   geom_point(position=position_jitterdodge(dodge.width=0.9), 
              aes(shape=line, group=leaf_part), size=2) +
@@ -1911,13 +1869,36 @@ require(GeneOverlap)
 
 gs=21702
 
-overlap <-  newGeneOverlap(df_DEGs_part_B$geneID, df_DEGs_part_D$geneID, genome.size = gs)
+overlap <-  newGeneOverlap(df_DEGs_part_B$geneID, 
+                           df_DEGs_part_D$geneID, genome.size = gs)
 print(overlap)
 
 print(testGeneOverlap(overlap))
 
 ID_genes_union <- overlap@union
 ```
+
+    Detailed information about this GeneOverlap object:
+    listA size=1374, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
+    listB size=1019, e.g. Zm00001eb000470 Zm00001eb001460 Zm00001eb001760
+    Intersection size=259, e.g. Zm00001eb006000 Zm00001eb006260 Zm00001eb008660
+    Union size=2134, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
+    Genome size=21702
+    Overlap has not been tested yet. Use testGeneOverlap method.
+    Detailed information about this GeneOverlap object:
+    listA size=1374, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
+    listB size=1019, e.g. Zm00001eb000470 Zm00001eb001460 Zm00001eb001760
+    Intersection size=259, e.g. Zm00001eb006000 Zm00001eb006260 Zm00001eb008660
+    Union size=2134, e.g. Zm00001eb000420 Zm00001eb000590 Zm00001eb000970
+    Genome size=21702
+    # Contingency Table:
+          notA  inA
+    notB 19568 1115
+    inB    760  259
+    Overlapping p-value=2.6e-90
+    Odds ratio=6.0
+    Overlap tested using Fisher's exact test (alternative=greater)
+    Jaccard Index=0.1
 
 ## Venn Diagram
 
@@ -1965,10 +1946,19 @@ df_ego_analysis_significant %>% arrange(qvalue) %>%
 
 
 # Get list genes in significant terms
-list_genes_GO_2134 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+list_genes_GO_2134 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, 
+                                           function(x) unlist(str_split(x, "/")))))
 ```
 
-![](images/BP_GO_2134_genes.png)
+![](images/BP_GO_2134_genes.png) Format in a table to make fit in the
+figure 4.
+
+``` r
+df_ego_analysis_significant %>% arrange(qvalue) %>% 
+  head(10) %>% dplyr::select(c("Description", "FoldEnrich", "Count", "qvalue")) 
+```
+
+Export in Excel and format the table for publication.
 
 # ChIP-seq analysis
 
@@ -2505,7 +2495,7 @@ while read i; do
   IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed
 done < list_EREB.txt
 
-# Keep overlap of the two replicates
+# Keep peaks of rep1 that overlap peaks in rep2
 while read i; do
   bedtools intersect -a IDR_output/rep1_IDR_GEM_peaks/${i}_rep1.bed -b \
   IDR_output/rep2_IDR_GEM_peaks/${i}_rep2.bed -wa -u >  \
@@ -2557,7 +2547,7 @@ genome_file="/home/zicola/fasta/B73_NAM5/B73_NAM5_chr_only/Zm_NAM5.fa"
 
 # Extract fasta sequence
 while read i; do
-  fastaFromBed -fi $genome_file -bed IDR_output/intersect_rep1_rep2/cleaned/${i}.bed  -fo IDR_output/intersect_rep1_rep2/cleaned/fasta/${i}.fa
+  fastaFromBed -fi $genome_file -bed IDR_output/intersect_rep1_rep2/cleaned/${i}.bed -fo IDR_output/intersect_rep1_rep2/cleaned/fasta/${i}.fa
 done  < list_EREB.txt
 
 # Keep only top 1000 peaks for MEME-CHIP analysis
@@ -2634,41 +2624,38 @@ for i in *; do
 done
 ```
 
-#### Motif ZmRap2.7 vs TOE1 and SPL1
+#### Motif ZmRap2.7 vs TOE1
 
-The top MEME-ChIP motif for ZmRap2.7 is similar to TOE1 and SPL1 binding
-motif.
+The top MEME-ChIP motif for ZmRap2.7 is similar to TOE1.
 
 Download TOE1 motif from Franco Zorilla 2014
 <https://footprintdb.eead.csic.es/index.php?motif=44ea4c59f616f5ca92af81fd877294d0>
 
-The TOE2 motif is very slightly different
+The TOE2 motif is slightly different
 <https://footprintdb.eead.csic.es/index.php?motif=73188131fc858bfb8d76bed9e00b1284>
 
-Download SPL1 motif from Franco Zorilla 2014
-<https://footprintdb.eead.csic.es/index.php?db=ArabidopsisPBM:20140210&motif=SPL1>
-
 ``` r
-zmrap27 <- importMatrix("data/meme_chip/summary_meme_chip/ZmRap27.txt", format="meme", to="pcm")[[1]]
+zmrap27 <- importMatrix("data/meme_chip/summary_meme_chip/ZmRap27.txt", 
+                        format="meme", to="pcm")[[1]]
 
-TOE1 <- importMatrix("data/meme_chip/TOE1_7272.motif.transfac",  format="transfac", to="auto")[[1]]
+TOE1 <- importMatrix("data/meme_chip/TOE1_7272.motif.transfac",  
+                     format="transfac", to="auto")[[1]]
 
-SPL1 <- importMatrix("data/meme_chip/SPL1_7261.motif.transfac",  format="transfac", to="auto")[[1]]
-
-list_motifs <- lapply(list(TOE1, zmrap27, SPL1), format_motif)
+list_motifs <- lapply(list(TOE1, zmrap27), format_motif, RC=T)
 
 motifStack(pfms=list_motifs, layout="tree",  ncex=1)
 ```
 
-![](images/motif_SPL1_TOE1_ZmRap27.png)
+![](images/motif_TOE1_ZmRap27.png)
 
 The second biggest hit for ZmRap2.7 with 136 site is the DEAR3 motif
 (<https://www.arabidopsis.org/locus?key=34350>)
 (<https://footprintdb.eead.csic.es/index.php?db=ArabidopsisPBM:20140210&motif=DEAR3>).
-\> DEAR3, DREB AND EAR MOTIF PROTEIN 3, encodes a member of the DREB
-subfamily A-5 of ERF/AP2 transcription factor family. The protein
-contains one AP2 domain. There are 16 members in this subfamily
-including RAP2.1, RAP2.9 and RAP2.10.
+
+> DEAR3, DREB AND EAR MOTIF PROTEIN 3, encodes a member of the DREB
+> subfamily A-5 of ERF/AP2 transcription factor family. The protein
+> contains one AP2 domain. There are 16 members in this subfamily
+> including RAP2.1, RAP2.9 and RAP2.10.
 
 This motif looks like the top motif of all 14 maize EREB top motif.
 
@@ -2711,9 +2698,8 @@ motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
 #motifStack(pfms=motifs_EREB, layout="radialPhylog")
 ```
 
-![](images/motifstack_tree_ereb.png)
-
-## ZmRap2.7 read density around TSS
+![](images/motifstack_tree_ereb.png) \## ZmRap2.7 read density around
+TSS
 
 Visualize enrichment in ZmRap2.7 ChIP-seq data around the
 transcriptional start sites of genes.
@@ -2868,9 +2854,9 @@ bowtie2 -p  10 \
 
 Create a configuration file `config_file.txt`:
 
-| mapped_AGPv3/SRR29006029_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam | -1  | Replicate_1 |
-|---------------------------------------------------------------------------|-----|-------------|
-| mapped_AGPv3/SRR29006028_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam | -1  | Replicate_2 |
+| mapped_AGPv3/SRR29006029_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam | -1 | Replicate_1 |
+|----|----|----|
+| mapped_AGPv3/SRR29006028_ZmRap27.bam:mapped_AGPv3/SRR12022262_control.bam | -1 | Replicate_2 |
 
 ``` bash
 # Read density at TSS (-/+ 1 kb) with normalization by the control sample
@@ -2894,10 +2880,12 @@ here:<https://datacommons.cyverse.org/browse/iplant/home/shared/ncsu-plantreplic
 ``` bash
 
 # Gff to bed
-gff2bed < Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed
+gff2bed < Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf > \
+Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed
 
 # Keep only gene features
-awk '$8=="gene"' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed
+awk '$8=="gene"' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.bed > \
+Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed
 
 # Get 10 kb upstream to 5 kb downstream
 bedtools slop -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.bed \
@@ -2916,7 +2904,8 @@ bedtools sort -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed > 
 genic_regions="data/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed"
 
 bedtools intersect -a $genic_regions -b data/ZmRap27_peaks.bed -wa  \
-  | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | uniq > data/ZmRap27_up10kb_down5kb_geneID.txt
+  | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | \
+  uniq > data/ZmRap27_up10kb_down5kb_geneID.txt
 
 wc -l ZmRap27_up10kb_down5kb_geneID.txt
 2109
@@ -2936,10 +2925,10 @@ geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb_geneID.txt", header=F)
 geneID_chip <- unlist(geneID_chip)
 # 2109 genes with ZmRap2.7 in promoter region (5kb)
 
-geneID_union_B_D <- union(df_DEGs_part_B$geneID, df_DEGs_part_D$geneID)
+geneID_union_B_D <- base::union(df_DEGs_part_B$geneID, df_DEGs_part_D$geneID)
 # 2134 DEGs union
 
-length(union(geneID_union_B_D, geneID_chip))
+length(base::union(geneID_union_B_D, geneID_chip))
 # 3984 genes in total 
 
 require(GeneOverlap)
@@ -2975,7 +2964,9 @@ write(overlap@intersection, "data/259_overlap_geneID.txt")
 
 ``` r
 grid.newpage()
-draw.pairwise.venn(area1 = 2109, area2 = 2134, cross.area = 259, category = c("ChIP-seq","DEGs"), lty="blank", fill = c("#fc8d62","#66c2a5"))
+draw.pairwise.venn(area1 = 2109, area2 = 2134, cross.area = 259, 
+                   category = c("ChIP-seq","DEGs"), 
+                   lty="blank", fill = c("#fc8d62","#66c2a5"))
 ```
 
 ![](images/venn_diagram_DEG_CHIP.png)
@@ -2989,28 +2980,40 @@ lapply(ego, function(x) sum(x@result$p.adjust < 0.05))
 
 # 21 BP terms and 1 MF term significant
 
-dotplot(ego[[1]],showCategory=21,x="FoldEnrich", title="BP ZmRap2.7 ChIP-seq peak (2,109 genes)")
-#dotplot(ego[[2]],showCategory=10, title="CC ZmRap2.7 ChIP-seq peaks")
-#dotplot(ego[[3]],showCategory=10, title="MF ZmRap2.7 ChIP-seq peak")
-
 # I need to remove "regulation of cell death"  as it is obsolete
-#  "negative regulation of programmed cell death" does not seem to be obsolete (https://www.ebi.ac.uk/QuickGO/term/GO:0043069)
+#  "negative regulation of programmed cell death" does not seem to 
+# be obsolete (https://www.ebi.ac.uk/QuickGO/term/GO:0043069)
 # Turn list of enrichResult objects into one dataframe
 df_ego_analysis <- enrichResult2dataframe(ego)
 
 # Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
-df_ego_analysis_significant <- df_ego_analysis %>% dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941") 
+df_ego_analysis_significant <- df_ego_analysis %>% 
+  dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941") 
 
-df_ego_analysis_significant %>% filter(ontology=="BP") %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +
-  geom_point(aes(size = Count))  + xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 2,109 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_size_area(max_size = 10) + scale_color_viridis()
+df_ego_analysis_significant %>% filter(ontology=="BP") %>% 
+  arrange(qvalue) %>% head(10) %>%
+  mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  
+  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +
+  geom_point(aes(size = Count))  + 
+  xlab("Fold enrichment") + 
+  ylab("GO term") + 
+  ggtitle("BP GO enrichment 2,109 genes")  + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_size_area(max_size = 10) + scale_color_viridis()
 
 
 # Save 
-write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_2109_genes_ChIP_ZmRap27.txt", delim="\t")
+write_delim(df_ego_analysis_significant, 
+            "data/df_ego_analysis_significant_2109_genes_ChIP_ZmRap27.txt", delim="\t")
 
 
 # Get list genes in significant terms
-list_genes_GO_2109 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+list_genes_GO_2109 <- unique(unlist(lapply(
+  df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
 
 # 356 genes found
 ```
@@ -3035,20 +3038,44 @@ df_overlap_sig <- df_overlap %>% dplyr::filter(p.adjust < 0.05)
 
 
 # Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
-df_ego_analysis_significant <- df_overlap_sig %>% dplyr::filter(p.adjust < 0.05) %>% dplyr::filter(ID != "GO:0010941")  %>% dplyr::filter(ID != "GO:0007568")
+df_ego_analysis_significant <- df_overlap_sig %>% 
+  dplyr::filter(p.adjust < 0.05) %>% 
+  dplyr::filter(ID != "GO:0010941")  %>% 
+  dplyr::filter(ID != "GO:0007568")
 
-df_ego_analysis_significant %>% arrange(qvalue) %>% head(10) %>% mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  geom_point(aes(size = Count))+ xlab("Fold enrichment") + ylab("GO term") + ggtitle("BP GO enrichment 259 genes")  + theme_bw()+ theme(axis.text.x = element_text(color="black"),axis.text.y = element_text(color="black"),axis.ticks = element_line(color = "black")) + theme(plot.title = element_text(hjust = 0.5))  + scale_color_viridis()  + scale_size_area(max_size = 10) 
+df_ego_analysis_significant %>% arrange(qvalue) %>% 
+  head(10) %>% 
+  mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  
+  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  
+  geom_point(aes(size = Count))+ 
+  xlab("Fold enrichment") + 
+  ylab("GO term") + 
+  ggtitle("BP GO enrichment 259 genes")  + 
+  theme_bw()+ 
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_color_viridis() + 
+  scale_size_area(max_size = 10) 
 
-write_delim(df_ego_analysis_significant, "data/df_ego_analysis_significant_259_genes_DEG_ChIP_ZmRap27.txt", delim="\t")
+write_delim(df_ego_analysis_significant, 
+            "data/df_ego_analysis_significant_259_genes_DEG_ChIP_ZmRap27.txt", delim="\t")
 
 
 # Get list genes in significant terms
-list_genes_GO_259 <- unique(unlist(lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
+list_genes_GO_259 <- unique(unlist(
+  lapply(df_ego_analysis_significant$geneID, function(x) unlist(str_split(x, "/")))))
 
 # 78
 ```
 
 ![](images/BP_GO_259_ChIP_DEG_overlap_genes.png)
+
+``` r
+df_ego_analysis_significant %>% arrange(qvalue) %>% 
+  head(10) %>% dplyr::select(c("Description", "FoldEnrich", "Count", "qvalue")) 
+```
 
 Check the overlap of the genes contributing to the significant GO terms
 for the ChIP-seq target genes and the overlap
@@ -3059,51 +3086,11 @@ length(Reduce(intersect, list(list_genes_GO_2134, list_genes_GO_2109, list_genes
 
 69 in common.
 
-## Overlap with FT orthologs in maize
-
-24 ortholog of FLOWERING LOCUS identified using
-<https://phylogenes.arabidopsis.org/tree/PTHR11362> and initially
-identified in [Danilevskaya et al
-2008](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2230559/). Note that
-ZCN22 does not exist and ZCN23 is a pseudogene.
-
-| gene name | ID              |
-|-----------|-----------------|
-| ZCN1      | Zm00001eb164120 |
-| ZCN2      | Zm00001eb181410 |
-| ZCN3      | Zm00001eb406740 |
-| ZCN4      | Zm00001eb084030 |
-| ZCN5      | Zm00001eb421900 |
-| ZCN6      | Zm00001eb197000 |
-| ZCN7      | Zm00001eb293080 |
-| ZCN8      | Zm00001eb353250 |
-| ZCN9      | Zm00001eb334510 |
-| ZCN10     | Zm00001eb126300 |
-| ZCN11     | Zm00001eb281410 |
-| ZCN12     | Zm00001eb153190 |
-| ZCN13     | Zm00001eb239360 |
-| ZCN14     | Zm00001eb338650 |
-| ZCN15     | Zm00001eb271180 |
-| ZCN16     | Zm00001eb246470 |
-| ZCN17     | Zm00001eb090320 |
-| ZCN18     | Zm00001eb102650 |
-| ZCN19     | Zm00001eb425430 |
-| ZCN20     | Zm00001eb411580 |
-| ZCN21     | Zm00001eb085740 |
-| ZCN24     | Zm00001eb318290 |
-| ZCN25     | Zm00001eb078980 |
-| ZCN26     | Zm00001eb384770 |
-
 ``` r
-geneID_chip <- read.delim("data/ZmRap27_up10kb_down5kb_geneID.txt", header=F)
+gene_GO0009695 <- df_ego_analysis_significant %>% filter(ID=="GO:0009695") %>% dplyr::select(geneID) %>% str_split("/") %>% unlist()
 
-FT_homologs <- read.delim("data/FT_homologs.txt", header=F)
-
-intersect(geneID_chip, FT_homologs)
+data.table::fwrite(list(gene_GO0009695), "gene_GO0009695.txt")
 ```
-
-No overlap. ZmRap2.7 does not seem to bound to any of the *FT* homologs
-identified in maize.
 
 # 4C-seq analysis
 
@@ -3233,11 +3220,11 @@ library(BSgenome.zmv5)
 
 ## Data
 
-| Accession   | code        | name                                                   |
-|-------------|-------------|--------------------------------------------------------|
-| SRR29005912 | Husk_rep1   | 4C-seq of Zea mays: Husk tissue rep1                   |
-| SRR29005911 | Husk_rep2   | 4C-seq of Zea mays: Husk tissue rep2                   |
-| SRR29005910 | Husk_rep3   | 4C-seq of Zea mays: Husk tissue rep3                   |
+| Accession | code | name |
+|----|----|----|
+| SRR29005912 | Husk_rep1 | 4C-seq of Zea mays: Husk tissue rep1 |
+| SRR29005911 | Husk_rep2 | 4C-seq of Zea mays: Husk tissue rep2 |
+| SRR29005910 | Husk_rep3 | 4C-seq of Zea mays: Husk tissue rep3 |
 | SRR30183516 | V2_IST_rep1 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep1 |
 | SRR29005908 | V2_IST_rep2 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep2 |
 | SRR30183515 | V2_IST_rep3 | 4C-seq of Zea mays: Inner stem tissue seedling V2 rep3 |
@@ -3488,23 +3475,27 @@ peaksFile <- "./out_vgt1/Husk_peakC_peaks.bed"
 exportPeakCPeaks(resPeakC=resPeakC,bedFile=peaksFile,name="Husk_peakC_peaks")
 ```
 
+Remove the two lines header
+
+``` bash
+sed -i '/^chr/!d' V2_IST_peakC_peaks.bed
+sed -i '/^chr/!d' Husk_peakC_peaks.bed
+```
+
+Note that V2-IST and husk have 14 peaks and 12 peaks, respectively. All
+peaks overlap with 2 peaks being uniquely present in V2-IST.
+
 ## Plot normalized read count at Vgt1
 
 Gather the normalized read count at Vgt1 and uva to assess the
 difference between replicates and tissues.
 
 ``` r
-# chr8:135590574..135593098 (take a bit more downstream of Vgt1 
-# to get the BglII site)
-gr_vgt1 <- makeGRangesFromDataFrame(
-    data.frame(
-        chr = "chr8",
-        start = 135590574,
-        end = 135593098,
-        keep.extra.columns = TRUE))
+# Get all peaks coordinates in Grange
+gr_V2 <-  rtracklayer::import("data/pipe4C/out_vgt1/V2_IST_peakC_peaks.bed")
+names(gr_V2) <- c(paste("peak",rep(1:14), sep=""))
 
-# Get values for uva1 and vgt1 region (chr8:135587501..135593000)
-
+# Load pipe4C R objects
 V1 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep1.rds")
 V2 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep2.rds")
 V3 <- readRDS("data/pipe4C/out_vgt1/RDS/V2_IST_rep3.rds")
@@ -3516,38 +3507,98 @@ H3 <- readRDS("data/pipe4C/out_vgt1/RDS/Husk_rep3.rds")
 list_v <- list(V1,V2,V3)
 list_h <- list(H1,H2,H3)
 
-data_Vgt1_v <- lapply(list_v, function(x) subsetByOverlaps(x$reads, gr_vgt1))
-
-data_vgt1_h <- lapply(list_h, function(x) subsetByOverlaps(x$reads, gr_vgt1))
-
-
-norm4C_vgt1_h <- lapply(data_vgt1_h, function(x) sum(x$norm4C))
-
-norm4C_vgt1_v <- lapply(data_Vgt1_v, function(x) sum(x$norm4C))
-
-v_col_norm4C <- cbind(norm4C_vgt1_v, norm4C_vgt1_h)
-
-# Create a dataframe
-df_norm4C <- data.frame(vgt1_v=unlist(norm4C_vgt1_v), 
-                        vgt1_h=unlist(norm4C_vgt1_h))
-
-df_norm4C_long <- df_norm4C %>% gather(replicate, norm4C,vgt1_v:vgt1_h)
-
-df_norm4C_long <- cbind(df_norm4C_long, rep(paste0("rep",1:3),2), 
+# Create a function that summarize the normalized read count overlapping
+# the GRange object given as input
+retrieve_norm4C <- function(gr_object){
+  data_v <- lapply(list_v, function(x) subsetByOverlaps(x$reads, gr_object))
+  data_h <- lapply(list_h, function(x) subsetByOverlaps(x$reads, gr_object))
+  norm4C_v <- lapply(data_v, function(x) sum(x$norm4C))
+  norm4C_h <- lapply(data_h, function(x) sum(x$norm4C))
+  v_col_norm4C <- cbind(norm4C_v, norm4C_h)
+  # Create a dataframe
+  df_norm4C <- data.frame(v=unlist(norm4C_v), 
+                        h=unlist(norm4C_h))
+  df_norm4C_long <- df_norm4C %>% gather(replicate, norm4C,v:h)
+  df_norm4C_long <- cbind(df_norm4C_long, rep(paste0("rep",1:3),2), 
                         c(rep("V2_IST",3), 
                           rep("Husk",3)))
-
-colnames(df_norm4C_long) <- c("sample","norm4C","rep","tissue")
-
-# Order 
-df_norm4C_long$tissue <- factor(df_norm4C_long$tissue, 
+  colnames(df_norm4C_long) <- c("sample","norm4C","rep","tissue")
+  
+  # Order 
+  df_norm4C_long$tissue <- factor(df_norm4C_long$tissue, 
                                 levels=c("V2_IST","Husk"), ordered=T)
+  
+  # Add a column for the peak name
+  df_norm4C_long$peak <- c(rep(names(gr_object), 6))
+  
+  df_norm4C_long$sample <- as.factor(df_norm4C_long$sample)
+  df_norm4C_long$rep <- as.factor(df_norm4C_long$rep)
+  df_norm4C_long$peak <- as.factor(df_norm4C_long$peak)
+                           
+  return(df_norm4C_long)
+}
+
+# Retrieve norm4C values for each peaks
+res <- lapply(seq_along(gr_V2), function(i) retrieve_norm4C(gr_V2[i]))
+
+# Bind all dataframes
+df_norm4C_long <- do.call("rbind", res)
+
 
 # Plot
-ggplot(df_norm4C_long, aes(y=norm4C, x=tissue)) +
-  geom_boxplot(fill="#FFC000") +
-  geom_point(size=2)  +
+ggplot(df_norm4C_long, aes(y=norm4C, x=peak, fill=tissue)) +
+  geom_boxplot() +
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), size=2)  +
   theme_bw() +
+  scale_fill_manual(values = c("#1b9e77","#7570b3")) +
+  ylab("Normalized read count") +
+  xlab("Peak") +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  ggtitle("4C-seq normalized read count") + 
+  theme(axis.text.x = element_text(angle=90, hjust=1))
+```
+
+![](images/4C_seq_14_peaks_V2.png)
+
+Restrict to peaks visible in Figure 6.
+
+``` r
+df_norm4C_long %>% filter(!peak %in% 
+                            c("peak1","peak2","peak3","peak12","peak13","peak14")) %>%
+  ggplot(aes(y=norm4C, x=peak, fill=tissue)) +
+  geom_boxplot() +
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), size=2)  +
+  theme_bw() +
+  scale_fill_manual(values = c("#1b9e77","#7570b3")) +
+  ylab("Normalized read count") +
+  xlab("") +
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  ggtitle("4C-seq normalized read count")
+```
+
+![](images/4C_seq_subset_peaks_V2.png)
+
+Test if significant difference between the two tissues bu integrating
+data from peak 6 to 11.
+
+``` r
+df_norm4C_long_sub <- df_norm4C_long %>% filter(!peak %in% 
+                            c("peak1","peak2","peak3","peak4","peak5",
+                              "peak12","peak13","peak14")) 
+
+ggplot(df_norm4C_long_sub, aes(y=norm4C, x=tissue, fill=tissue)) +
+  geom_boxplot() +
+  geom_point(position=position_jitterdodge(dodge.width = 0.8), size=2)  +
+  theme_bw() +
+  scale_fill_manual(values = c("#1b9e77","#7570b3")) +
   ylab("Normalized read count") +
   xlab("Tissue") +
   theme(axis.text.x = element_text(color="black"),
@@ -3555,24 +3606,25 @@ ggplot(df_norm4C_long, aes(y=norm4C, x=tissue)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  ggtitle("4C-seq normalized read count Vgt1")
+  ggtitle("4C-seq normalized read count from peak 6 to 11")
 ```
 
-![](images/4C_plot.png)
-
-Test if significant difference between the two tissues.
+![](images/4C_seq_per_tissue.png)
 
 ``` r
-with(df_norm4C_long, t.test(norm4C[tissue=="V2_IST"], norm4C[tissue=="Husk"], var.equal=FALSE))
+with(df_norm4C_long_sub, t.test(norm4C[tissue=="V2_IST"], norm4C[tissue=="Husk"],
+                            var.equal=FALSE))
 ```
 
         Welch Two Sample t-test
 
     data:  norm4C[tissue == "V2_IST"] and norm4C[tissue == "Husk"]
-    t = 0.91833, df = 2.1492, p-value = 0.4495
+    t = 1.4314, df = 22.319, p-value = 0.1662
     alternative hypothesis: true difference in means is not equal to 0
     95 percent confidence interval:
-     -1865639  2967303
+     -154876.5  846838.3
     sample estimates:
     mean of x mean of y 
-      2274033   1723201 
+      2202870   1856889 
+
+Not significant.
