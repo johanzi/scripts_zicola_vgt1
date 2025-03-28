@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-03-28 15:39:32
+2025-03-28 16:04:46
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -174,7 +174,7 @@ give.n <- function(x){
 ## Data
 
 Raw data are available in
-<https://github.com/johanzi/scripts_zicola_vgt1/data/flowering_time.txt>.
+[data/flowering_time.txt](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/flowering_time.txt).
 
 ``` r
 # Set directory to the cloned github repo scripts_zicola_vgt1
@@ -492,7 +492,7 @@ library(car)
 ## Data
 
 Raw data available in
-<https://github.com/johanzi/scripts_zicola_vgt1/data/growth_speed.txt>.
+[data/growth_speed.txt.](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/growth_speed.txt.).
 The values are in number of days from the V2 stage, apart from “node”,
 which represents the number of nodes at maturity.
 
@@ -1583,7 +1583,7 @@ bash merge_counts.sh list_file_counts.txt sample_names.txt > cts.txt
 ```
 
 The `cts.txt` file is available on github
-(<https://github.com/johanzi/scripts_zicola_vgt1/data/cts.txt>).
+[data/cts.txt](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/cts.txt).
 
 ## coldata file
 
@@ -1615,7 +1615,7 @@ The `cts.txt` file is available on github
 | J402   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
 
 The `coldata.txt` file is available on github
-(<https://github.com/johanzi/scripts_zicola_vgt1/data/coldata.txt>).
+(<https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/coldata.txt>).
 
 ## Load cts and coldata
 

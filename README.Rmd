@@ -95,7 +95,7 @@ loaded via a namespace (and not attached):
 
 ## Data
 
-Raw data are available in https://github.com/johanzi/scripts_zicola_vgt1/data/flowering_time.txt.
+Raw data are available in [data/flowering_time.txt](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/flowering_time.txt).
 
 ```{r}
 # Set directory to the cloned github repo scripts_zicola_vgt1
@@ -444,7 +444,7 @@ loaded via a namespace (and not attached):
 
 ## Data
 
-Raw data available in https://github.com/johanzi/scripts_zicola_vgt1/data/growth_speed.txt. The values are in number of days from the V2 stage, apart from "node", which represents the number of nodes at maturity.
+Raw data available in [data/growth_speed.txt.](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/growth_speed.txt.). The values are in number of days from the V2 stage, apart from "node", which represents the number of nodes at maturity.
 
 ```{r}
 # Import data
@@ -1605,7 +1605,7 @@ done
 bash merge_counts.sh list_file_counts.txt sample_names.txt > cts.txt
 ```
 
-The `cts.txt` file is available on github (https://github.com/johanzi/scripts_zicola_vgt1/data/cts.txt).
+The `cts.txt` file is available on github [data/cts.txt](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/cts.txt).
 
 ## coldata file
 
@@ -1636,7 +1636,7 @@ The `cts.txt` file is available on github (https://github.com/johanzi/scripts_zi
 | J400   | IR_331-06 | Vgt1_IR  | V3L4  | B         |
 | J402   | IR_331-06 | Vgt1_IR  | V3L4  | D         |
 
-The `coldata.txt` file is available on github (https://github.com/johanzi/scripts_zicola_vgt1/data/coldata.txt).
+The `coldata.txt` file is available on github (https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/coldata.txt).
 
 ## Load cts and coldata
 
