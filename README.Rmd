@@ -444,7 +444,7 @@ loaded via a namespace (and not attached):
 
 ## Data
 
-Raw data available in [data/growth_speed.txt.](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/growth_speed.txt.). The values are in number of days from the V2 stage, apart from "node", which represents the number of nodes at maturity.
+Raw data available in [data/growth_speed.txt](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/growth_speed.txt). The values are in number of days from the V2 stage, apart from "node", which represents the number of nodes at maturity.
 
 ```{r}
 # Import data

@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-03-28 16:04:46
+2025-03-28 16:07:38
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -492,7 +492,7 @@ library(car)
 ## Data
 
 Raw data available in
-[data/growth_speed.txt.](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/growth_speed.txt.).
+[data/growth_speed.txt](https://github.com/johanzi/scripts_zicola_vgt1/tree/master/data/growth_speed.txt).
 The values are in number of days from the V2 stage, apart from “node”,
 which represents the number of nodes at maturity.
 
