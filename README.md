@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-01-15 17:19:04
+2025-03-28 15:39:32
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -86,6 +86,10 @@ Johan Zicola
     - [GO analysis 2109 target ChIP](#go-analysis-2109-target-chip)
     - [GO analysis 259 overlapping
       genes](#go-analysis-259-overlapping-genes)
+    - [GO analysis 1850 target ChIP not
+      DEGs](#go-analysis-1850-target-chip-not-degs)
+    - [GO analysis 1875 DEGs not target
+      ChIP](#go-analysis-1875-degs-not-target-chip)
 - [4C-seq analysis](#4c-seq-analysis)
   - [Libraries](#libraries-6)
   - [Data](#data-5)
@@ -170,7 +174,7 @@ give.n <- function(x){
 ## Data
 
 Raw data are available in
-<https://github.com/johanzi/scripts_zicola_vgt1/data/data/flowering_time.txt>.
+<https://github.com/johanzi/scripts_zicola_vgt1/data/flowering_time.txt>.
 
 ``` r
 # Set directory to the cloned github repo scripts_zicola_vgt1
@@ -488,7 +492,7 @@ library(car)
 ## Data
 
 Raw data available in
-<https://github.com/johanzi/scripts_zicola_vgt1/data/data/growth_speed.txt>.
+<https://github.com/johanzi/scripts_zicola_vgt1/data/growth_speed.txt>.
 The values are in number of days from the V2 stage, apart from “node”,
 which represents the number of nodes at maturity.
 
@@ -1311,7 +1315,7 @@ library(tidyr)
 library(kableExtra) # Nice table display
 library(reshape2)
 library(gridExtra) # Diplays plot side by side
-library(VennDiagram)
+library(RVenn)
 library(DESeq2)
 library(GeneOverlap)
 library(tidyverse)
@@ -1903,10 +1907,10 @@ ID_genes_union <- overlap@union
 ## Venn Diagram
 
 ``` r
-grid.newpage()
-draw.pairwise.venn(area1 = 1374, area2 = 1019, cross.area = 259, 
-                   category = c("Part B","Part D"), lty="blank", 
-                   fill = c("#BCD35F","#DEAA87"))
+set_genes <- list(df_DEGs_part_B$geneID, df_DEGs_part_D$geneID)
+set_genes <- Venn(set_genes)
+names(set_genes@sets) <- c("Part B","Part D")
+ggvenn(set_genes, fill = c("#BCD35F","#DEAA87")) + theme_void()
 ```
 
 ![](images/venn_diagram_DEGS_part_B_D.png)
@@ -1976,7 +1980,7 @@ library(tidyr)
 library(kableExtra) # Nice table display
 library(reshape2)
 library(gridExtra) # Diplays plot side by side
-library(VennDiagram)
+library(RVenn)
 library(DESeq2)
 library(GeneOverlap)
 library(tidyverse)
@@ -2960,13 +2964,72 @@ write(overlap@intersection, "data/259_overlap_geneID.txt")
     Overlap tested using Fisher's exact test (alternative=greater)
     Jaccard Index=0.1
 
+``` r
+# Get geneID of ChIP target that are not DEGs
+diff_ChIP <- base::setdiff(geneID_chip,geneID_union_B_D)
+diff_DEG <- base::setdiff(geneID_union_B_D, geneID_chip)
+
+# Export non-overlapping DEGss
+write(diff_ChIP, "data/1850_ChIP_target_not_DEGs.txt")
+write(diff_DEG, "data/1875_DEGs_not_ChIP_target.txt")
+```
+
+Look at the up vs downregulated genes in the intersect compared to DEGs
+not in the intersect.
+
+``` r
+df_DEGs_part_B_ChIP <- df_DEGs_part_B %>% filter(geneID %in% overlap@intersection)
+
+sum(df_DEGs_part_B_ChIP$log2FoldChange<0)
+64
+sum(df_DEGs_part_B_ChIP$log2FoldChange>0)
+103
+
+df_DEGs_part_D_ChIP <- df_DEGs_part_D %>% filter(geneID %in% overlap@intersection)
+
+sum(df_DEGs_part_D_ChIP$log2FoldChange<0)
+80
+sum(df_DEGs_part_D_ChIP$log2FoldChange>0)
+55
+
+df_DEGs_part_B_not_ChIP <- df_DEGs_part_B %>% filter(!geneID %in% overlap@intersection)
+
+sum(df_DEGs_part_B_not_ChIP$log2FoldChange<0)
+508
+sum(df_DEGs_part_B_not_ChIP$log2FoldChange>0)
+699
+
+df_DEGs_part_D_not_ChIP <- df_DEGs_part_D %>% filter(!geneID %in% overlap@intersection)
+
+sum(df_DEGs_part_D_not_ChIP$log2FoldChange<0)
+489
+sum(df_DEGs_part_D_not_ChIP$log2FoldChange>0)
+395
+```
+
+Part B
+
+|                 | down DEGs | up DEGs | Total |
+|-----------------|-----------|---------|-------|
+| ChIP target     | 64        | 103     | 167   |
+| non ChIP target | 508       | 699     | 1207  |
+| Total           | 572       | 802     |       |
+
+Part D
+
+|                 | down DEGs | up DEGs | Total |
+|-----------------|-----------|---------|-------|
+| ChIP target     | 80        | 55      | 135   |
+| non ChIP target | 489       | 395     | 884   |
+| Total           | 569       | 450     |       |
+
 ### Venn Diagram
 
 ``` r
-grid.newpage()
-draw.pairwise.venn(area1 = 2109, area2 = 2134, cross.area = 259, 
-                   category = c("ChIP-seq","DEGs"), 
-                   lty="blank", fill = c("#fc8d62","#66c2a5"))
+set_genes <- list(geneID_chip, geneID_union_B_D)
+set_genes <- Venn(set_genes)
+names(set_genes@sets) <- c("ChIP-seq","DEGs")
+ggvenn(set_genes, fill = c("#EEE4CD", "#B3E0D2")) + theme_void()
 ```
 
 ![](images/venn_diagram_DEG_CHIP.png)
@@ -3091,6 +3154,86 @@ gene_GO0009695 <- df_ego_analysis_significant %>% filter(ID=="GO:0009695") %>% d
 
 data.table::fwrite(list(gene_GO0009695), "gene_GO0009695.txt")
 ```
+
+### GO analysis 1850 target ChIP not DEGs
+
+``` r
+ego <- ego_analysis(diff_ChIP)
+
+lapply(ego, function(x) sum(x@result$p.adjust < 0.05))
+# 13 BP terms significant
+
+df_overlap <- enrichResult2dataframe(ego)
+
+df_overlap_sig <- df_overlap %>% dplyr::filter(p.adjust < 0.05)
+
+# Remove obsolete terms GO:0007568  and GO:0010941 (regulation of cell death and ageing). See https://www.ebi.ac.uk/QuickGO/term/GO:0007568 and 
+
+
+# Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
+df_ego_analysis_significant <- df_overlap_sig %>% 
+  dplyr::filter(p.adjust < 0.05) %>% 
+  dplyr::filter(ID != "GO:0010941")  %>% 
+  dplyr::filter(ID != "GO:0007568")
+
+df_ego_analysis_significant %>% arrange(qvalue) %>% 
+  head(13) %>% 
+  mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  
+  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  
+  geom_point(aes(size = Count))+ 
+  xlab("Fold enrichment") + 
+  ylab("GO term") + 
+  ggtitle("BP GO enrichment 1850 genes")  + 
+  theme_bw()+ 
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_color_viridis() + 
+  scale_size_area(max_size = 10) 
+```
+
+![](images/BP_GO_1850_ChIP_not_DEG.png)
+
+### GO analysis 1875 DEGs not target ChIP
+
+``` r
+ego <- ego_analysis(diff_DEG)
+
+lapply(ego, function(x) sum(x@result$p.adjust < 0.05))
+# 91 BP terms and 3 CC terms significant
+
+df_overlap <- enrichResult2dataframe(ego)
+
+df_overlap_sig <- df_overlap %>% dplyr::filter(p.adjust < 0.05)
+
+# Remove obsolete terms GO:0007568  and GO:0010941 (regulation of cell death and ageing). See https://www.ebi.ac.uk/QuickGO/term/GO:0007568 and 
+
+
+# Keep only significant hits (here I use alpha risk 5%) and remove obsolescent term "GO:0010941"
+df_ego_analysis_significant <- df_overlap_sig %>% 
+  dplyr::filter(p.adjust < 0.05) %>% 
+  dplyr::filter(ID != "GO:0010941")  %>% 
+  dplyr::filter(ID != "GO:0007568")
+
+df_ego_analysis_significant %>% arrange(qvalue) %>% 
+  head(10) %>% 
+  mutate(Description = fct_reorder(Description, FoldEnrich)) %>%  
+  ggplot(aes(x=FoldEnrich, y=Description, color=-log10(qvalue))) +  
+  geom_point(aes(size = Count))+ 
+  xlab("Fold enrichment") + 
+  ylab("GO term") + 
+  ggtitle("BP GO enrichment 1875 genes")  + 
+  theme_bw()+ 
+  theme(axis.text.x = element_text(color="black"),
+        axis.text.y = element_text(color="black"),
+        axis.ticks = element_line(color = "black")) + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  scale_color_viridis() + 
+  scale_size_area(max_size = 10) 
+```
+
+![](images/BP_GO_1875_DEG_not_ChIP.png)
 
 # 4C-seq analysis
 
