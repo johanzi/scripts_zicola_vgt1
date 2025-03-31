@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-03-28 16:07:38
+2025-03-31 14:37:12
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -503,12 +503,12 @@ data_R <- read.delim("data/growth_speed.txt")
 data_R$genotype <- as.factor(data_R$genotype)
 
 # Growth rate data
-df_growth_speed <- data_R[, 1:20]
+df_growth_speed <- data_R[, 1:21]
 
 # DAV2 stands for days after V2 stage
-df_growth_speed <- df_growth_speed %>% gather(stage, DAV2, V3:V21)
+df_growth_speed <- df_growth_speed %>% gather(stage, DAV2, V2:V21)
 
-stage_order <- paste("V",3:21, sep="")
+stage_order <- paste("V",2:21, sep="")
 
 df_growth_speed$stage <- factor(df_growth_speed$stage, levels=stage_order, ordered=T)
 
@@ -535,7 +535,10 @@ df2 <- data_summary(df_growth_speed, varname="DAV2",
                     groupnames=c("genotype", "stage"))
 
 # filter(stage!="V21") 
-df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) + 
+df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) +
+  ylab("Days to stage") +
+  xlab("Stage") +
+  ggtitle("Growth speed using V2 as starting point") +
   geom_line() +
   geom_point()+
   geom_errorbar(aes(ymin=DAV2-sd, ymax=DAV2+sd), width=.2,
