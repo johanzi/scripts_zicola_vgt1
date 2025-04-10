@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-03-31 14:37:12
+2025-04-10 12:46:32
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -72,6 +72,8 @@ Johan Zicola
     - [MEME-CHIP local installation](#meme-chip-local-installation)
     - [MEME-CHIP run](#meme-chip-run)
     - [Motif visualization](#motif-visualization)
+    - [Extract ZmRap2.7 binding peaks](#extract-zmrap27-binding-peaks)
+  - [ZmRap2.7 read density around TSS](#zmrap27-read-density-around-tss)
     - [Libraries](#libraries-5)
     - [Install ngs.plot and the maize
       database](#install-ngsplot-and-the-maize-database)
@@ -90,6 +92,8 @@ Johan Zicola
       DEGs](#go-analysis-1850-target-chip-not-degs)
     - [GO analysis 1875 DEGs not target
       ChIP](#go-analysis-1875-degs-not-target-chip)
+  - [Motif analysis of the peaks of the 259 intersect
+    genes](#motif-analysis-of-the-peaks-of-the-259-intersect-genes)
 - [4C-seq analysis](#4c-seq-analysis)
   - [Libraries](#libraries-6)
   - [Data](#data-5)
@@ -2674,13 +2678,13 @@ EREB from the Tu et al 2020 dataset.
 ``` r
 setwd("/path/to/scripts_zicola_vgt1")
 
-temp = list.files(path="data/meme_chip/summary_meme_chip", pattern="*.txt")
+temp <- list.files(path="data/meme_chip/summary_meme_chip", pattern="*.txt")
 
 # Remove ZmRap2.7
 temp <- temp[1:14]
 
 # Load combined.meme files
-motifs_EREB = lapply(paste("data/meme_chip/summary_meme_chip/", temp, sep=""),
+motifs_EREB <- lapply(paste("data/meme_chip/summary_meme_chip/", temp, sep=""),
                      function(x) importMatrix(x, format="meme", to="pcm")[[1]])
 
 # Add now ZmRap2.7 DEAR3 motif (fourth position in meme-chip summary
@@ -2705,8 +2709,14 @@ motifStack(pfms=motifs_EREB, layout="tree",  ncex=1)
 #motifStack(pfms=motifs_EREB, layout="radialPhylog")
 ```
 
-![](images/motifstack_tree_ereb.png) \## ZmRap2.7 read density around
-TSS
+![](images/motifstack_tree_ereb.png)
+
+### Extract ZmRap2.7 binding peaks
+
+``` bash
+```
+
+## ZmRap2.7 read density around TSS
 
 Visualize enrichment in ZmRap2.7 ChIP-seq data around the
 transcriptional start sites of genes.
@@ -2910,6 +2920,7 @@ bedtools sort -i Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.bed > 
 # Get unique genes overlapped
 genic_regions="data/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed"
 
+# ZmRap27_peaks.bed in IDR_output/intersect_rep1_rep2/ based on previous folder structure
 bedtools intersect -a $genic_regions -b data/ZmRap27_peaks.bed -wa  \
   | cut -f10 | cut -d';' -f1 | cut -d'"' -f2 | sort | \
   uniq > data/ZmRap27_up10kb_down5kb_geneID.txt
@@ -3237,6 +3248,41 @@ df_ego_analysis_significant %>% arrange(qvalue) %>%
 ```
 
 ![](images/BP_GO_1875_DEG_not_ChIP.png)
+
+## Motif analysis of the peaks of the 259 intersect genes
+
+Check the motif enrichment for peaks located near the 259 genes of the
+intersect between DEGs and ChIP-seq peaks.
+
+``` bash
+# Get list of the 259 genes and find back the peaks
+
+while read i; do
+grep -e "\"$i\"" Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.genes.up10k.down5kb.sorted.bed
+done < 259_overlap_geneID.txt > 259_overlap.up10k.down5kb.bed
+
+# Get the peaks
+bedtools intersect -wa -a ZmRap27_peaks.bed -b 259_overlap.up10k.down5kb.bed > ZmRap27_peaks_259_overlap.bed
+
+# 377 peaks around the 259 intersect genes
+wc -l ZmRap27_peaks_259_overlap.bed
+377 ZmRap27_peaks_259_overlap.bed
+
+# Get the fasta sequence for all 377 peaks
+genome_file="/home/zicola/fasta/B73_NAM5/B73_NAM5_chr_only/Zm_NAM5.fa"
+fastaFromBed -fi $genome_file -bed ZmRap27_peaks_259_overlap.bed -fo ZmRap27_peaks_259_overlap.fa
+
+# Rerun meme analysis
+meme-chip -dna -db motif_databases/ARABD/ArabidopsisPBM_20140210.meme -maxw 8 \
+  -o meme_chip_analysis/ZmRap27_peaks_259_overlap  -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 meme_chip_analysis/ZmRap27_peaks_259_overlap.fa
+  
+```
+
+We have 377 peaks surrounding the 259 genes intersect. The enrichment is
+similar than the top1000 peaks analysis for *ZmRap2.7* with a primary
+motif being.
+
+![](images/motif_377_peaks_259_genes_intersect.png)
 
 # 4C-seq analysis
 
