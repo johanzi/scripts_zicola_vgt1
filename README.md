@@ -1460,7 +1460,7 @@ considering all 50 bp bases are above the Q-value 30 for quality. The
 adapter content is pretty low and toward the end of the reads (top 1.28%
 of the reads at base 50).
 
-There are some content bias for the firs 9 bp but they are probably due
+There are some content bias for the first 9 bp but they are probably due
 to the octomer of H used to random 5’ breath priming in the library
 prep. I should keep them for the mapping.
 
@@ -1474,23 +1474,23 @@ cd ~/genomes/maize_B73/B73_NAM5
 # Fasta
 server="ftp://ftp.ensemblgenomes.org/pub/plants/release-51"
 
-wget ${server}/fasta/zea_mays/dna/Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa.gz
+wget ${server}/fasta/zea_mays/dna/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa.gz
 
 # GTF file
-wget ${server}/gtf/zea_mays/Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf.gz
+wget ${server}/gtf/zea_mays/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf.gz
 
 # Modify chromosome names to have chr1, ...
-sed -i 's/^>\([1-9]\)/>chr\1/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa
+sed -i 's/^>\([1-9]\)/>chr\1/g' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa
 
 # Same for GTF file
-sed -i 's/^[1-9]/chr&/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf
+sed -i 's/^[1-9]/chr&/g' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf
 
 # Remove contigs from fasta and gtf files
-sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa \
-  > Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa
+sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa \
+  > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.wo_contigs.fa
   
-sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
-  > Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.wo_contigs.gtf
+sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf \
+  > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.wo_contigs.gtf
 ```
 
 ## Genome index
@@ -1500,7 +1500,7 @@ sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
 module load hisat2/2.1.0
 
 # Create reference genome with indexes having for prefix B73_NAM5
-hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa B73_NAM5
+hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.wo_contigs.fa B73_NAM5
 ```
 
 ## Mapping
