@@ -1,0 +1,46 @@
+Invoking:
+  getsize meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/ZmRap27.top1000.fa 1> $metrics
+Finished invoke:
+  name: count_seqs  status: 0  time: 0.021835
+Invoking:
+  fasta-most -min 50 < meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/ZmRap27.top1000.fa 1> $metrics
+Finished invoke:
+  name: most_seqs  status: 0  time: 0.129494
+Invoking:
+  fasta-center -dna -len 100 < meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/ZmRap27.top1000.fa 1> meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/seqs-centered
+Finished invoke:
+  name: center_seqs  status: 0  time: 0.164605
+Invoking:
+  fasta-get-markov -nostatus -nosummary -dna -m 2 meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/ZmRap27.top1000.fa meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/background
+Finished invoke:
+  name: bg  status: 0  time: 0.015343
+Invoking:
+  meme meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/seqs-centered -oc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme_out -mod zoops -nmotifs 3 -minw 6 -maxw 8 -bfile meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/background -dna -seed 0 -p 16 -revcomp -nostatus
+Finished invoke:
+  name: meme  status: 0  time: 175.365048
+Invoking:
+  streme --verbosity 1 --oc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/streme_out -dna --seed 0 --p meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/seqs-centered --minw 6 --maxw 8 --order 2
+Finished invoke:
+  name: streme  status: 0  time: 7.36633
+Invoking:
+  centrimo -seqlen 201 -verbosity 1 -oc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/centrimo_out -bfile meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/background meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/ZmRap27.top1000.fa meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme_out/meme.xml meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/streme_out/streme.xml motif_databases/ARABD/ArabidopsisPBM_20140210.meme
+Finished invoke:
+  name: centrimo  status: 0  time: 1.792198
+Invoking:
+  tomtom -verbosity 1 -oc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme_tomtom_out -min-overlap 5 -dist pearson -evalue -thresh 1 -no-ssc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme_out/meme.xml motif_databases/ARABD/ArabidopsisPBM_20140210.meme
+Finished invoke:
+  name: meme_tomtom  status: 0  time: 0.789988
+Invoking:
+  tomtom -verbosity 1 -oc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/streme_tomtom_out -min-overlap 5 -dist pearson -evalue -thresh 1 -no-ssc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/streme_out/streme.xml motif_databases/ARABD/ArabidopsisPBM_20140210.meme
+Finished invoke:
+  name: streme_tomtom  status: 0  time: 0.826054
+Invoking:
+  tomtom -verbosity 1 -text -thresh 0.1 meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/combined.meme meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/combined.meme 1> meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/motif_alignment.txt
+Finished invoke:
+  name: align  status: 0  time: 0.826031
+Writing output
+Invoking:
+  meme-chip_html_to_tsv meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme-chip.html meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/summary.tsv "meme-chip -dna -db motif_databases/ARABD/ArabidopsisPBM_20140210.meme -maxw 8 -o meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8 -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 meme_chip_analysis/new_analysis/ZmRap27.top1000.fa" 5.5.5 "Thu Sep 14 08\:48\:04 2023 +1000"
+Finished invoke:
+  name: summary  status: 0  time: 0.21924
+Done

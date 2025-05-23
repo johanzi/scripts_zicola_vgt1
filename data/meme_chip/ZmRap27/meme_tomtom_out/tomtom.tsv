@@ -1,0 +1,12 @@
+Query_ID	Target_ID	Optimal_offset	p-value	E-value	q-value	Overlap	Query_consensus	Target_consensus	Orientation
+CGTACGTR	SPL1_2	0	0.000782538	0.0884268	0.119603	8	CGTACGTA	CGTACGGA	+
+CGTACGTR	SPL1	1	0.00233041	0.263337	0.119603	7	CGTACGTA	CCGTACGG	+
+CGTACGTR	SPL7	2	0.00233041	0.263337	0.119603	6	CGTACGTA	GCCGTACG	-
+CGTACGTR	TOE1_2	0	0.00516274	0.58339	0.176644	8	CGTACGTA	CGTAGGTT	-
+CGTACGTR	TOE2_2	0	0.00641646	0.72506	0.186125	8	CGTACGTA	CGTAGGTT	-
+CGTACGTR	ANAC55_2	-1	0.00815977	0.922054	0.186125	7	CGTACGTA	TTACGTAA	+
+TACTACTA	ZAT6	0	0.00483867	0.546769	0.999984	8	TACTACTA	TAACACTA	+
+
+# Tomtom (Motif Comparison Tool): Version 5.5.5 compiled on Dec  7 2023 at 04:32:55
+# The format of this file is described at http://localhost:8080/meme_5.5.5/doc/tomtom-output-format.html.
+# tomtom -verbosity 1 -oc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme_tomtom_out -min-overlap 5 -dist pearson -evalue -thresh 1 -no-ssc meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8/meme_out/meme.xml motif_databases/ARABD/ArabidopsisPBM_20140210.meme

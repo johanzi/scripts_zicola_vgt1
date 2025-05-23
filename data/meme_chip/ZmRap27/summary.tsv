@@ -1,0 +1,46 @@
+MOTIF_INDEX	MOTIF_SOURCE	MOTIF_ID	ALT_ID	CONSENSUS	WIDTH	SITES	E-VALUE	E-VALUE_SOURCE	MOST_SIMILAR_MOTIF_SOURCE	MOST_SIMILAR_MOTIF	URL
+1	MEME	CGTACGTR	MEME-1	CGTACGTR	8	204	3.8e-130	MEME	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	SPL1_2 (SPL1_2)	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=SPL1_2
+2	STREME	3-ACGTACGT	STREME-3	ACGTACGT	8	169	1.3e-105	STREME	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	TOE1_2 (TOE1_2)	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=TOE1_2
+3	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	SPL1	SPL1	CCGTACGG	8	337	2.9e-068	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=SPL1
+4	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DEAR3	DEAR3	CRCCGMCS	8	800	7.3e-054	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DEAR3
+5	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DREB2C_2	DREB2C_2	CACCGACA	8	529	3.2e-053	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DREB2C_2
+6	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	SPL7	SPL7	CGTACGVC	8	735	6.3e-049	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=SPL7
+7	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	SPL1_2	SPL1_2	CGTACGGA	8	476	2.2e-045	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=SPL1_2
+8	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	PIF3	PIF3	CCACGTGG	8	178	3.0e-035	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=PIF3
+9	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DEAR4_2	DEAR4_2	GCGCCGCC	8	551	1.2e-034	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DEAR4_2
+10	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	PIF5	PIF5	GCACGTGC	8	540	3.1e-034	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=PIF5
+11	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	TOE1_2	TOE1_2	AACCTACG	8	754	2.3e-031	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=TOE1_2
+12	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DEAR4	DEAR4	CACCGACA	8	332	3.9e-030	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DEAR4
+13	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	TOE2_2	TOE2_2	AACCTACG	8	634	2.0e-028	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=TOE2_2
+14	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	MYB52	MYB52	MCTAACGG	8	654	2.4e-027	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=MYB52
+15	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	MYC3	MYC3	VCACGTGB	8	568	3.9e-023	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=MYC3
+16	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	MYC4	MYC4	RCACGTGC	8	401	2.4e-021	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=MYC4
+17	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	bZIP60_2	bZIP60_2	CCACGTCA	8	785	4.4e-020	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=bZIP60_2
+18	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	ORA47_2	ORA47_2	GCGCCGCC	8	561	9.3e-019	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=ORA47_2
+19	MEME	AAAAAAAA	MEME-2	AAAAAAAA	8	67	5.1e-018	MEME	 	 	 
+20	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	At1g77200	At1g77200	CACCGACA	8	334	7.0e-017	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=At1g77200
+21	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	TOE1	TOE1	CCTCGTAC	8	601	7.4e-014	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=TOE1
+22	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DEAR3_2	DEAR3_2	GAACCGAC	8	616	6.3e-012	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DEAR3_2
+23	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	ERF1	ERF1	MGCCGCCA	8	575	6.3e-012	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=ERF1
+24	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	MYC2	MYC2	GCACGTGC	8	516	2.2e-011	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=MYC2
+25	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	PIF4	PIF4	GCACGTGC	8	460	4.3e-011	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=PIF4
+26	STREME	1-GCGCCGCC	STREME-1	GCGCCGCC	8	126	7.7e-011	STREME	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DEAR4_2 (DEAR4_2)	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DEAR4_2
+27	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RAP2.6	RAP2.6	GCGCCGCC	8	437	1.8e-009	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RAP2.6
+28	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	MYB46_2	MYB46_2	YAACCACC	8	760	1.2e-008	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=MYB46_2
+29	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	TOE2	TOE2	CCTCGTAC	8	508	2.0e-008	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=TOE2
+30	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	ANAC55_2	ANAC55_2	TTACGTAA	8	525	1.7e-006	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=ANAC55_2
+31	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	MYB55_2	MYB55_2	GGTGGKTG	8	630	3.5e-006	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=MYB55_2
+32	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RRTF1_2	RRTF1_2	CGCCGCMA	8	456	3.3e-005	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RRTF1_2
+33	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	ORA47	ORA47	RCCGACCA	8	457	1.5e-004	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=ORA47
+34	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RRTF1_3ary	RRTF1_3ary	CGCCGCCA	8	505	2.0e-004	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RRTF1_3ary
+35	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RAP2.3_3ary	RAP2.3_3ary	CGCCGCCA	8	669	4.8e-004	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RAP2.3_3ary
+36	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RAP2.3_2	RAP2.3_2	MGCCGCCA	8	635	7.1e-004	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RAP2.3_2
+37	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	WRKY45	WRKY45	CGTTGACY	8	447	3.2e-003	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=WRKY45
+38	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RAP2.6_2	RAP2.6_2	RGCCGCMA	8	659	8.4e-003	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RAP2.6_2
+39	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	Dof5.7_2	Dof5.7_2	WCGTTAAC	8	363	3.0e-002	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=Dof5.7_2
+40	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	DREB2C	DREB2C	GCGGCCGC	8	281	4.2e-002	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=DREB2C
+41	motif_databases/ARABD/ArabidopsisPBM_20140210.meme	RRTF1	RRTF1	GCGCCGCC	8	501	4.6e-002	CENTRIMO	 	 	http://floresta.eead.csic.es/footprintdb/index.php?db=ArabidopsisPBM:20140210&motif=RRTF1
+
+# MEME-ChIP (Motif Analysis of Large Nucleotide Datasets): Version 5.5.5 released on Thu Sep 14 08:48:04 2023 +1000
+# The format of this file is described at http://localhost:8080/meme_5.5.5//doc/meme-chip-output-format.html
+# meme-chip -dna -db motif_databases/ARABD/ArabidopsisPBM_20140210.meme -maxw 8 -o meme_chip_analysis/new_analysis/meme_chip_analysis/new_analysis/ZmRap27_max_8 -meme-mod zoops -spamo-skip -fimo-skip -meme-p 16 meme_chip_analysis/new_analysis/ZmRap27.top1000.fa

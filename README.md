@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-04-10 12:46:32
+2025-05-23 11:48:10
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -1628,7 +1628,7 @@ The `coldata.txt` file is available on github
 
 ``` r
 # Set directory to the cloned github repo scripts_zicola_vgt1
-setwd("/path/to/scripts_zicola_vgt1")
+# setwd("/path/to/scripts_zicola_vgt1")
 
 # Adding check.names = FALSE prevent X prefixes to be added to the library names
 cts = read.table("data/cts.txt", header=TRUE, row.names=1, check.names = FALSE)
@@ -1640,7 +1640,7 @@ col_names <- names(coldata)
 coldata[,col_names] <- lapply(coldata[,col_names] , factor)
 
 ### Check that sample names match in both files
-all(colnames(cts) %in% coldata$sample)
+all(colnames(cts) == coldata$sample)
 ```
 
 ## Create dds (DESeq Data Set) object
@@ -1887,6 +1887,8 @@ print(overlap)
 print(testGeneOverlap(overlap))
 
 ID_genes_union <- overlap@union
+
+write(ID_genes_union, "data/DEGs_2134.txt")
 ```
 
     Detailed information about this GeneOverlap object:
@@ -1938,7 +1940,7 @@ df_ego_analysis <- enrichResult2dataframe(list_ego_results)
 df_ego_analysis_significant <- df_ego_analysis %>% dplyr::filter(p.adjust < 0.05)
 
 write_delim(df_ego_analysis_significant, 
-            "df_ego_analysis_significant_2134_DEGs.txt", delim="\t")
+            "data/df_ego_analysis_significant_2134_DEGs.txt", delim="\t")
 
 df_ego_analysis_significant %>% arrange(qvalue) %>% 
   head(10) %>% 
@@ -2454,6 +2456,7 @@ while read i; do
       --output-file IDR_output/${i}"
     idr --samples $rep1 $rep2 --input-file-type narrowPeak \
       --rank signal.value --idr-threshold 0.01 \
+      --plot \
       --output-file IDR_output/${i}_idr_peak.txt
   fi
 done < list_IDR.txt
