@@ -151,7 +151,8 @@ ggplot(df, aes(line, DPS, fill=experiment)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_y_continuous(labels = scales::comma_format()) 
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3"))
 
 ```
 
@@ -206,19 +207,6 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 ## Days to silking
 
 ```{r}
-ggplot(df, aes(line, silking, fill=transgene)) + 
-  geom_boxplot() +  
-  stat_summary(fun.data = give.n, geom = "text") + 
-  ggtitle("Days to silking") +  
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), 
-        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
-        axis.text.y = element_text(color="black"), 
-        axis.ticks = element_line(color = "black")) +
-        theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format()) +
-        scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
-
 
 ggplot(df, aes(line, silking, fill=transgene)) + 
   geom_boxplot(outlier.color = NA) +   
@@ -252,7 +240,8 @@ ggplot(df, aes(line, silking, fill=experiment)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_y_continuous(labels = scales::comma_format()) 
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3"))
 
 ```
 
@@ -338,7 +327,9 @@ ggplot(df, aes(line, node, fill=experiment)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_y_continuous(labels = scales::comma_format()) 
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3"))
+
 
 ```
 
@@ -399,6 +390,10 @@ library(RColorBrewer)
 library(multcomp)
 library(dunn.test)
 library(car)
+
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
 ```
 
 
@@ -501,7 +496,8 @@ df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) + 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(labels = scales::comma_format())
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_color_manual(values=c("#8c510a","#d8b365","#f6e8c3","#c7eae5","#5ab4ac","#01665e"))
 
 ```
 
@@ -523,7 +519,9 @@ df_flo_time %>% ggplot(aes(genotype, DPS, fill=genotype)) +
         axis.text.y = element_text(color="black"), 
         axis.ticks = element_line(color = "black")) +
         theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format())
+        scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#8c510a","#d8b365","#f6e8c3","#c7eae5","#5ab4ac","#01665e"))
+
 
 ```
 
@@ -597,7 +595,8 @@ df_flo_time %>% ggplot(aes(genotype, silking, fill=genotype)) +
         axis.text.y = element_text(color="black"), 
         axis.ticks = element_line(color = "black")) +
         theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format())
+        scale_y_continuous(labels = scales::comma_format()) +
+    scale_fill_manual(values=c("#8c510a","#d8b365","#f6e8c3","#c7eae5","#5ab4ac","#01665e"))
 
 ```
 
@@ -668,7 +667,8 @@ df_flo_time %>% ggplot(aes(genotype, node, fill=genotype)) +
         axis.text.y = element_text(color="black"), 
         axis.ticks = element_line(color = "black")) +
         theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format())
+        scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#8c510a","#d8b365","#f6e8c3","#c7eae5","#5ab4ac","#01665e"))
 
 ```
 
@@ -731,12 +731,13 @@ df_growth_speed %>% filter(stage %in% c("V3","V4")) %>%
               aes(y=DAV2, group=genotype), size=2, alpha=0.4) + 
   theme_bw() + 
   ylab("Days to stage") +
-  ggtitle("Growth speed of with type and transgenic lines") + 
+  ggtitle("Growth speed of three inbred lines and Vgt1-IR transgenics") + 
   theme(axis.text.x = element_text(color="black"), 
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) + 
         theme(plot.title = element_text(hjust = 0.5)) + 
-        scale_y_continuous(labels = scales::comma_format())
+        scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#8c510a","#d8b365","#f6e8c3","#c7eae5","#5ab4ac","#01665e"))
 
 ```
 
