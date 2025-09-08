@@ -152,7 +152,8 @@ ggplot(df, aes(line, DPS, fill=experiment)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3"))
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  stat_summary(fun.data = give.n, geom = "text",position = position_dodge(width = 0.9))
 
 ```
 
@@ -241,7 +242,8 @@ ggplot(df, aes(line, silking, fill=experiment)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3"))
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  stat_summary(fun.data = give.n, geom = "text",position = position_dodge(width = 0.9))
 
 ```
 
@@ -328,7 +330,8 @@ ggplot(df, aes(line, node, fill=experiment)) +
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_continuous(labels = scales::comma_format()) +
-  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3"))
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  stat_summary(fun.data = give.n, geom = "text",position = position_dodge(width = 0.9))
 
 
 ```
