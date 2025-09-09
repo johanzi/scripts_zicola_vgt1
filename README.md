@@ -2,7 +2,7 @@ Vgt1 acts as an enhancer of ZmRap2.7 and regulates flowering time in
 maize
 ================
 Johan Zicola
-2025-05-23 11:48:10
+2025-09-09 16:01:22
 
 - [Introduction](#introduction)
 - [Flowering time analysis](#flowering-time-analysis)
@@ -230,7 +230,9 @@ ggplot(df, aes(line, DPS, fill=experiment)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_y_continuous(labels = scales::comma_format()) 
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  stat_summary(fun.data = give.n, geom = "text",position = position_dodge(width = 0.9))
 ```
 
 ![](images/DPS_across_experiments.png)
@@ -280,20 +282,6 @@ summary(Dunnett)
 
 ``` r
 ggplot(df, aes(line, silking, fill=transgene)) + 
-  geom_boxplot() +  
-  stat_summary(fun.data = give.n, geom = "text") + 
-  ggtitle("Days to silking") +  
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), 
-        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
-        axis.text.y = element_text(color="black"), 
-        axis.ticks = element_line(color = "black")) +
-        theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format()) +
-        scale_fill_manual(values=c("#07B738","#E8AE07","#FB756C"))
-
-
-ggplot(df, aes(line, silking, fill=transgene)) + 
   geom_boxplot(outlier.color = NA) +   
   geom_point(position=position_jitterdodge(dodge.width = 0.8), 
               aes(y=silking, group=transgene), size=2, alpha=0.4)  +
@@ -323,7 +311,9 @@ ggplot(df, aes(line, silking, fill=experiment)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_y_continuous(labels = scales::comma_format()) 
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  stat_summary(fun.data = give.n, geom = "text",position = position_dodge(width = 0.9))
 ```
 
 ![](images/silking_across_experiments.png)
@@ -399,7 +389,9 @@ ggplot(df, aes(line, node, fill=experiment)) +
         axis.text.y = element_text(color="black"),
         axis.ticks = element_line(color = "black")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  scale_y_continuous(labels = scales::comma_format()) 
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values=c("#1b9e77","#d95f02","#7570b3")) +
+  stat_summary(fun.data = give.n, geom = "text",position = position_dodge(width = 0.9))
 ```
 
 ![](images/node_number_across_experiments.png)
@@ -454,6 +446,10 @@ library(RColorBrewer)
 library(multcomp)
 library(dunn.test)
 library(car)
+
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
 ```
 
     R version 4.0.3 (2020-10-10)
@@ -538,20 +534,26 @@ data_summary <- function(data, varname, groupnames){
 df2 <- data_summary(df_growth_speed, varname="DAV2", 
                     groupnames=c("genotype", "stage"))
 
-# filter(stage!="V21") 
-df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) +
+# filter(stage!="V21")
+df2 %>% ggplot(aes(x = stage, y = DAV2, group = genotype, color = genotype)) +
   ylab("Days to stage") +
   xlab("Stage") +
   ggtitle("Growth speed using V2 as starting point") +
   geom_line() +
-  geom_point()+
-  geom_errorbar(aes(ymin=DAV2-sd, ymax=DAV2+sd), width=.2,
-                 position=position_dodge(0.05)) + theme_bw()+ 
-  theme(axis.text.x = element_text(color="black"), 
-        axis.text.y = element_text(color="black"),
-        axis.ticks = element_line(color = "black")) + 
-  theme(plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(labels = scales::comma_format())
+  geom_point() +
+  geom_errorbar(aes(ymin = DAV2 - sd, ymax = DAV2 + sd),
+    width = .2,
+    position = position_dodge(0.05)
+  ) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(color = "black")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_color_manual(values = c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e"))
 ```
 
 ![](images/growth_speed_all_stages.png)
@@ -559,19 +561,25 @@ df2 %>% ggplot(aes(x=stage, y=DAV2, group=genotype, color=genotype)) +
 ## Days to pollen shed
 
 ``` r
-df_flo_time %>% ggplot(aes(genotype, DPS, fill=genotype)) + 
-  geom_boxplot(outlier.color = NA) +   
-  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-              aes(y=DPS, group=genotype), size=2, alpha=0.4)  +
-  stat_summary(fun.data = give.n, geom = "text") + 
-  ggtitle("Days to pollen shed") +  ylab("Days to pollen shed") +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), 
-        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
-        axis.text.y = element_text(color="black"), 
-        axis.ticks = element_line(color = "black")) +
-        theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format())
+df_flo_time %>% ggplot(aes(genotype, DPS, fill = genotype)) +
+  geom_boxplot(outlier.color = NA) +
+  geom_point(
+    position = position_jitterdodge(dodge.width = 0.8),
+    aes(y = DPS, group = genotype), size = 2, alpha = 0.4
+  ) +
+  stat_summary(fun.data = give.n, geom = "text") +
+  ggtitle("Days to pollen shed") +
+  ylab("Days to pollen shed") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 90, hjust = 1, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(color = "black")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values = c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e"))
 ```
 
 ![](images/DPS_growth_speed_experiment.png)
@@ -625,19 +633,25 @@ summary(Dunnett)
 ## Days to silking
 
 ``` r
-df_flo_time %>% ggplot(aes(genotype, silking, fill=genotype)) + 
-  geom_boxplot(outlier.color = NA) +   
-  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-              aes(y=silking, group=genotype), size=2, alpha=0.4)  +
-  stat_summary(fun.data = give.n, geom = "text") + 
-  ggtitle("Days to silking") +  ylab("Days to silking") +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), 
-        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
-        axis.text.y = element_text(color="black"), 
-        axis.ticks = element_line(color = "black")) +
-        theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format())
+df_flo_time %>% ggplot(aes(genotype, silking, fill = genotype)) +
+  geom_boxplot(outlier.color = NA) +
+  geom_point(
+    position = position_jitterdodge(dodge.width = 0.8),
+    aes(y = silking, group = genotype), size = 2, alpha = 0.4
+  ) +
+  stat_summary(fun.data = give.n, geom = "text") +
+  ggtitle("Days to silking") +
+  ylab("Days to silking") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 90, hjust = 1, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(color = "black")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values = c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e"))
 ```
 
 ![](images/silking_growth_speed_experiment.png)
@@ -687,19 +701,25 @@ summary(Dunnett)
 ## Node number
 
 ``` r
-df_flo_time %>% ggplot(aes(genotype, node, fill=genotype)) + 
-  geom_boxplot(outlier.color = NA) +   
-  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-              aes(y=node, group=genotype), size=2, alpha=0.4)  +
-  stat_summary(fun.data = give.n, geom = "text") + 
-  ggtitle("Node number") +  ylab("Node number") +
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), 
-        axis.text.x = element_text(angle = 90, hjust = 1, color="black"),
-        axis.text.y = element_text(color="black"), 
-        axis.ticks = element_line(color = "black")) +
-        theme(plot.title = element_text(hjust = 0.5)) +
-        scale_y_continuous(labels = scales::comma_format())
+df_flo_time %>% ggplot(aes(genotype, node, fill = genotype)) +
+  geom_boxplot(outlier.color = NA) +
+  geom_point(
+    position = position_jitterdodge(dodge.width = 0.8),
+    aes(y = node, group = genotype), size = 2, alpha = 0.4
+  ) +
+  stat_summary(fun.data = give.n, geom = "text") +
+  ggtitle("Node number") +
+  ylab("Node number") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 90, hjust = 1, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(color = "black")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values = c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e"))
 ```
 
 ![](images/node_number_growth_speed_experiment.png)
@@ -749,19 +769,27 @@ summary(Dunnett)
 ## Growth speed V3 and V4
 
 ``` r
-df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% 
-  ggplot(aes(x=stage, y=DAV2, fill=genotype)) +
-  geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
-  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-              aes(y=DAV2, group=genotype), size=2, alpha=0.4) + 
-  theme_bw() + 
+df_growth_speed %>%
+  filter(stage %in% c("V3", "V4")) %>%
+  ggplot(aes(x = stage, y = DAV2, fill = genotype)) +
+  geom_boxplot() +
+  geom_boxplot(outlier.color = NA) +
+  geom_point(
+    position = position_jitterdodge(dodge.width = 0.8),
+    aes(y = DAV2, group = genotype), size = 2, alpha = 0.4
+  ) +
+  theme_bw() +
   ylab("Days to stage") +
-  ggtitle("Growth speed of with type and transgenic lines") + 
-  theme(axis.text.x = element_text(color="black"), 
-        axis.text.y = element_text(color="black"),
-        axis.ticks = element_line(color = "black")) + 
-        theme(plot.title = element_text(hjust = 0.5)) + 
-        scale_y_continuous(labels = scales::comma_format())
+  ggtitle("Growth speed of three inbred lines and Vgt1-IR transgenics") +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(color = "black")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values = c("#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e")) +
+  stat_summary(fun.data = give.n, geom = "text", position = position_dodge(width = 0.9))
 ```
 
 ![](images/growth_speed_V3_v4_all_genotypes.png)
@@ -769,20 +797,28 @@ df_growth_speed %>% filter(stage %in% c("V3","V4")) %>%
 Restrict to WT B104 and Vgt1-IR transgenic lines:
 
 ``` r
-df_growth_speed %>% filter(stage %in% c("V3","V4")) %>% filter(genotype %in% c("B104","Vgt1-IR_327-16","Vgt1-IR_327-38","Vgt1-IR_331-06")) %>% 
-  ggplot(aes(x=stage, y=DAS, fill=genotype)) +
-  geom_boxplot() +   geom_boxplot(outlier.color = NA) +   
-  geom_point(position=position_jitterdodge(dodge.width = 0.8), 
-              aes(y=DAS, group=genotype), size=2, alpha=0.4) + 
-  theme_bw() + 
+df_growth_speed %>%
+  filter(stage %in% c("V3", "V4")) %>%
+  filter(genotype %in% c("B104", "Vgt1-IR_327-16", "Vgt1-IR_327-38", "Vgt1-IR_331-06")) %>%
+  ggplot(aes(x = stage, y = DAV2, fill = genotype)) +
+  geom_boxplot() +
+  geom_boxplot(outlier.color = NA) +
+  geom_point(
+    position = position_jitterdodge(dodge.width = 0.8),
+    aes(y = DAV2, group = genotype), size = 2, alpha = 0.4
+  ) +
+  theme_bw() +
   ylab("Days to stage") +
-  ggtitle("Growth speed of with type and transgenic lines") + 
-  theme(axis.text.x = element_text(color="black"), 
-        axis.text.y = element_text(color="black"),
-        axis.ticks = element_line(color = "black")) + 
-        theme(plot.title = element_text(hjust = 0.5)) + 
-        scale_y_continuous(labels = scales::comma_format()) +
-        scale_fill_manual(values=c("#F8766D","#FDCC8A","#FC8D59","#FFC000"))
+  ggtitle("Growth speed of with type and transgenic lines") +
+  theme(
+    axis.text.x = element_text(color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.ticks = element_line(color = "black")
+  ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  scale_fill_manual(values = c("#F8766D", "#FDCC8A", "#FC8D59", "#FFC000")) +
+  stat_summary(fun.data = give.n, geom = "text", position = position_dodge(width = 0.9))
 ```
 
 ![](images/growth_speed_V3_v4.png)
@@ -1460,7 +1496,7 @@ considering all 50 bp bases are above the Q-value 30 for quality. The
 adapter content is pretty low and toward the end of the reads (top 1.28%
 of the reads at base 50).
 
-There are some content bias for the first 9 bp but they are probably due
+There are some content bias for the firs 9 bp but they are probably due
 to the octomer of H used to random 5’ breath priming in the library
 prep. I should keep them for the mapping.
 
@@ -1474,23 +1510,23 @@ cd ~/genomes/maize_B73/B73_NAM5
 # Fasta
 server="ftp://ftp.ensemblgenomes.org/pub/plants/release-51"
 
-wget ${server}/fasta/zea_mays/dna/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa.gz
+wget ${server}/fasta/zea_mays/dna/Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa.gz
 
 # GTF file
-wget ${server}/gtf/zea_mays/Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf.gz
+wget ${server}/gtf/zea_mays/Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf.gz
 
 # Modify chromosome names to have chr1, ...
-sed -i 's/^>\([1-9]\)/>chr\1/g' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa
+sed -i 's/^>\([1-9]\)/>chr\1/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa
 
 # Same for GTF file
-sed -i 's/^[1-9]/chr&/g' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf
+sed -i 's/^[1-9]/chr&/g' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf
 
 # Remove contigs from fasta and gtf files
-sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.fa \
-  > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.wo_contigs.fa
+sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.fa \
+  > Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa
   
-sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf \
-  > Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.wo_contigs.gtf
+sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.gtf \
+  > Zea_mays.Zm-B73-REFERENCE-NAM5.0.51.wo_contigs.gtf
 ```
 
 ## Genome index
@@ -1500,7 +1536,7 @@ sed '/^scaf/d' Zea_mays.Zm-B73-REFERENCE-NAM-5.0.51.gtf \
 module load hisat2/2.1.0
 
 # Create reference genome with indexes having for prefix B73_NAM5
-hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM-5.0.dna.toplevel.wo_contigs.fa B73_NAM5
+hisat2-build Zea_mays.Zm-B73-REFERENCE-NAM5.0.dna.toplevel.wo_contigs.fa B73_NAM5
 ```
 
 ## Mapping
